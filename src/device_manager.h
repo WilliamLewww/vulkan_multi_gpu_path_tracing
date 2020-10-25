@@ -12,4 +12,7 @@ private:
 public:
   DeviceManager(VkInstance vulkanInstance);
   ~DeviceManager();
+
+  int getDeviceCount();
+  Device* getDevicePointerFromIndex(int x);
 };

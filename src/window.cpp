@@ -22,3 +22,7 @@ void Window::createWindowSurface(VkInstance vulkanInstance) {
     printf("created window surface\n");
   }
 }
+
+VkSurfaceKHR Window::getSurface() {
+  return this->surface;
+}

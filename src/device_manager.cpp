@@ -15,3 +15,11 @@ DeviceManager::DeviceManager(VkInstance vulkanInstance) {
 DeviceManager::~DeviceManager() {
 
 }
+
+int DeviceManager::getDeviceCount() {
+  return this->deviceList.size();
+}
+
+Device* DeviceManager::getDevicePointerFromIndex(int x) {
+  return &this->deviceList[x];
+}

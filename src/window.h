@@ -14,4 +14,6 @@ public:
 
   void setKeyCallback(void (*keyCallback)(GLFWwindow* window, int key, int scancode, int action, int mods));
   void createWindowSurface(VkInstance vulkanInstance);
+
+  VkSurfaceKHR getSurface();
 };
