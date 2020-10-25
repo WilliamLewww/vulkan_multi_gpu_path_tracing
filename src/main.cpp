@@ -1,8 +1,15 @@
 #define TINYOBJLOADER_IMPLEMENTATION
 
 #include "scene.h"
+#include "renderer.h"
 
 int main(void) {
   Scene* scene = new Scene("bedroom.obj");
-  return 0;
+  if (!scene->checkError()) {
+    return EXIT_FAILURE;
+  }
+
+  Renderer* renderer = new Renderer();
+
+  return EXIT_SUCCESS;
 }
