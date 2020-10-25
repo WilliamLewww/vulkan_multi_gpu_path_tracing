@@ -4,11 +4,11 @@
 #include <GLFW/glfw3.h>
 #include <vector>
 
-#include "physical_device.h"
+#include "device.h"
 
 class DeviceManager {
 private:
-  std::vector<PhysicalDevice> physicalDeviceList;
+  std::vector<Device> deviceList;
 public:
   DeviceManager(VkInstance vulkanInstance);
   ~DeviceManager();
