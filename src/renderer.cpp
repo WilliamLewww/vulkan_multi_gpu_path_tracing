@@ -8,6 +8,8 @@ Renderer::Renderer() {
   std::vector<const char*> instanceLayerList {"VK_LAYER_KHRONOS_validation"};
   this->vulkanInstance = new VulkanInstance("Vulkan Multi-GPU Ray Tracing", instanceExtensionList, instanceLayerList, true);
   this->window->createWindowSurface(this->vulkanInstance->getInstance());
+
+  this->deviceManager = new DeviceManager(this->vulkanInstance->getInstance());
 }
 
 Renderer::~Renderer() {
