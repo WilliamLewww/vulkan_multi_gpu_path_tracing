@@ -5,14 +5,18 @@
 #include <vector>
 
 #include "device.h"
+#include "display_device.h"
 
 class DeviceManager {
 private:
-  std::vector<Device> deviceList;
+  std::vector<Device*> deviceList;
+  DisplayDevice* displayDevice;
 public:
   DeviceManager(VkInstance vulkanInstance);
   ~DeviceManager();
 
   int getDeviceCount();
   Device* getDevicePointerFromIndex(int x);
+
+  DisplayDevice* getDisplayDevice();
 };

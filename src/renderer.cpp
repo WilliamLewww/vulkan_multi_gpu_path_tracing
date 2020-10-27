@@ -11,8 +11,8 @@ Renderer::Renderer() {
 
   this->deviceManager = new DeviceManager(this->vulkanInstance->getInstance());
 
-  Device* device = this->deviceManager->getDevicePointerFromIndex(0);
-  device->initializeQueues(this->window->getSurface());
+  DisplayDevice* displayDevice = this->deviceManager->getDisplayDevice();
+  displayDevice->initializeQueues(this->window->getSurface());
 
   std::vector<const char*> deviceExtensionList {
     VK_KHR_SWAPCHAIN_EXTENSION_NAME, 
@@ -25,8 +25,7 @@ Renderer::Renderer() {
     "VK_KHR_maintenance3",
     "VK_KHR_maintenance1"
   };
-
-  device->createLogicalDevice(deviceExtensionList);
+  displayDevice->createLogicalDevice(deviceExtensionList);
 }
 
 Renderer::~Renderer() {

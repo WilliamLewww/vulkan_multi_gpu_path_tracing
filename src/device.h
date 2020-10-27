@@ -8,7 +8,7 @@
 #include <stdio.h>
 
 class Device {
-private:
+protected:
   VkPhysicalDevice physicalDevice;
   VkPhysicalDeviceProperties physicalDeviceProperties;
   VkPhysicalDeviceFeatures physicalDeviceFeatures;
@@ -27,4 +27,5 @@ public:
 
   void initializeQueues(VkSurfaceKHR surface);
   void createLogicalDevice(std::vector<const char*> extensions);
+  void createSwapchain(VkSurfaceKHR surface);
 };

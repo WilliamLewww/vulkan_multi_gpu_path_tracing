@@ -8,7 +8,13 @@ DeviceManager::DeviceManager(VkInstance vulkanInstance) {
   vkEnumeratePhysicalDevices(vulkanInstance, &deviceCount, physicalDeviceList.data());
 
   for (int x = 0; x < deviceCount; x++) {
-    this->deviceList.push_back(Device(physicalDeviceList[x]));
+    if (x == 0) {
+      this->deviceList.push_back(new DisplayDevice(physicalDeviceList[x]));
+      this->displayDevice = (DisplayDevice*)this->deviceList[0];
+    }
+    else {
+      this->deviceList.push_back(new Device(physicalDeviceList[x]));
+    }
   }
 }
 
@@ -21,5 +27,9 @@ int DeviceManager::getDeviceCount() {
 }
 
 Device* DeviceManager::getDevicePointerFromIndex(int x) {
-  return &this->deviceList[x];
+  return this->deviceList[x];
+}
+
+DisplayDevice* DeviceManager::getDisplayDevice() {
+  return this->displayDevice;
 }
