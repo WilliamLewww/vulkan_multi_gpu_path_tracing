@@ -13,19 +13,21 @@ protected:
   VkPhysicalDeviceProperties physicalDeviceProperties;
   VkPhysicalDeviceFeatures physicalDeviceFeatures;
 
-  VkDevice logicalDevice;
-
   uint32_t graphicsQueueIndex;
   uint32_t presentQueueIndex;
   uint32_t computeQueueIndex;
   VkQueue graphicsQueue;
   VkQueue presentQueue;
   VkQueue computeQueue;
+
+  VkDevice logicalDevice;
+
+  VkCommandPool commandPool;
 public:
   Device(VkPhysicalDevice physicalDevice);
   ~Device();
 
   void initializeQueues(VkSurfaceKHR surface);
   void createLogicalDevice(std::vector<const char*> extensions);
-  void createSwapchain(VkSurfaceKHR surface);
+  void createCommandPool();
 };
