@@ -27,7 +27,7 @@ Renderer::Renderer() {
   };
   displayDevice->createLogicalDevice(deviceExtensionList);
   displayDevice->createSwapchain(this->window->getSurface());
-  displayDevice->createRenderPass();
+  displayDevice->createRenderPass(displayDevice->getSwapchainImageFormat());
   displayDevice->createCommandPool();
 }
 

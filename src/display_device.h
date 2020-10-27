@@ -10,12 +10,11 @@ private:
   VkFormat swapchainImageFormat;
   VkExtent2D swapchainExtent;
   std::vector<VkImageView> swapchainImageViewList;
-
-  VkRenderPass renderPass;
 public:
   DisplayDevice(VkPhysicalDevice physicalDevice);
   ~DisplayDevice();
 
+  VkFormat getSwapchainImageFormat();
+
   void createSwapchain(VkSurfaceKHR surface);
-  void createRenderPass();
 };
