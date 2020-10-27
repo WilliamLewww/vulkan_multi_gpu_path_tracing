@@ -11,7 +11,7 @@ Renderer::Renderer() {
 
   this->deviceManager = new DeviceManager(this->vulkanInstance->getInstance());
 
-  DisplayDevice* displayDevice = this->deviceManager->getDisplayDevice();
+  DisplayDevice* displayDevice = this->deviceManager->getDisplayDeviceAddress();
   displayDevice->initializeQueues(this->window->getSurface());
 
   std::vector<const char*> deviceExtensionList {

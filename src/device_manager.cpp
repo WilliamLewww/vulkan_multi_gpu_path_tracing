@@ -26,10 +26,10 @@ int DeviceManager::getDeviceCount() {
   return this->deviceList.size();
 }
 
-Device* DeviceManager::getDevicePointerFromIndex(int x) {
+Device* DeviceManager::getDeviceAddressFromIndex(int x) {
   return this->deviceList[x];
 }
 
-DisplayDevice* DeviceManager::getDisplayDevice() {
+DisplayDevice* DeviceManager::getDisplayDeviceAddress() {
   return this->displayDevice;
 }

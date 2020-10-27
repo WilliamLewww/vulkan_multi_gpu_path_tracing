@@ -16,7 +16,7 @@ public:
   ~DeviceManager();
 
   int getDeviceCount();
-  Device* getDevicePointerFromIndex(int x);
+  Device* getDeviceAddressFromIndex(int x);
 
-  DisplayDevice* getDisplayDevice();
+  DisplayDevice* getDisplayDeviceAddress();
 };
