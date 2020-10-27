@@ -15,9 +15,9 @@ protected:
 
   VkDevice logicalDevice;
 
-  int graphicsQueueIndex;
-  int presentQueueIndex;
-  int computeQueueIndex;
+  uint32_t graphicsQueueIndex;
+  uint32_t presentQueueIndex;
+  uint32_t computeQueueIndex;
   VkQueue graphicsQueue;
   VkQueue presentQueue;
   VkQueue computeQueue;

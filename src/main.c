@@ -67,7 +67,7 @@ struct VulkanApplication {
   VkImage* swapchainImages;
   VkFormat swapchainImageFormat;
   VkExtent2D swapchainExtent;
-  VkImageView* swapchainImageViews;  
+  VkImageView* swapchainImageViews;
   VkFramebuffer* swapchainFramebuffers;
  
   VkRenderPass renderPass; 

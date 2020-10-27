@@ -26,6 +26,7 @@ Renderer::Renderer() {
     "VK_KHR_maintenance1"
   };
   displayDevice->createLogicalDevice(deviceExtensionList);
+  displayDevice->createSwapchain(this->window->getSurface());
 }
 
 Renderer::~Renderer() {
