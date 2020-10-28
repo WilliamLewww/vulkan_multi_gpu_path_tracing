@@ -30,6 +30,7 @@ Renderer::Renderer() {
   displayDevice->createRenderPass();
   displayDevice->createCommandPool();
   displayDevice->createDepthResource();
+  displayDevice->createFramebuffers();
 }
 
 Renderer::~Renderer() {

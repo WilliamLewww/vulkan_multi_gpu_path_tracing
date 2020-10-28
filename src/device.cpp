@@ -328,6 +328,22 @@ void Device::createFramebuffers() {
   this->framebufferList.resize(this->swapchainImageCount);
 
   for (int x = 0; x < this->swapchainImageCount; x++) {
+    VkImageView attachments[2] = {
+      this->swapchainImageViewList[x],
+      this->depthImageView
+    };
 
+    VkFramebufferCreateInfo framebufferCreateInfo = {};
+    framebufferCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+    framebufferCreateInfo.renderPass = this->renderPass;
+    framebufferCreateInfo.attachmentCount = 2;
+    framebufferCreateInfo.pAttachments = attachments;
+    framebufferCreateInfo.width = this->swapchainExtent.width;
+    framebufferCreateInfo.height = this->swapchainExtent.height;
+    framebufferCreateInfo.layers = 1;
+
+    if (vkCreateFramebuffer(this->logicalDevice, &framebufferCreateInfo, NULL, &this->framebufferList[x]) == VK_SUCCESS) {
+      printf("created swapchain framebuffer #%d\n", x);
+    }
   }
 }
