@@ -11,7 +11,7 @@ Renderer::Renderer() {
 
   this->deviceManager = new DeviceManager(this->vulkanInstance->getInstance());
 
-  DisplayDevice* displayDevice = this->deviceManager->getDisplayDeviceAddress();
+  Device* displayDevice = this->deviceManager->getDisplayDeviceAddress();
   displayDevice->initializeQueues(this->window->getSurface());
 
   std::vector<const char*> deviceExtensionList {
@@ -27,8 +27,9 @@ Renderer::Renderer() {
   };
   displayDevice->createLogicalDevice(deviceExtensionList);
   displayDevice->createSwapchain(this->window->getSurface());
-  displayDevice->createRenderPass(displayDevice->getSwapchainImageFormat());
+  displayDevice->createRenderPass();
   displayDevice->createCommandPool();
+  displayDevice->createDepthResource();
 }
 
 Renderer::~Renderer() {

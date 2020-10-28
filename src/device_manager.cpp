@@ -9,8 +9,8 @@ DeviceManager::DeviceManager(VkInstance vulkanInstance) {
 
   for (int x = 0; x < deviceCount; x++) {
     if (x == 0) {
-      this->deviceList.push_back(new DisplayDevice(physicalDeviceList[x]));
-      this->displayDevice = (DisplayDevice*)this->deviceList[0];
+      this->deviceList.push_back(new Device(physicalDeviceList[x]));
+      this->displayDevice = this->deviceList[0];
     }
     else {
       this->deviceList.push_back(new Device(physicalDeviceList[x]));
@@ -30,6 +30,6 @@ Device* DeviceManager::getDeviceAddressFromIndex(int x) {
   return this->deviceList[x];
 }
 
-DisplayDevice* DeviceManager::getDisplayDeviceAddress() {
+Device* DeviceManager::getDisplayDeviceAddress() {
   return this->displayDevice;
 }

@@ -23,11 +23,21 @@ protected:
 
   VkDevice logicalDevice;
   VkCommandPool commandPool;
+
+  uint32_t swapchainImageCount;
+  VkSwapchainKHR swapchain;
+  std::vector<VkImage> swapchainImageList;
+  VkFormat swapchainImageFormat;
+  VkExtent2D swapchainExtent;
+  std::vector<VkImageView> swapchainImageViewList;
+
   VkRenderPass renderPass;
 
   VkImage depthImage;
   VkDeviceMemory depthImageMemory;
   VkImageView depthImageView;
+
+  std::vector<VkFramebuffer> framebufferList;
 public:
   Device(VkPhysicalDevice physicalDevice);
   ~Device();
@@ -37,6 +47,8 @@ public:
   void initializeQueues(VkSurfaceKHR surface);
   void createLogicalDevice(std::vector<const char*> extensions);
   void createCommandPool();
-  void createRenderPass(VkFormat format);
-  void createDepthResource(uint32_t width, uint32_t height);
+  void createSwapchain(VkSurfaceKHR surface);
+  void createRenderPass();
+  void createDepthResource();
+  void createFramebuffers();
 };
