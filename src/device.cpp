@@ -88,6 +88,40 @@ void Device::initializeQueues(VkSurfaceKHR surface) {
   }
 }
 
+void Device::createBuffer(VkDeviceSize size, VkBufferUsageFlags usageFlags, VkMemoryPropertyFlags propertyFlags, VkBuffer* buffer, VkDeviceMemory* bufferMemory) {
+  VkBufferCreateInfo bufferCreateInfo = {};
+  bufferCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+  bufferCreateInfo.size = size;
+  bufferCreateInfo.usage = usageFlags;
+  bufferCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+  if (vkCreateBuffer(this->logicalDevice, &bufferCreateInfo, NULL, buffer) == VK_SUCCESS) {
+    printf("created buffer\n");
+  }
+
+  VkMemoryRequirements memoryRequirements;
+  vkGetBufferMemoryRequirements(this->logicalDevice, *buffer, &memoryRequirements);
+
+  VkMemoryAllocateInfo memoryAllocateInfo = {};
+  memoryAllocateInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+  memoryAllocateInfo.allocationSize = memoryRequirements.size;
+
+  uint32_t memoryTypeIndex = -1;
+  for (int x = 0; x < this->physicalDeviceMemoryProperties.memoryTypeCount; x++) {
+    if ((memoryRequirements.memoryTypeBits & (1 << x)) && (this->physicalDeviceMemoryProperties.memoryTypes[x].propertyFlags & propertyFlags) == propertyFlags) {
+      memoryTypeIndex = x;
+      break;
+    }
+  }
+  memoryAllocateInfo.memoryTypeIndex = memoryTypeIndex;
+
+  if (vkAllocateMemory(this->logicalDevice, &memoryAllocateInfo, NULL, bufferMemory) == VK_SUCCESS) {
+    printf("allocated buffer memory\n");
+  }
+
+  vkBindBufferMemory(this->logicalDevice, *buffer, *bufferMemory, 0);
+}
+
 void Device::createLogicalDevice(std::vector<const char*> extensions) {
   float queuePriority = 1.0f;
   uint32_t deviceQueueCreateInfoCount = 3;
