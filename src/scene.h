@@ -20,4 +20,10 @@ public:
   ~Scene();
 
   bool checkError();
+
+  uint32_t getVertexCount();
+  std::vector<float> getVertices();
+
+  uint32_t getTotalIndexCount();
+  tinyobj::index_t getTotalIndex(uint32_t index);
 };

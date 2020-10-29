@@ -6,6 +6,9 @@
 #include <GLFW/glfw3.h>
 #include <vector>
 #include <stdio.h>
+#include <string.h>
+
+#include "scene.h"
 
 class Device {
 protected:
@@ -38,12 +41,19 @@ protected:
   VkImageView depthImageView;
 
   std::vector<VkFramebuffer> framebufferList;
+
+  VkBuffer vertexPositionBuffer;
+  VkDeviceMemory vertexPositionBufferMemory;
+
+  VkBuffer indexBuffer;
+  VkDeviceMemory indexBufferMemory;
 public:
   Device(VkPhysicalDevice physicalDevice);
   ~Device();
 
   void createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usageFlags, VkMemoryPropertyFlags propertyFlags, VkImage* image, VkDeviceMemory* imageMemory);
   void createBuffer(VkDeviceSize size, VkBufferUsageFlags usageFlags, VkMemoryPropertyFlags propertyFlags, VkBuffer* buffer, VkDeviceMemory* bufferMemory);
+  void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
 
   void initializeQueues(VkSurfaceKHR surface);
   void createLogicalDevice(std::vector<const char*> extensions);
@@ -52,4 +62,7 @@ public:
   void createRenderPass();
   void createDepthResource();
   void createFramebuffers();
+
+  void createVertexBuffer(Scene scene);
+  void createIndexBuffer(Scene scene);
 };

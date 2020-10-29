@@ -55,39 +55,6 @@ void Device::createImage(uint32_t width, uint32_t height, VkFormat format, VkIma
   vkBindImageMemory(this->logicalDevice, *image, *imageMemory, 0);
 }
 
-void Device::initializeQueues(VkSurfaceKHR surface) {
-  uint32_t queueFamilyCount = 0;
-  vkGetPhysicalDeviceQueueFamilyProperties(this->physicalDevice, &queueFamilyCount, NULL);
-
-  std::vector<VkQueueFamilyProperties> queueFamilyPropertiesList(queueFamilyCount);
-  vkGetPhysicalDeviceQueueFamilyProperties(this->physicalDevice, &queueFamilyCount, queueFamilyPropertiesList.data());
-
-  this->graphicsQueueIndex = -1;
-  this->presentQueueIndex = -1;
-  this->computeQueueIndex = -1;
-
-  for (int x = 0; x < queueFamilyCount; x++) {
-    if (this->graphicsQueueIndex == -1 && queueFamilyPropertiesList[x].queueFlags & VK_QUEUE_GRAPHICS_BIT) {
-      this->graphicsQueueIndex = x;
-    }
-
-    if (this->computeQueueIndex == -1 && queueFamilyPropertiesList[x].queueFlags & VK_QUEUE_COMPUTE_BIT) {
-      this->computeQueueIndex = x;
-    }
-
-    VkBool32 isPresentSupported = 0;
-    vkGetPhysicalDeviceSurfaceSupportKHR(this->physicalDevice, x, surface, &isPresentSupported);
-    
-    if (this->presentQueueIndex == -1 && isPresentSupported) {
-      this->presentQueueIndex = x;
-    }
-  
-    if (this->graphicsQueueIndex != -1 && this->presentQueueIndex != -1 && this->computeQueueIndex != -1) {
-      break;
-    }
-  }
-}
-
 void Device::createBuffer(VkDeviceSize size, VkBufferUsageFlags usageFlags, VkMemoryPropertyFlags propertyFlags, VkBuffer* buffer, VkDeviceMemory* bufferMemory) {
   VkBufferCreateInfo bufferCreateInfo = {};
   bufferCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -120,6 +87,70 @@ void Device::createBuffer(VkDeviceSize size, VkBufferUsageFlags usageFlags, VkMe
   }
 
   vkBindBufferMemory(this->logicalDevice, *buffer, *bufferMemory, 0);
+}
+
+void Device::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) {
+  VkCommandBufferAllocateInfo bufferAllocateInfo = {};
+  bufferAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+  bufferAllocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+  bufferAllocateInfo.commandPool = this->commandPool;
+  bufferAllocateInfo.commandBufferCount = 1;
+
+  VkCommandBuffer commandBuffer;
+  vkAllocateCommandBuffers(this->logicalDevice, &bufferAllocateInfo, &commandBuffer);
+  
+  VkCommandBufferBeginInfo commandBufferBeginInfo = {};
+  commandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+  commandBufferBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+  
+  vkBeginCommandBuffer(commandBuffer, &commandBufferBeginInfo);
+  VkBufferCopy bufferCopy = {};
+  bufferCopy.size = size;
+  vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &bufferCopy);
+  vkEndCommandBuffer(commandBuffer);
+
+  VkSubmitInfo submitInfo = {};
+  submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+  submitInfo.commandBufferCount = 1;
+  submitInfo.pCommandBuffers = &commandBuffer;
+
+  vkQueueSubmit(this->graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
+  vkQueueWaitIdle(this->graphicsQueue);
+
+  vkFreeCommandBuffers(this->logicalDevice, this->commandPool, 1, &commandBuffer);
+}
+
+void Device::initializeQueues(VkSurfaceKHR surface) {
+  uint32_t queueFamilyCount = 0;
+  vkGetPhysicalDeviceQueueFamilyProperties(this->physicalDevice, &queueFamilyCount, NULL);
+
+  std::vector<VkQueueFamilyProperties> queueFamilyPropertiesList(queueFamilyCount);
+  vkGetPhysicalDeviceQueueFamilyProperties(this->physicalDevice, &queueFamilyCount, queueFamilyPropertiesList.data());
+
+  this->graphicsQueueIndex = -1;
+  this->presentQueueIndex = -1;
+  this->computeQueueIndex = -1;
+
+  for (int x = 0; x < queueFamilyCount; x++) {
+    if (this->graphicsQueueIndex == -1 && queueFamilyPropertiesList[x].queueFlags & VK_QUEUE_GRAPHICS_BIT) {
+      this->graphicsQueueIndex = x;
+    }
+
+    if (this->computeQueueIndex == -1 && queueFamilyPropertiesList[x].queueFlags & VK_QUEUE_COMPUTE_BIT) {
+      this->computeQueueIndex = x;
+    }
+
+    VkBool32 isPresentSupported = 0;
+    vkGetPhysicalDeviceSurfaceSupportKHR(this->physicalDevice, x, surface, &isPresentSupported);
+    
+    if (this->presentQueueIndex == -1 && isPresentSupported) {
+      this->presentQueueIndex = x;
+    }
+  
+    if (this->graphicsQueueIndex != -1 && this->presentQueueIndex != -1 && this->computeQueueIndex != -1) {
+      break;
+    }
+  }
 }
 
 void Device::createLogicalDevice(std::vector<const char*> extensions) {
@@ -381,3 +412,96 @@ void Device::createFramebuffers() {
     }
   }
 }
+
+void Device::createVertexBuffer(Scene scene) {
+  VkDeviceSize positionBufferSize = sizeof(float) * scene.getVertexCount() * 3;
+  
+  VkBuffer positionStagingBuffer;
+  VkDeviceMemory positionStagingBufferMemory;
+  createBuffer(positionBufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &positionStagingBuffer, &positionStagingBufferMemory);
+
+  void* positionData;
+  vkMapMemory(this->logicalDevice, positionStagingBufferMemory, 0, positionBufferSize, 0, &positionData);
+  memcpy(positionData, scene.getVertices().data(), positionBufferSize);
+  vkUnmapMemory(this->logicalDevice, positionStagingBufferMemory);
+
+  createBuffer(positionBufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &this->vertexPositionBuffer, &this->vertexPositionBufferMemory);  
+
+  copyBuffer(positionStagingBuffer, this->vertexPositionBuffer, positionBufferSize);
+
+  vkDestroyBuffer(this->logicalDevice, positionStagingBuffer, NULL);
+  vkFreeMemory(this->logicalDevice, positionStagingBufferMemory, NULL);
+}
+
+void Device::createIndexBuffer(Scene scene) {
+  VkDeviceSize bufferSize = sizeof(uint32_t) * scene.getTotalIndexCount();
+
+  std::vector<uint32_t> positionIndexList(scene.getTotalIndexCount());
+  for (int x = 0; x < scene.getTotalIndexCount(); x++) {
+    positionIndexList[x] = scene.getTotalIndex(x).vertex_index;
+  }
+  
+  VkBuffer stagingBuffer;
+  VkDeviceMemory stagingBufferMemory;
+  createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &stagingBuffer, &stagingBufferMemory);
+
+  void* data;
+  vkMapMemory(this->logicalDevice, stagingBufferMemory, 0, bufferSize, 0, &data);
+  memcpy(data, positionIndexList.data(), bufferSize);
+  vkUnmapMemory(this->logicalDevice, stagingBufferMemory);
+
+  createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &this->indexBuffer, &this->indexBufferMemory);
+
+  copyBuffer(stagingBuffer, this->indexBuffer, bufferSize);
+  
+  vkDestroyBuffer(this->logicalDevice, stagingBuffer, NULL);
+  vkFreeMemory(this->logicalDevice, stagingBufferMemory, NULL);
+}
+
+// void Device::createMaterialBuffers(Scene scene) {
+//   VkDeviceSize indexBufferSize = sizeof(uint32_t) * scene->attributes.num_face_num_verts;
+
+//   VkBuffer indexStagingBuffer;
+//   VkDeviceMemory indexStagingBufferMemory;
+//   createBuffer(app, indexBufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &indexStagingBuffer, &indexStagingBufferMemory);
+
+//   void* indexData;
+//   vkMapMemory(app->logicalDevice, indexStagingBufferMemory, 0, indexBufferSize, 0, &indexData);
+//   memcpy(indexData, scene->attributes.material_ids, indexBufferSize);
+//   vkUnmapMemory(app->logicalDevice, indexStagingBufferMemory);
+
+//   createBuffer(app, indexBufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &app->materialIndexBuffer, &app->materialIndexBufferMemory);
+
+//   copyBuffer(app, indexStagingBuffer, app->materialIndexBuffer, indexBufferSize);
+  
+//   vkDestroyBuffer(app->logicalDevice, indexStagingBuffer, NULL);
+//   vkFreeMemory(app->logicalDevice, indexStagingBufferMemory, NULL);
+
+//   VkDeviceSize materialBufferSize = sizeof(struct Material) * scene->numMaterials;
+
+//   struct Material* materials = (struct Material*)malloc(materialBufferSize);
+//   for (int x = 0; x < scene->numMaterials; x++) {
+//     memcpy(materials[x].ambient, scene->materials[x].ambient, sizeof(float) * 3);
+//     memcpy(materials[x].diffuse, scene->materials[x].diffuse, sizeof(float) * 3);
+//     memcpy(materials[x].specular, scene->materials[x].specular, sizeof(float) * 3);
+//     memcpy(materials[x].emission, scene->materials[x].emission, sizeof(float) * 3);
+//   }
+
+//   VkBuffer materialStagingBuffer;
+//   VkDeviceMemory materialStagingBufferMemory;
+//   createBuffer(app, materialBufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &materialStagingBuffer, &materialStagingBufferMemory);
+
+//   void* materialData;
+//   vkMapMemory(app->logicalDevice, materialStagingBufferMemory, 0, materialBufferSize, 0, &materialData);
+//   memcpy(materialData, materials, materialBufferSize);
+//   vkUnmapMemory(app->logicalDevice, materialStagingBufferMemory);
+
+//   createBuffer(app, materialBufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &app->materialBuffer, &app->materialBufferMemory);
+
+//   copyBuffer(app, materialStagingBuffer, app->materialBuffer, materialBufferSize);
+  
+//   vkDestroyBuffer(app->logicalDevice, materialStagingBuffer, NULL);
+//   vkFreeMemory(app->logicalDevice, materialStagingBufferMemory, NULL);
+
+//   free(materials);
+// }
