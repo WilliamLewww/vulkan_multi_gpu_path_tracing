@@ -14,6 +14,6 @@ private:
   VulkanInstance* vulkanInstance;
   DeviceManager* deviceManager;
 public:
-  Renderer();
+  Renderer(Scene* scene);
   ~Renderer();
 };

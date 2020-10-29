@@ -38,7 +38,7 @@ std::vector<float> Scene::getVertices() {
 uint32_t Scene::getTotalIndexCount() {
   uint32_t indexCount = 0;
   for (int x = 0; x < this->shapes.size(); x++) {
-    indexCount + this->shapes[x].mesh.indices.size();
+    indexCount += this->shapes[x].mesh.indices.size();
   }
 
   return indexCount;

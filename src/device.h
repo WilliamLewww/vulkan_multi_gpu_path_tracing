@@ -63,6 +63,6 @@ public:
   void createDepthResource();
   void createFramebuffers();
 
-  void createVertexBuffer(Scene scene);
-  void createIndexBuffer(Scene scene);
+  void createVertexBuffer(Scene* scene);
+  void createIndexBuffer(Scene* scene);
 };

@@ -1,6 +1,6 @@
 #include "renderer.h"
 
-Renderer::Renderer() {
+Renderer::Renderer(Scene* scene) {
   this->window = new Window(800, 600);
   this->window->setKeyCallback(Input::keyCallback);
 
@@ -31,6 +31,9 @@ Renderer::Renderer() {
   displayDevice->createCommandPool();
   displayDevice->createDepthResource();
   displayDevice->createFramebuffers();
+
+  displayDevice->createVertexBuffer(scene);
+  displayDevice->createIndexBuffer(scene);
 }
 
 Renderer::~Renderer() {

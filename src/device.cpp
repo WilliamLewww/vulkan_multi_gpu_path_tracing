@@ -413,8 +413,8 @@ void Device::createFramebuffers() {
   }
 }
 
-void Device::createVertexBuffer(Scene scene) {
-  VkDeviceSize positionBufferSize = sizeof(float) * scene.getVertexCount() * 3;
+void Device::createVertexBuffer(Scene* scene) {
+  VkDeviceSize positionBufferSize = sizeof(float) * scene->getVertexCount();
   
   VkBuffer positionStagingBuffer;
   VkDeviceMemory positionStagingBufferMemory;
@@ -422,7 +422,7 @@ void Device::createVertexBuffer(Scene scene) {
 
   void* positionData;
   vkMapMemory(this->logicalDevice, positionStagingBufferMemory, 0, positionBufferSize, 0, &positionData);
-  memcpy(positionData, scene.getVertices().data(), positionBufferSize);
+  memcpy(positionData, scene->getVertices().data(), positionBufferSize);
   vkUnmapMemory(this->logicalDevice, positionStagingBufferMemory);
 
   createBuffer(positionBufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &this->vertexPositionBuffer, &this->vertexPositionBufferMemory);  
@@ -433,12 +433,12 @@ void Device::createVertexBuffer(Scene scene) {
   vkFreeMemory(this->logicalDevice, positionStagingBufferMemory, NULL);
 }
 
-void Device::createIndexBuffer(Scene scene) {
-  VkDeviceSize bufferSize = sizeof(uint32_t) * scene.getTotalIndexCount();
+void Device::createIndexBuffer(Scene* scene) {
+  VkDeviceSize bufferSize = sizeof(uint32_t) * scene->getTotalIndexCount();
 
-  std::vector<uint32_t> positionIndexList(scene.getTotalIndexCount());
-  for (int x = 0; x < scene.getTotalIndexCount(); x++) {
-    positionIndexList[x] = scene.getTotalIndex(x).vertex_index;
+  std::vector<uint32_t> positionIndexList(scene->getTotalIndexCount());
+  for (int x = 0; x < scene->getTotalIndexCount(); x++) {
+    positionIndexList[x] = scene->getTotalIndex(x).vertex_index;
   }
   
   VkBuffer stagingBuffer;

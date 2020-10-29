@@ -9,7 +9,7 @@ int main(void) {
     return EXIT_FAILURE;
   }
 
-  Renderer* renderer = new Renderer();
+  Renderer* renderer = new Renderer(scene);
 
   return EXIT_SUCCESS;
 }
