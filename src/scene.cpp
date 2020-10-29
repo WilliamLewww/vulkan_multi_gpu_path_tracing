@@ -56,3 +56,33 @@ tinyobj::index_t Scene::getTotalIndex(uint32_t index) {
 
   return {-1, -1, -1};
 }
+
+uint32_t Scene::getTotalMaterialIndexCount() {
+  uint32_t indexCount = 0;
+  for (int x = 0; x < this->shapes.size(); x++) {
+    indexCount += this->shapes[x].mesh.material_ids.size();
+  }
+
+  return indexCount;
+}
+
+int Scene::getTotalMaterialIndex(uint32_t index) {
+  for (int x = 0; x < this->shapes.size(); x++) {
+    if (index >= this->shapes[x].mesh.material_ids.size()) {
+      index -= this->shapes[x].mesh.material_ids.size();
+    }
+    else {
+      return this->shapes[x].mesh.material_ids[index];
+    }
+  }
+
+  return -1;
+}
+
+uint32_t Scene::getMaterialCount() {
+  return this->materials.size();
+}
+
+tinyobj::material_t Scene::getMaterial(uint32_t index) {
+  return this->materials[index];
+}

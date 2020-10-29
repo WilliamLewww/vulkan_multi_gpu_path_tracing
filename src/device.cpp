@@ -458,50 +458,53 @@ void Device::createIndexBuffer(Scene* scene) {
   vkFreeMemory(this->logicalDevice, stagingBufferMemory, NULL);
 }
 
-// void Device::createMaterialBuffers(Scene scene) {
-//   VkDeviceSize indexBufferSize = sizeof(uint32_t) * scene->attributes.num_face_num_verts;
+void Device::createMaterialBuffers(Scene* scene) {
+  VkDeviceSize indexBufferSize = sizeof(uint32_t) * scene->getTotalMaterialIndexCount();
 
-//   VkBuffer indexStagingBuffer;
-//   VkDeviceMemory indexStagingBufferMemory;
-//   createBuffer(app, indexBufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &indexStagingBuffer, &indexStagingBufferMemory);
+  std::vector<int> materialIndexList(scene->getTotalMaterialIndexCount());
+  for (int x = 0; x < scene->getTotalMaterialIndexCount(); x++) {
+    materialIndexList[x] = scene->getTotalMaterialIndex(x);
+  }
 
-//   void* indexData;
-//   vkMapMemory(app->logicalDevice, indexStagingBufferMemory, 0, indexBufferSize, 0, &indexData);
-//   memcpy(indexData, scene->attributes.material_ids, indexBufferSize);
-//   vkUnmapMemory(app->logicalDevice, indexStagingBufferMemory);
+  VkBuffer indexStagingBuffer;
+  VkDeviceMemory indexStagingBufferMemory;
+  createBuffer(indexBufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &indexStagingBuffer, &indexStagingBufferMemory);
 
-//   createBuffer(app, indexBufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &app->materialIndexBuffer, &app->materialIndexBufferMemory);
+  void* indexData;
+  vkMapMemory(this->logicalDevice, indexStagingBufferMemory, 0, indexBufferSize, 0, &indexData);
+  memcpy(indexData, materialIndexList.data(), indexBufferSize);
+  vkUnmapMemory(this->logicalDevice, indexStagingBufferMemory);
 
-//   copyBuffer(app, indexStagingBuffer, app->materialIndexBuffer, indexBufferSize);
+  createBuffer(indexBufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &this->materialIndexBuffer, &this->materialIndexBufferMemory);
+
+  copyBuffer(indexStagingBuffer, this->materialIndexBuffer, indexBufferSize);
   
-//   vkDestroyBuffer(app->logicalDevice, indexStagingBuffer, NULL);
-//   vkFreeMemory(app->logicalDevice, indexStagingBufferMemory, NULL);
+  vkDestroyBuffer(this->logicalDevice, indexStagingBuffer, NULL);
+  vkFreeMemory(this->logicalDevice, indexStagingBufferMemory, NULL);
 
-//   VkDeviceSize materialBufferSize = sizeof(struct Material) * scene->numMaterials;
+  VkDeviceSize materialBufferSize = sizeof(struct Material) * scene->getMaterialCount();
 
-//   struct Material* materials = (struct Material*)malloc(materialBufferSize);
-//   for (int x = 0; x < scene->numMaterials; x++) {
-//     memcpy(materials[x].ambient, scene->materials[x].ambient, sizeof(float) * 3);
-//     memcpy(materials[x].diffuse, scene->materials[x].diffuse, sizeof(float) * 3);
-//     memcpy(materials[x].specular, scene->materials[x].specular, sizeof(float) * 3);
-//     memcpy(materials[x].emission, scene->materials[x].emission, sizeof(float) * 3);
-//   }
+  std::vector<Material> materialList(scene->getMaterialCount());
+  for (int x = 0; x < scene->getMaterialCount(); x++) {
+    memcpy(materialList[x].ambient, scene->getMaterial(x).ambient, sizeof(float) * 3);
+    memcpy(materialList[x].diffuse, scene->getMaterial(x).diffuse, sizeof(float) * 3);
+    memcpy(materialList[x].specular, scene->getMaterial(x).specular, sizeof(float) * 3);
+    memcpy(materialList[x].emission, scene->getMaterial(x).emission, sizeof(float) * 3);
+  }
 
-//   VkBuffer materialStagingBuffer;
-//   VkDeviceMemory materialStagingBufferMemory;
-//   createBuffer(app, materialBufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &materialStagingBuffer, &materialStagingBufferMemory);
+  VkBuffer materialStagingBuffer;
+  VkDeviceMemory materialStagingBufferMemory;
+  createBuffer(materialBufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &materialStagingBuffer, &materialStagingBufferMemory);
 
-//   void* materialData;
-//   vkMapMemory(app->logicalDevice, materialStagingBufferMemory, 0, materialBufferSize, 0, &materialData);
-//   memcpy(materialData, materials, materialBufferSize);
-//   vkUnmapMemory(app->logicalDevice, materialStagingBufferMemory);
+  void* materialData;
+  vkMapMemory(this->logicalDevice, materialStagingBufferMemory, 0, materialBufferSize, 0, &materialData);
+  memcpy(materialData, materialList.data(), materialBufferSize);
+  vkUnmapMemory(this->logicalDevice, materialStagingBufferMemory);
 
-//   createBuffer(app, materialBufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &app->materialBuffer, &app->materialBufferMemory);
+  createBuffer(materialBufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &this->materialBuffer, &this->materialBufferMemory);
 
-//   copyBuffer(app, materialStagingBuffer, app->materialBuffer, materialBufferSize);
+  copyBuffer(materialStagingBuffer, this->materialBuffer, materialBufferSize);
   
-//   vkDestroyBuffer(app->logicalDevice, materialStagingBuffer, NULL);
-//   vkFreeMemory(app->logicalDevice, materialStagingBufferMemory, NULL);
-
-//   free(materials);
-// }
+  vkDestroyBuffer(this->logicalDevice, materialStagingBuffer, NULL);
+  vkFreeMemory(this->logicalDevice, materialStagingBufferMemory, NULL);
+}

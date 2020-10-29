@@ -34,6 +34,7 @@ Renderer::Renderer(Scene* scene) {
 
   displayDevice->createVertexBuffer(scene);
   displayDevice->createIndexBuffer(scene);
+  displayDevice->createMaterialBuffers(scene);
 }
 
 Renderer::~Renderer() {

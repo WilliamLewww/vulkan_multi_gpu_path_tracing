@@ -47,6 +47,12 @@ protected:
 
   VkBuffer indexBuffer;
   VkDeviceMemory indexBufferMemory;
+
+  VkBuffer materialIndexBuffer;
+  VkDeviceMemory materialIndexBufferMemory;
+
+  VkBuffer materialBuffer;
+  VkDeviceMemory materialBufferMemory;
 public:
   Device(VkPhysicalDevice physicalDevice);
   ~Device();
@@ -65,4 +71,5 @@ public:
 
   void createVertexBuffer(Scene* scene);
   void createIndexBuffer(Scene* scene);
+  void createMaterialBuffers(Scene* scene);
 };
