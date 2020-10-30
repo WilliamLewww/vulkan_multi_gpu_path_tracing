@@ -1414,7 +1414,7 @@ void Device::createCommandBuffers(Scene* scene) {
     vkCmdBindDescriptorSets(this->commandBufferList[x], VK_PIPELINE_BIND_POINT_GRAPHICS, this->pipelineLayout, 0, 1, &this->rayTraceDescriptorSet, 0, 0);    
     vkCmdBindDescriptorSets(this->commandBufferList[x], VK_PIPELINE_BIND_POINT_GRAPHICS, this->pipelineLayout, 1, 1, &this->materialDescriptorSet, 0, 0);
 
-    vkCmdDrawIndexed(this->commandBufferList[x], scene->getPrimitiveCount(), 1, 0, 0, 0);
+    vkCmdDrawIndexed(this->commandBufferList[x], scene->getPrimitiveCount() * 3, 1, 0, 0, 0);
     vkCmdEndRenderPass(this->commandBufferList[x]);
 
     { 
