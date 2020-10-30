@@ -11,6 +11,10 @@ void Input::keyCallback(GLFWwindow* window, int key, int scancode, int action, i
   }
 }
 
+void Input::cursorPositionCallback(GLFWwindow* window, double xpos, double ypos) {
+
+}
+
 bool Input::checkKeyDown(int key) {
   return std::find(keyDownList.begin(), keyDownList.end(), key) != keyDownList.end();
 }

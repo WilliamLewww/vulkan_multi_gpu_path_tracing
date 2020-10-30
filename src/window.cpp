@@ -17,6 +17,10 @@ void Window::setKeyCallback(void (*keyCallback)(GLFWwindow* window, int key, int
   glfwSetKeyCallback(this->window, keyCallback);
 }
 
+void Window::setCursorPositionCallback(void (*cursorPositionCallback)(GLFWwindow* window, double xpos, double ypos)) {
+  glfwSetCursorPosCallback(this->window, cursorPositionCallback);
+}
+
 void Window::createWindowSurface(VkInstance vulkanInstance) {
   if (glfwCreateWindowSurface(vulkanInstance, this->window, NULL, &this->surface) == VK_SUCCESS) {
     printf("created window surface\n");

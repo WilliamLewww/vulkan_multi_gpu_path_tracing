@@ -13,6 +13,7 @@ public:
   ~Window();
 
   void setKeyCallback(void (*keyCallback)(GLFWwindow* window, int key, int scancode, int action, int mods));
+  void setCursorPositionCallback(void (*cursorPositionCallback)(GLFWwindow* window, double xpos, double ypos));
   void createWindowSurface(VkInstance vulkanInstance);
 
   GLFWwindow* getWindow();
