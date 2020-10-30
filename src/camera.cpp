@@ -32,3 +32,53 @@ Camera::~Camera() {
 CameraUniform Camera::getUniform() {
   return this->uniform;
 }
+
+void Camera::update() {
+  int isCameraMoved = 0;
+
+  if (Input::checkKeyDown(GLFW_KEY_W)) {
+    this->position[0] += cos(-this->yaw - (M_PI / 2)) * 0.1f;
+    this->position[2] += sin(-this->yaw - (M_PI / 2)) * 0.1f;
+    isCameraMoved = 1;
+  }
+  if (Input::checkKeyDown(GLFW_KEY_S)) {
+    this->position[0] -= cos(-this->yaw - (M_PI / 2)) * 0.1f;
+    this->position[2] -= sin(-this->yaw - (M_PI / 2)) * 0.1f;
+    isCameraMoved = 1;
+  }
+  if (Input::checkKeyDown(GLFW_KEY_A)) {
+    this->position[0] -= cos(-this->yaw) * 0.1f;
+    this->position[2] -= sin(-this->yaw) * 0.1f;
+    isCameraMoved = 1;
+  }
+  if (Input::checkKeyDown(GLFW_KEY_D)) {
+    this->position[0] += cos(-this->yaw) * 0.1f;
+    this->position[2] += sin(-this->yaw) * 0.1f;
+    isCameraMoved = 1;
+  }
+  if (Input::checkKeyDown(GLFW_KEY_SPACE)) {
+    this->position[1] += 0.1f;
+    isCameraMoved = 1;
+  }
+  if (Input::checkKeyDown(GLFW_KEY_LEFT_CONTROL)) {
+    this->position[1] -= 0.1f;
+    isCameraMoved = 1;
+  }
+
+  this->uniform.position[0] = this->position[0]; this->uniform.position[1] = this->position[1]; this->uniform.position[2] = this->position[2];
+
+  this->uniform.forward[0] = cosf(this->pitch) * cosf(-this->yaw - (M_PI / 2.0));
+  this->uniform.forward[1] = sinf(this->pitch);
+  this->uniform.forward[2] = cosf(this->pitch) * sinf(-this->yaw - (M_PI / 2.0));
+
+  this->uniform.right[0] = this->uniform.forward[1] * this->uniform.up[2] - this->uniform.forward[2] * this->uniform.up[1];
+  this->uniform.right[1] = this->uniform.forward[2] * this->uniform.up[0] - this->uniform.forward[0] * this->uniform.up[2];
+  this->uniform.right[2] = this->uniform.forward[0] * this->uniform.up[1] - this->uniform.forward[1] * this->uniform.up[0];
+
+  if (isCameraMoved == 1) {
+    this->uniform.frameCount = 0;
+  }
+  else {
+    this->uniform.frameCount += 1;
+  }
+}

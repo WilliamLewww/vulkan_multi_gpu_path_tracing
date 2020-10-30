@@ -2,6 +2,9 @@
 
 #include <stdint.h>
 
+#include "input.h"
+#include "math.h"
+
 struct CameraUniform {
   float position[4];
   float right[4];
@@ -23,4 +26,6 @@ public:
   ~Camera();
 
   CameraUniform getUniform();
+
+  void update();
 };
