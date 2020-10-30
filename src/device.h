@@ -12,6 +12,8 @@
 #include "scene.h"
 #include "camera.h"
 
+#define MAX_FRAMES_IN_FLIGHT      1
+
 class Device {
 protected:
   VkPhysicalDevice physicalDevice;
@@ -123,6 +125,6 @@ public:
   void createCommandBuffers(Scene* scene);
   void createSynchronizationObjects();
 
-  void updateUniformBuffer(Camera* camera);
-  void drawFrame(Camera* camera);
+  void updateUniformBuffer(CameraUniform camera);
+  void drawFrame(CameraUniform camera);
 };

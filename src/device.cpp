@@ -1,7 +1,5 @@
 #include "device.h"
 
-#define MAX_FRAMES_IN_FLIGHT      1
-
 Device::Device(VkPhysicalDevice physicalDevice) {
   this->physicalDevice = physicalDevice;
 
@@ -953,7 +951,7 @@ void Device::createTopLevelAccelerationStructure() {
 }
 
 void Device::createUniformBuffer() {
-  VkDeviceSize bufferSize = sizeof(Camera);
+  VkDeviceSize bufferSize = sizeof(CameraUniform);
   createBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &this->uniformBuffer, &this->uniformBufferMemory);
 }
 
@@ -1547,14 +1545,14 @@ void Device::createSynchronizationObjects() {
   }
 }
 
-void Device::updateUniformBuffer(Camera* camera) {
+void Device::updateUniformBuffer(CameraUniform camera) {
   void* data;
-  vkMapMemory(this->logicalDevice, this->uniformBufferMemory, 0, sizeof(struct Camera), 0, &data);
-  memcpy(data, camera, sizeof(struct Camera));
+  vkMapMemory(this->logicalDevice, this->uniformBufferMemory, 0, sizeof(CameraUniform), 0, &data);
+  memcpy(data, &camera, sizeof(CameraUniform));
   vkUnmapMemory(this->logicalDevice, this->uniformBufferMemory);
 }
 
-void Device::drawFrame(Camera* camera) {
+void Device::drawFrame(CameraUniform camera) {
   vkWaitForFences(this->logicalDevice, 1, &this->inFlightFenceList[this->currentFrame], VK_TRUE, UINT64_MAX);
     
   uint32_t imageIndex;
