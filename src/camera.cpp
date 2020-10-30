@@ -65,6 +65,24 @@ void Camera::update() {
     isCameraMoved = 1;
   }
 
+  static double previousCursorPositionX = Input::getCursorPositionX();
+  static double previousCursorPositionY = Input::getCursorPositionY();
+
+  double cursorPositionX = Input::getCursorPositionX();
+  double cursorPositionY = Input::getCursorPositionY();
+
+  if (previousCursorPositionX != cursorPositionX || previousCursorPositionY != cursorPositionY) {
+    double mouseDifferenceX = previousCursorPositionX - cursorPositionX;
+    double mouseDifferenceY = previousCursorPositionY - cursorPositionY;
+
+    this->yaw += mouseDifferenceX * 0.0005f;
+
+    previousCursorPositionX = cursorPositionX;
+    previousCursorPositionY = cursorPositionY;
+
+    isCameraMoved = 1;
+  }
+
   this->uniform.position[0] = this->position[0]; this->uniform.position[1] = this->position[1]; this->uniform.position[2] = this->position[2];
 
   this->uniform.forward[0] = cosf(this->pitch) * cosf(-this->yaw - (M_PI / 2.0));
