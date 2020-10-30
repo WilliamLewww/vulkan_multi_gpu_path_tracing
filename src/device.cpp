@@ -508,3 +508,683 @@ void Device::createMaterialBuffers(Scene* scene) {
   vkDestroyBuffer(this->logicalDevice, materialStagingBuffer, NULL);
   vkFreeMemory(this->logicalDevice, materialStagingBufferMemory, NULL);
 }
+
+void Device::createTextures() {
+  createImage(800, 600, this->swapchainImageFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_STORAGE_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &this->rayTraceImage, &this->rayTraceImageMemory);
+
+  VkImageSubresourceRange subresourceRange = {};
+  subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+  subresourceRange.baseMipLevel = 0;
+  subresourceRange.levelCount = 1;
+  subresourceRange.baseArrayLayer = 0;
+  subresourceRange.layerCount = 1;
+
+  VkImageViewCreateInfo imageViewCreateInfo = {};
+  imageViewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+  imageViewCreateInfo.pNext = NULL;
+  imageViewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+  imageViewCreateInfo.format = this->swapchainImageFormat;
+  imageViewCreateInfo.subresourceRange = subresourceRange;
+  imageViewCreateInfo.image = this->rayTraceImage;
+
+  if (vkCreateImageView(this->logicalDevice, &imageViewCreateInfo, NULL, &this->rayTraceImageView) == VK_SUCCESS) {
+    printf("created image view\n");
+  }
+
+  VkImageMemoryBarrier imageMemoryBarrier = {};
+  imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+  imageMemoryBarrier.pNext = NULL;
+  imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+  imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_GENERAL;
+  imageMemoryBarrier.image = this->rayTraceImage;
+  imageMemoryBarrier.subresourceRange = subresourceRange;
+  imageMemoryBarrier.srcAccessMask = 0;
+  imageMemoryBarrier.dstAccessMask = 0;
+
+  VkCommandBufferAllocateInfo bufferAllocateInfo = {};
+  bufferAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+  bufferAllocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+  bufferAllocateInfo.commandPool = this->commandPool;
+  bufferAllocateInfo.commandBufferCount = 1;
+
+  VkCommandBuffer commandBuffer;
+  vkAllocateCommandBuffers(this->logicalDevice, &bufferAllocateInfo, &commandBuffer);
+  
+  VkCommandBufferBeginInfo commandBufferBeginInfo = {};
+  commandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+  commandBufferBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+  
+  vkBeginCommandBuffer(commandBuffer, &commandBufferBeginInfo);
+  vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0, NULL, 0, NULL, 1, &imageMemoryBarrier);
+  vkEndCommandBuffer(commandBuffer);
+
+  VkSubmitInfo submitInfo = {};
+  submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+  submitInfo.commandBufferCount = 1;
+  submitInfo.pCommandBuffers = &commandBuffer;
+
+  vkQueueSubmit(this->computeQueue, 1, &submitInfo, VK_NULL_HANDLE);
+  vkQueueWaitIdle(this->computeQueue);
+
+  vkFreeCommandBuffers(this->logicalDevice, this->commandPool, 1, &commandBuffer);
+}
+
+void Device::createAccelerationStructure(Scene* scene) {
+  VkAccelerationStructureCreateGeometryTypeInfoKHR geometryInfos = {};
+  geometryInfos.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_CREATE_GEOMETRY_TYPE_INFO_KHR;
+  geometryInfos.geometryType = VK_GEOMETRY_TYPE_TRIANGLES_KHR;
+  geometryInfos.maxPrimitiveCount = scene->getPrimitiveCount();
+  geometryInfos.indexType = VK_INDEX_TYPE_UINT32;
+  geometryInfos.maxVertexCount = scene->getVertexCount();
+  geometryInfos.vertexFormat = VK_FORMAT_R32G32B32_SFLOAT;
+  geometryInfos.allowsTransforms = VK_FALSE;
+
+  VkAccelerationStructureCreateInfoKHR accelerationStructureCreateInfo = {};
+  accelerationStructureCreateInfo.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_CREATE_INFO_KHR;
+  accelerationStructureCreateInfo.type = VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_KHR;
+  accelerationStructureCreateInfo.flags = VK_BUILD_ACCELERATION_STRUCTURE_PREFER_FAST_TRACE_BIT_KHR;
+  accelerationStructureCreateInfo.maxGeometryCount = 1;
+  accelerationStructureCreateInfo.pGeometryInfos = &geometryInfos;
+  
+  PFN_vkCreateAccelerationStructureKHR pvkCreateAccelerationStructureKHR = (PFN_vkCreateAccelerationStructureKHR)vkGetDeviceProcAddr(this->logicalDevice, "vkCreateAccelerationStructureKHR");
+  if (pvkCreateAccelerationStructureKHR(this->logicalDevice, &accelerationStructureCreateInfo, NULL, &this->accelerationStructure) == VK_SUCCESS) {
+    printf("%s\n", "created acceleration structure");
+  }
+}
+
+void Device::bindAccelerationStructure() {
+  PFN_vkGetAccelerationStructureMemoryRequirementsKHR pvkGetAccelerationStructureMemoryRequirementsKHR = (PFN_vkGetAccelerationStructureMemoryRequirementsKHR)vkGetDeviceProcAddr(this->logicalDevice, "vkGetAccelerationStructureMemoryRequirementsKHR");
+  PFN_vkBindAccelerationStructureMemoryKHR pvkBindAccelerationStructureMemoryKHR = (PFN_vkBindAccelerationStructureMemoryKHR)vkGetDeviceProcAddr(this->logicalDevice, "vkBindAccelerationStructureMemoryKHR");
+    
+  VkAccelerationStructureMemoryRequirementsInfoKHR memoryRequirementsInfo = {};
+  memoryRequirementsInfo.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_MEMORY_REQUIREMENTS_INFO_KHR;
+  memoryRequirementsInfo.type = VK_ACCELERATION_STRUCTURE_MEMORY_REQUIREMENTS_TYPE_OBJECT_KHR;
+  memoryRequirementsInfo.accelerationStructure = this->accelerationStructure;
+  memoryRequirementsInfo.buildType = VK_ACCELERATION_STRUCTURE_BUILD_TYPE_DEVICE_KHR;
+
+  VkMemoryRequirements2 memoryRequirements = {};
+  memoryRequirements.sType = VK_STRUCTURE_TYPE_MEMORY_REQUIREMENTS_2;
+  pvkGetAccelerationStructureMemoryRequirementsKHR(this->logicalDevice, &memoryRequirementsInfo, &memoryRequirements);
+
+  VkDeviceSize accelerationStructureSize = memoryRequirements.memoryRequirements.size;
+
+  createBuffer(accelerationStructureSize, VK_BUFFER_USAGE_RAY_TRACING_BIT_KHR | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &this->accelerationStructureBuffer, &this->accelerationStructureBufferMemory);
+
+  const VkBindAccelerationStructureMemoryInfoKHR accelerationStructureMemoryInfo = {
+    .sType = VK_STRUCTURE_TYPE_BIND_ACCELERATION_STRUCTURE_MEMORY_INFO_KHR,
+    .pNext = NULL,
+    .accelerationStructure = this->accelerationStructure,
+    .memory = this->accelerationStructureBufferMemory,
+    .memoryOffset = 0,
+    .deviceIndexCount = 0,
+    .pDeviceIndices = NULL
+  };
+
+  pvkBindAccelerationStructureMemoryKHR(this->logicalDevice, 1, &accelerationStructureMemoryInfo);
+}
+
+void Device::buildAccelerationStructure(Scene* scene) {
+  PFN_vkGetBufferDeviceAddressKHR pvkGetBufferDeviceAddressKHR = (PFN_vkGetBufferDeviceAddressKHR)vkGetDeviceProcAddr(this->logicalDevice, "vkGetBufferDeviceAddressKHR");
+  PFN_vkGetAccelerationStructureMemoryRequirementsKHR pvkGetAccelerationStructureMemoryRequirementsKHR = (PFN_vkGetAccelerationStructureMemoryRequirementsKHR)vkGetDeviceProcAddr(this->logicalDevice, "vkGetAccelerationStructureMemoryRequirementsKHR");
+  PFN_vkCmdBuildAccelerationStructureKHR pvkCmdBuildAccelerationStructureKHR = (PFN_vkCmdBuildAccelerationStructureKHR)vkGetDeviceProcAddr(this->logicalDevice, "vkCmdBuildAccelerationStructureKHR");
+
+  VkBufferDeviceAddressInfo vertexBufferDeviceAddressInfo = {};
+  vertexBufferDeviceAddressInfo.sType = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO;
+  vertexBufferDeviceAddressInfo.buffer = this->vertexPositionBuffer;
+
+  VkDeviceAddress vertexBufferAddress = pvkGetBufferDeviceAddressKHR(this->logicalDevice, &vertexBufferDeviceAddressInfo);
+
+  VkDeviceOrHostAddressConstKHR vertexDeviceOrHostAddressConst = {};
+  vertexDeviceOrHostAddressConst.deviceAddress = vertexBufferAddress;
+
+  VkBufferDeviceAddressInfo indexBufferDeviceAddressInfo = {};
+  indexBufferDeviceAddressInfo.sType = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO;
+  indexBufferDeviceAddressInfo.buffer = this->indexBuffer;
+
+  VkDeviceAddress indexBufferAddress = pvkGetBufferDeviceAddressKHR(this->logicalDevice, &indexBufferDeviceAddressInfo);
+
+  VkDeviceOrHostAddressConstKHR indexDeviceOrHostAddressConst = {};
+  indexDeviceOrHostAddressConst.deviceAddress = indexBufferAddress;
+
+  VkAccelerationStructureGeometryTrianglesDataKHR trianglesData = {};
+  trianglesData.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_TRIANGLES_DATA_KHR;
+  trianglesData.pNext = NULL;
+  trianglesData.vertexFormat = VK_FORMAT_R32G32B32_SFLOAT;
+  trianglesData.vertexData = vertexDeviceOrHostAddressConst;
+  trianglesData.vertexStride = sizeof(float) * 3;
+  trianglesData.indexType = VK_INDEX_TYPE_UINT32;
+  trianglesData.indexData = indexDeviceOrHostAddressConst;
+  trianglesData.transformData = (VkDeviceOrHostAddressConstKHR){}; 
+ 
+  VkAccelerationStructureGeometryDataKHR geometryData = {};
+  geometryData.triangles = trianglesData;
+
+  VkAccelerationStructureGeometryKHR geometry = {
+    .sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_KHR,
+    .pNext = NULL,
+    .geometryType = VK_GEOMETRY_TYPE_TRIANGLES_KHR,
+    .geometry = geometryData,
+    .flags = VK_GEOMETRY_OPAQUE_BIT_KHR
+  };
+  std::vector<VkAccelerationStructureGeometryKHR> geometries = {geometry};
+  VkAccelerationStructureGeometryKHR* geometriesPointer = geometries.data();
+
+  VkAccelerationStructureMemoryRequirementsInfoKHR memoryRequirementsInfo = {};
+  memoryRequirementsInfo.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_MEMORY_REQUIREMENTS_INFO_KHR;
+  memoryRequirementsInfo.type = VK_ACCELERATION_STRUCTURE_MEMORY_REQUIREMENTS_TYPE_BUILD_SCRATCH_KHR;
+  memoryRequirementsInfo.accelerationStructure = this->accelerationStructure;
+  memoryRequirementsInfo.buildType = VK_ACCELERATION_STRUCTURE_BUILD_TYPE_DEVICE_KHR;
+
+  VkMemoryRequirements2 memoryRequirements = {};
+  memoryRequirements.sType = VK_STRUCTURE_TYPE_MEMORY_REQUIREMENTS_2;
+  pvkGetAccelerationStructureMemoryRequirementsKHR(this->logicalDevice, &memoryRequirementsInfo, &memoryRequirements);
+ 
+  VkDeviceSize scratchSize = memoryRequirements.memoryRequirements.size;
+
+  VkBuffer scratchBuffer;
+  VkDeviceMemory scratchBufferMemory;
+  createBuffer(scratchSize, VK_BUFFER_USAGE_RAY_TRACING_BIT_KHR | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &scratchBuffer, &scratchBufferMemory);
+
+  VkBufferDeviceAddressInfo scratchBufferDeviceAddressInfo = {};
+  scratchBufferDeviceAddressInfo.sType = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO;
+  scratchBufferDeviceAddressInfo.buffer = scratchBuffer;
+
+  VkDeviceAddress scratchBufferAddress = pvkGetBufferDeviceAddressKHR(this->logicalDevice, &scratchBufferDeviceAddressInfo);
+
+  VkDeviceOrHostAddressKHR scratchDeviceOrHostAddress = {};
+  scratchDeviceOrHostAddress.deviceAddress = scratchBufferAddress;
+
+  VkAccelerationStructureBuildGeometryInfoKHR buildGeometryInfo = {
+    .sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_GEOMETRY_INFO_KHR,
+    .pNext = NULL,
+    .type = VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_KHR,
+    .flags = VK_BUILD_ACCELERATION_STRUCTURE_PREFER_FAST_TRACE_BIT_KHR,
+    .update = VK_FALSE,
+    .srcAccelerationStructure = VK_NULL_HANDLE,
+    .dstAccelerationStructure = this->accelerationStructure,
+    .geometryArrayOfPointers = VK_TRUE,
+    .geometryCount = 1,
+    .ppGeometries = &geometriesPointer,
+    .scratchData = scratchDeviceOrHostAddress
+  };
+
+  VkAccelerationStructureBuildOffsetInfoKHR buildOffsetInfo = {
+    .primitiveCount = scene->getPrimitiveCount(),
+    .primitiveOffset = 0,
+    .firstVertex = 0,
+    .transformOffset = 0  
+  };
+  std::vector<VkAccelerationStructureBuildOffsetInfoKHR*> buildOffsetInfos = { &buildOffsetInfo };
+
+  VkCommandBufferAllocateInfo bufferAllocateInfo = {};
+  bufferAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+  bufferAllocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+  bufferAllocateInfo.commandPool = this->commandPool;
+  bufferAllocateInfo.commandBufferCount = 1;
+
+  VkCommandBuffer commandBuffer;
+  vkAllocateCommandBuffers(this->logicalDevice, &bufferAllocateInfo, &commandBuffer);
+  
+  VkCommandBufferBeginInfo commandBufferBeginInfo = {};
+  commandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+  commandBufferBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+  
+  vkBeginCommandBuffer(commandBuffer, &commandBufferBeginInfo);
+  pvkCmdBuildAccelerationStructureKHR(commandBuffer, 1, &buildGeometryInfo, buildOffsetInfos.data());
+  vkEndCommandBuffer(commandBuffer);
+
+  VkSubmitInfo submitInfo = {};
+  submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+  submitInfo.commandBufferCount = 1;
+  submitInfo.pCommandBuffers = &commandBuffer;
+
+  vkQueueSubmit(this->computeQueue, 1, &submitInfo, VK_NULL_HANDLE);
+  vkQueueWaitIdle(this->computeQueue);
+
+  vkFreeCommandBuffers(this->logicalDevice, this->commandPool, 1, &commandBuffer);
+
+  vkDestroyBuffer(this->logicalDevice, scratchBuffer, NULL);
+  vkFreeMemory(this->logicalDevice, scratchBufferMemory, NULL);
+}
+
+void Device::createTopLevelAccelerationStructure() {
+  PFN_vkCreateAccelerationStructureKHR pvkCreateAccelerationStructureKHR = (PFN_vkCreateAccelerationStructureKHR)vkGetDeviceProcAddr(this->logicalDevice, "vkCreateAccelerationStructureKHR");
+  PFN_vkGetAccelerationStructureMemoryRequirementsKHR pvkGetAccelerationStructureMemoryRequirementsKHR = (PFN_vkGetAccelerationStructureMemoryRequirementsKHR)vkGetDeviceProcAddr(this->logicalDevice, "vkGetAccelerationStructureMemoryRequirementsKHR");
+  PFN_vkBindAccelerationStructureMemoryKHR pvkBindAccelerationStructureMemoryKHR = (PFN_vkBindAccelerationStructureMemoryKHR)vkGetDeviceProcAddr(this->logicalDevice, "vkBindAccelerationStructureMemoryKHR");
+  PFN_vkCmdBuildAccelerationStructureKHR pvkCmdBuildAccelerationStructureKHR = (PFN_vkCmdBuildAccelerationStructureKHR)vkGetDeviceProcAddr(this->logicalDevice, "vkCmdBuildAccelerationStructureKHR");
+  PFN_vkGetBufferDeviceAddressKHR pvkGetBufferDeviceAddressKHR = (PFN_vkGetBufferDeviceAddressKHR)vkGetDeviceProcAddr(this->logicalDevice, "vkGetBufferDeviceAddressKHR");
+  PFN_vkGetAccelerationStructureDeviceAddressKHR pvkGetAccelerationStructureDeviceAddressKHR = (PFN_vkGetAccelerationStructureDeviceAddressKHR)vkGetDeviceProcAddr(this->logicalDevice, "vkGetAccelerationStructureDeviceAddressKHR");
+
+  VkAccelerationStructureCreateGeometryTypeInfoKHR geometryInfos = {};
+  geometryInfos.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_CREATE_GEOMETRY_TYPE_INFO_KHR;
+  geometryInfos.geometryType = VK_GEOMETRY_TYPE_INSTANCES_KHR;
+  geometryInfos.maxPrimitiveCount = 1;
+  geometryInfos.allowsTransforms = VK_TRUE;
+
+  VkAccelerationStructureCreateInfoKHR accelerationStructureCreateInfo = {};
+  accelerationStructureCreateInfo.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_CREATE_INFO_KHR;
+  accelerationStructureCreateInfo.type = VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR;
+  accelerationStructureCreateInfo.flags = VK_BUILD_ACCELERATION_STRUCTURE_PREFER_FAST_TRACE_BIT_KHR;
+  accelerationStructureCreateInfo.maxGeometryCount = 1;
+  accelerationStructureCreateInfo.pGeometryInfos = &geometryInfos;
+
+  if (pvkCreateAccelerationStructureKHR(this->logicalDevice, &accelerationStructureCreateInfo, NULL, &this->topLevelAccelerationStructure) == VK_SUCCESS) {
+    printf("%s\n", "created acceleration structure");
+  }
+
+  // ==============================================================================================================
+   
+  VkAccelerationStructureMemoryRequirementsInfoKHR memoryRequirementsInfo = {};
+  memoryRequirementsInfo.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_MEMORY_REQUIREMENTS_INFO_KHR;
+  memoryRequirementsInfo.type = VK_ACCELERATION_STRUCTURE_MEMORY_REQUIREMENTS_TYPE_BUILD_SCRATCH_KHR;
+  memoryRequirementsInfo.accelerationStructure = this->topLevelAccelerationStructure;
+  memoryRequirementsInfo.buildType = VK_ACCELERATION_STRUCTURE_BUILD_TYPE_DEVICE_KHR;
+
+  VkMemoryRequirements2 memoryRequirements = {};
+  memoryRequirements.sType = VK_STRUCTURE_TYPE_MEMORY_REQUIREMENTS_2;
+  pvkGetAccelerationStructureMemoryRequirementsKHR(this->logicalDevice, &memoryRequirementsInfo, &memoryRequirements);
+
+  VkDeviceSize accelerationStructureSize = memoryRequirements.memoryRequirements.size;
+
+  createBuffer(accelerationStructureSize, VK_BUFFER_USAGE_RAY_TRACING_BIT_KHR | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &this->topLevelAccelerationStructureBuffer, &this->topLevelAccelerationStructureBufferMemory);
+
+  const VkBindAccelerationStructureMemoryInfoKHR accelerationStructureMemoryInfo = {
+    .sType = VK_STRUCTURE_TYPE_BIND_ACCELERATION_STRUCTURE_MEMORY_INFO_KHR,
+    .pNext = NULL,
+    .accelerationStructure = this->topLevelAccelerationStructure,
+    .memory = this->topLevelAccelerationStructureBufferMemory,
+    .memoryOffset = 0,
+    .deviceIndexCount = 0,
+    .pDeviceIndices = NULL
+  };
+
+  pvkBindAccelerationStructureMemoryKHR(this->logicalDevice, 1, &accelerationStructureMemoryInfo);
+
+  // ==============================================================================================================
+  
+  VkTransformMatrixKHR transformMatrix = {};
+  transformMatrix.matrix[0][0] = 1.0;
+  transformMatrix.matrix[1][1] = 1.0;
+  transformMatrix.matrix[2][2] = 1.0;
+
+  VkAccelerationStructureDeviceAddressInfoKHR accelerationStructureDeviceAddressInfo = {};
+  accelerationStructureDeviceAddressInfo.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_DEVICE_ADDRESS_INFO_KHR;
+  accelerationStructureDeviceAddressInfo.accelerationStructure = this->accelerationStructure;
+
+  VkDeviceAddress accelerationStructureDeviceAddress = pvkGetAccelerationStructureDeviceAddressKHR(this->logicalDevice, &accelerationStructureDeviceAddressInfo);
+
+  VkAccelerationStructureInstanceKHR geometryInstance = {};
+  geometryInstance.transform = transformMatrix;
+  geometryInstance.instanceCustomIndex = 0;
+  geometryInstance.mask = 0xFF;
+  geometryInstance.instanceShaderBindingTableRecordOffset = 0;
+  geometryInstance.flags = VK_GEOMETRY_INSTANCE_TRIANGLE_FACING_CULL_DISABLE_BIT_KHR;
+  geometryInstance.accelerationStructureReference = accelerationStructureDeviceAddress;
+
+  VkDeviceSize geometryInstanceBufferSize = sizeof(VkAccelerationStructureInstanceKHR);
+  
+  VkBuffer geometryInstanceStagingBuffer;
+  VkDeviceMemory geometryInstanceStagingBufferMemory;
+  createBuffer(geometryInstanceBufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &geometryInstanceStagingBuffer, &geometryInstanceStagingBufferMemory);
+
+  void* geometryInstanceData;
+  vkMapMemory(this->logicalDevice, geometryInstanceStagingBufferMemory, 0, geometryInstanceBufferSize, 0, &geometryInstanceData);
+  memcpy(geometryInstanceData, &geometryInstance, geometryInstanceBufferSize);
+  vkUnmapMemory(this->logicalDevice, geometryInstanceStagingBufferMemory);
+
+  VkBuffer geometryInstanceBuffer;
+  VkDeviceMemory geometryInstanceBufferMemory;
+  createBuffer(geometryInstanceBufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_RAY_TRACING_BIT_KHR | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &geometryInstanceBuffer, &geometryInstanceBufferMemory);  
+
+  copyBuffer(geometryInstanceStagingBuffer, geometryInstanceBuffer, geometryInstanceBufferSize);
+
+  vkDestroyBuffer(this->logicalDevice, geometryInstanceStagingBuffer, NULL);
+  vkFreeMemory(this->logicalDevice, geometryInstanceStagingBufferMemory, NULL);
+
+  VkBufferDeviceAddressInfo geometryInstanceBufferDeviceAddressInfo = {};
+  geometryInstanceBufferDeviceAddressInfo.sType = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO;
+  geometryInstanceBufferDeviceAddressInfo.buffer = geometryInstanceBuffer;
+
+  VkDeviceAddress geometryInstanceBufferAddress = pvkGetBufferDeviceAddressKHR(this->logicalDevice, &geometryInstanceBufferDeviceAddressInfo);
+
+  VkDeviceOrHostAddressConstKHR geometryInstanceDeviceOrHostAddressConst = {};
+  geometryInstanceDeviceOrHostAddressConst.deviceAddress = geometryInstanceBufferAddress;
+
+  VkAccelerationStructureGeometryInstancesDataKHR instancesData = {};
+  instancesData.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_INSTANCES_DATA_KHR;
+  instancesData.pNext = NULL;
+  instancesData.arrayOfPointers = VK_FALSE;
+  instancesData.data = geometryInstanceDeviceOrHostAddressConst; 
+
+  VkAccelerationStructureGeometryDataKHR geometryData = {};
+  geometryData.instances = instancesData;
+
+  VkAccelerationStructureGeometryKHR geometry = {
+    .sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_KHR,
+    .pNext = NULL,
+    .geometryType = VK_GEOMETRY_TYPE_INSTANCES_KHR,
+    .geometry = geometryData,
+    .flags = 0
+  };
+  std::vector<VkAccelerationStructureGeometryKHR> geometries = {geometry};
+  VkAccelerationStructureGeometryKHR* geometriesPointer = geometries.data();
+
+  VkAccelerationStructureMemoryRequirementsInfoKHR scratchMemoryRequirementInfo = {};
+  scratchMemoryRequirementInfo.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_MEMORY_REQUIREMENTS_INFO_KHR;
+  scratchMemoryRequirementInfo.type = VK_ACCELERATION_STRUCTURE_MEMORY_REQUIREMENTS_TYPE_BUILD_SCRATCH_KHR;
+  scratchMemoryRequirementInfo.accelerationStructure = this->topLevelAccelerationStructure;
+  scratchMemoryRequirementInfo.buildType = VK_ACCELERATION_STRUCTURE_BUILD_TYPE_DEVICE_KHR;
+
+  VkMemoryRequirements2 scratchMemoryRequirements = {};
+  scratchMemoryRequirements.sType = VK_STRUCTURE_TYPE_MEMORY_REQUIREMENTS_2;
+  pvkGetAccelerationStructureMemoryRequirementsKHR(this->logicalDevice, &scratchMemoryRequirementInfo, &scratchMemoryRequirements);
+ 
+  VkDeviceSize scratchSize = memoryRequirements.memoryRequirements.size;
+
+  VkBuffer scratchBuffer;
+  VkDeviceMemory scratchBufferMemory;
+  createBuffer(scratchSize, VK_BUFFER_USAGE_RAY_TRACING_BIT_KHR | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &scratchBuffer, &scratchBufferMemory);
+
+  VkBufferDeviceAddressInfo scratchBufferDeviceAddressInfo = {};
+  scratchBufferDeviceAddressInfo.sType = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO;
+  scratchBufferDeviceAddressInfo.buffer = scratchBuffer;
+
+  VkDeviceAddress scratchBufferAddress = pvkGetBufferDeviceAddressKHR(this->logicalDevice, &scratchBufferDeviceAddressInfo);
+
+  VkDeviceOrHostAddressKHR scratchDeviceOrHostAddress = {};
+  scratchDeviceOrHostAddress.deviceAddress = scratchBufferAddress;
+
+  VkAccelerationStructureBuildGeometryInfoKHR buildGeometryInfo = {
+    .sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_GEOMETRY_INFO_KHR,
+    .pNext = NULL,
+    .type = VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR,
+    .flags = VK_BUILD_ACCELERATION_STRUCTURE_PREFER_FAST_TRACE_BIT_KHR,
+    .update = VK_FALSE,
+    .srcAccelerationStructure = VK_NULL_HANDLE,
+    .dstAccelerationStructure = this->topLevelAccelerationStructure,
+    .geometryArrayOfPointers = VK_TRUE,
+    .geometryCount = 1,
+    .ppGeometries = &geometriesPointer,
+    .scratchData = scratchDeviceOrHostAddress
+  };
+
+  VkAccelerationStructureBuildOffsetInfoKHR buildOffsetInfo = {
+    .primitiveCount = 1,
+    .primitiveOffset = 0,
+    .firstVertex = 0,
+    .transformOffset = 0  
+  };
+  std::vector<VkAccelerationStructureBuildOffsetInfoKHR*> buildOffsetInfos = { &buildOffsetInfo };
+
+  VkCommandBufferAllocateInfo bufferAllocateInfo = {};
+  bufferAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+  bufferAllocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+  bufferAllocateInfo.commandPool = this->commandPool;
+  bufferAllocateInfo.commandBufferCount = 1;
+
+  VkCommandBuffer commandBuffer;
+  vkAllocateCommandBuffers(this->logicalDevice, &bufferAllocateInfo, &commandBuffer);
+  
+  VkCommandBufferBeginInfo commandBufferBeginInfo = {};
+  commandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+  commandBufferBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+  
+  vkBeginCommandBuffer(commandBuffer, &commandBufferBeginInfo);
+  pvkCmdBuildAccelerationStructureKHR(commandBuffer, 1, &buildGeometryInfo, buildOffsetInfos.data());
+  vkEndCommandBuffer(commandBuffer);
+
+  VkSubmitInfo submitInfo = {};
+  submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+  submitInfo.commandBufferCount = 1;
+  submitInfo.pCommandBuffers = &commandBuffer;
+
+  vkQueueSubmit(this->computeQueue, 1, &submitInfo, VK_NULL_HANDLE);
+  vkQueueWaitIdle(this->computeQueue);
+
+  vkFreeCommandBuffers(this->logicalDevice, this->commandPool, 1, &commandBuffer);
+
+  vkDestroyBuffer(this->logicalDevice, scratchBuffer, NULL);
+  vkFreeMemory(this->logicalDevice, scratchBufferMemory, NULL);
+
+  vkDestroyBuffer(this->logicalDevice, geometryInstanceBuffer, NULL);
+  vkFreeMemory(this->logicalDevice, geometryInstanceBufferMemory, NULL);
+}
+
+void Device::createUniformBuffer() {
+  VkDeviceSize bufferSize = sizeof(float);
+  createBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &this->uniformBuffer, &this->uniformBufferMemory);
+}
+
+void Device::createDescriptorSets() {
+  this->rayTraceDescriptorSetLayoutList.resize(2);
+
+  VkDescriptorPoolSize descriptorPoolSizes[4];
+  descriptorPoolSizes[0].type = VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR;
+  descriptorPoolSizes[0].descriptorCount = 1;
+
+  descriptorPoolSizes[1].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+  descriptorPoolSizes[1].descriptorCount = 1;
+
+  descriptorPoolSizes[2].type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+  descriptorPoolSizes[2].descriptorCount = 4;
+
+  descriptorPoolSizes[3].type = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+  descriptorPoolSizes[3].descriptorCount = 1;
+
+  VkDescriptorPoolCreateInfo descriptorPoolCreateInfo = {};
+  descriptorPoolCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+  descriptorPoolCreateInfo.poolSizeCount = 4;
+  descriptorPoolCreateInfo.pPoolSizes = descriptorPoolSizes;
+  descriptorPoolCreateInfo.maxSets = 2;
+
+  if (vkCreateDescriptorPool(this->logicalDevice, &descriptorPoolCreateInfo, NULL, &this->descriptorPool) == VK_SUCCESS) {
+    printf("%s\n", "created descriptor pool");
+  }
+
+  {
+    VkDescriptorSetLayoutBinding descriptorSetLayoutBindings[5];
+    descriptorSetLayoutBindings[0].binding = 0;
+    descriptorSetLayoutBindings[0].descriptorCount = 1;
+    descriptorSetLayoutBindings[0].descriptorType = VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR;
+    descriptorSetLayoutBindings[0].pImmutableSamplers = NULL;
+    descriptorSetLayoutBindings[0].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+   
+    descriptorSetLayoutBindings[1].binding = 1;
+    descriptorSetLayoutBindings[1].descriptorCount = 1;
+    descriptorSetLayoutBindings[1].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    descriptorSetLayoutBindings[1].pImmutableSamplers = NULL;
+    descriptorSetLayoutBindings[1].stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
+
+    descriptorSetLayoutBindings[2].binding = 2;
+    descriptorSetLayoutBindings[2].descriptorCount = 1;
+    descriptorSetLayoutBindings[2].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+    descriptorSetLayoutBindings[2].pImmutableSamplers = NULL;
+    descriptorSetLayoutBindings[2].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+
+    descriptorSetLayoutBindings[3].binding = 3;
+    descriptorSetLayoutBindings[3].descriptorCount = 1;
+    descriptorSetLayoutBindings[3].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+    descriptorSetLayoutBindings[3].pImmutableSamplers = NULL;
+    descriptorSetLayoutBindings[3].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+
+    descriptorSetLayoutBindings[4].binding = 4;
+    descriptorSetLayoutBindings[4].descriptorCount = 1;
+    descriptorSetLayoutBindings[4].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+    descriptorSetLayoutBindings[4].pImmutableSamplers = NULL;
+    descriptorSetLayoutBindings[4].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+
+    VkDescriptorSetLayoutCreateInfo descriptorSetLayoutCreateInfo = {};
+    descriptorSetLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+    descriptorSetLayoutCreateInfo.bindingCount = 5;
+    descriptorSetLayoutCreateInfo.pBindings = descriptorSetLayoutBindings;
+    
+    if (vkCreateDescriptorSetLayout(this->logicalDevice, &descriptorSetLayoutCreateInfo, NULL, &this->rayTraceDescriptorSetLayoutList[0]) == VK_SUCCESS) {
+      printf("%s\n", "created descriptor set layout");
+    }
+
+    VkDescriptorSetAllocateInfo descriptorSetAllocateInfo = {};
+    descriptorSetAllocateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+    descriptorSetAllocateInfo.descriptorPool = this->descriptorPool;
+    descriptorSetAllocateInfo.descriptorSetCount = 1;
+    descriptorSetAllocateInfo.pSetLayouts = &this->rayTraceDescriptorSetLayoutList[0];
+
+    if (vkAllocateDescriptorSets(this->logicalDevice, &descriptorSetAllocateInfo, &this->rayTraceDescriptorSet) == VK_SUCCESS) {
+      printf("%s\n", "allocated descriptor sets");
+    }
+
+    VkWriteDescriptorSet writeDescriptorSets[5];
+
+    VkWriteDescriptorSetAccelerationStructureKHR descriptorSetAccelerationStructure = {};
+    descriptorSetAccelerationStructure.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR;
+    descriptorSetAccelerationStructure.pNext = NULL;
+    descriptorSetAccelerationStructure.accelerationStructureCount = 1;
+    descriptorSetAccelerationStructure.pAccelerationStructures = &this->topLevelAccelerationStructure;  
+
+    writeDescriptorSets[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    writeDescriptorSets[0].pNext = &descriptorSetAccelerationStructure;
+    writeDescriptorSets[0].dstSet = this->rayTraceDescriptorSet;
+    writeDescriptorSets[0].dstBinding = 0;
+    writeDescriptorSets[0].dstArrayElement = 0;
+    writeDescriptorSets[0].descriptorCount = 1;
+    writeDescriptorSets[0].descriptorType = VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR;
+    writeDescriptorSets[0].pImageInfo = NULL;
+    writeDescriptorSets[0].pBufferInfo = NULL;
+    writeDescriptorSets[0].pTexelBufferView = NULL;
+
+    VkDescriptorBufferInfo bufferInfo = {};
+    bufferInfo.buffer = this->uniformBuffer;
+    bufferInfo.offset = 0;
+    bufferInfo.range = VK_WHOLE_SIZE;
+
+    writeDescriptorSets[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    writeDescriptorSets[1].pNext = NULL;
+    writeDescriptorSets[1].dstSet = this->rayTraceDescriptorSet;
+    writeDescriptorSets[1].dstBinding = 1;
+    writeDescriptorSets[1].dstArrayElement = 0;
+    writeDescriptorSets[1].descriptorCount = 1;
+    writeDescriptorSets[1].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    writeDescriptorSets[1].pImageInfo = NULL;
+    writeDescriptorSets[1].pBufferInfo = &bufferInfo;
+    writeDescriptorSets[1].pTexelBufferView = NULL;
+
+    VkDescriptorBufferInfo indexBufferInfo = {};
+    indexBufferInfo.buffer = this->indexBuffer;
+    indexBufferInfo.offset = 0;
+    indexBufferInfo.range = VK_WHOLE_SIZE;
+
+    writeDescriptorSets[2].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    writeDescriptorSets[2].pNext = NULL;
+    writeDescriptorSets[2].dstSet = this->rayTraceDescriptorSet;
+    writeDescriptorSets[2].dstBinding = 2;
+    writeDescriptorSets[2].dstArrayElement = 0;
+    writeDescriptorSets[2].descriptorCount = 1;
+    writeDescriptorSets[2].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+    writeDescriptorSets[2].pImageInfo = NULL;
+    writeDescriptorSets[2].pBufferInfo = &indexBufferInfo;
+    writeDescriptorSets[2].pTexelBufferView = NULL;
+
+    VkDescriptorBufferInfo vertexBufferInfo = {};
+    vertexBufferInfo.buffer = this->vertexPositionBuffer;
+    vertexBufferInfo.offset = 0;
+    vertexBufferInfo.range = VK_WHOLE_SIZE;
+
+    writeDescriptorSets[3].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    writeDescriptorSets[3].pNext = NULL;
+    writeDescriptorSets[3].dstSet = this->rayTraceDescriptorSet;
+    writeDescriptorSets[3].dstBinding = 3;
+    writeDescriptorSets[3].dstArrayElement = 0;
+    writeDescriptorSets[3].descriptorCount = 1;
+    writeDescriptorSets[3].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+    writeDescriptorSets[3].pImageInfo = NULL;
+    writeDescriptorSets[3].pBufferInfo = &vertexBufferInfo;
+    writeDescriptorSets[3].pTexelBufferView = NULL;
+
+    VkDescriptorImageInfo imageInfo = {};
+    // imageInfo.sampler = VK_DESCRIPTOR_TYPE_SAMPLER;
+    imageInfo.imageView = this->rayTraceImageView;
+    imageInfo.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
+
+    writeDescriptorSets[4].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    writeDescriptorSets[4].pNext = NULL;
+    writeDescriptorSets[4].dstSet = this->rayTraceDescriptorSet;
+    writeDescriptorSets[4].dstBinding = 4;
+    writeDescriptorSets[4].dstArrayElement = 0;
+    writeDescriptorSets[4].descriptorCount = 1;
+    writeDescriptorSets[4].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+    writeDescriptorSets[4].pImageInfo = &imageInfo;
+    writeDescriptorSets[4].pBufferInfo = NULL;
+    writeDescriptorSets[4].pTexelBufferView = NULL;
+
+    vkUpdateDescriptorSets(this->logicalDevice, 5, writeDescriptorSets, 0, NULL);
+  }
+
+  {
+    VkDescriptorSetLayoutBinding descriptorSetLayoutBindings[2];
+    descriptorSetLayoutBindings[0].binding = 0;
+    descriptorSetLayoutBindings[0].descriptorCount = 1;
+    descriptorSetLayoutBindings[0].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+    descriptorSetLayoutBindings[0].pImmutableSamplers = NULL;
+    descriptorSetLayoutBindings[0].stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
+
+    descriptorSetLayoutBindings[1].binding = 1;
+    descriptorSetLayoutBindings[1].descriptorCount = 1;
+    descriptorSetLayoutBindings[1].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+    descriptorSetLayoutBindings[1].pImmutableSamplers = NULL;
+    descriptorSetLayoutBindings[1].stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
+   
+    VkDescriptorSetLayoutCreateInfo descriptorSetLayoutCreateInfo = {};
+    descriptorSetLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+    descriptorSetLayoutCreateInfo.bindingCount = 2;
+    descriptorSetLayoutCreateInfo.pBindings = descriptorSetLayoutBindings;
+    
+    if (vkCreateDescriptorSetLayout(this->logicalDevice, &descriptorSetLayoutCreateInfo, NULL, &this->rayTraceDescriptorSetLayoutList[1]) == VK_SUCCESS) {
+      printf("%s\n", "created descriptor set layout");
+    }
+
+    VkDescriptorSetAllocateInfo descriptorSetAllocateInfo = {};
+    descriptorSetAllocateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+    descriptorSetAllocateInfo.descriptorPool = this->descriptorPool;
+    descriptorSetAllocateInfo.descriptorSetCount = 1;
+    descriptorSetAllocateInfo.pSetLayouts = &this->rayTraceDescriptorSetLayoutList[1];
+
+    if (vkAllocateDescriptorSets(this->logicalDevice, &descriptorSetAllocateInfo, &this->materialDescriptorSet) == VK_SUCCESS) {
+      printf("%s\n", "allocated descriptor sets");
+    }
+
+    VkWriteDescriptorSet writeDescriptorSets[2];
+
+    VkDescriptorBufferInfo materialIndexBufferInfo = {};
+    materialIndexBufferInfo.buffer = this->materialIndexBuffer;
+    materialIndexBufferInfo.offset = 0;
+    materialIndexBufferInfo.range = VK_WHOLE_SIZE;
+
+    writeDescriptorSets[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    writeDescriptorSets[0].pNext = NULL;
+    writeDescriptorSets[0].dstSet = this->materialDescriptorSet;
+    writeDescriptorSets[0].dstBinding = 0;
+    writeDescriptorSets[0].dstArrayElement = 0;
+    writeDescriptorSets[0].descriptorCount = 1;
+    writeDescriptorSets[0].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+    writeDescriptorSets[0].pImageInfo = NULL;
+    writeDescriptorSets[0].pBufferInfo = &materialIndexBufferInfo;
+    writeDescriptorSets[0].pTexelBufferView = NULL;
+
+    VkDescriptorBufferInfo materialBufferInfo = {};
+    materialBufferInfo.buffer = this->materialBuffer;
+    materialBufferInfo.offset = 0;
+    materialBufferInfo.range = VK_WHOLE_SIZE;
+
+    writeDescriptorSets[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    writeDescriptorSets[1].pNext = NULL;
+    writeDescriptorSets[1].dstSet = this->materialDescriptorSet;
+    writeDescriptorSets[1].dstBinding = 1;
+    writeDescriptorSets[1].dstArrayElement = 0;
+    writeDescriptorSets[1].descriptorCount = 1;
+    writeDescriptorSets[1].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+    writeDescriptorSets[1].pImageInfo = NULL;
+    writeDescriptorSets[1].pBufferInfo = &materialBufferInfo;
+    writeDescriptorSets[1].pTexelBufferView = NULL;
+
+    vkUpdateDescriptorSets(this->logicalDevice, 2, writeDescriptorSets, 0, NULL);
+  }
+}

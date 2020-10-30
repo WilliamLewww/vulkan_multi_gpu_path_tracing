@@ -53,6 +53,26 @@ protected:
 
   VkBuffer materialBuffer;
   VkDeviceMemory materialBufferMemory;
+
+  VkImageView rayTraceImageView;
+  VkImage rayTraceImage;
+  VkDeviceMemory rayTraceImageMemory;
+
+  VkAccelerationStructureKHR accelerationStructure;
+  VkBuffer accelerationStructureBuffer;
+  VkDeviceMemory accelerationStructureBufferMemory;
+
+  VkAccelerationStructureKHR topLevelAccelerationStructure;
+  VkBuffer topLevelAccelerationStructureBuffer;
+  VkDeviceMemory topLevelAccelerationStructureBufferMemory;
+
+  VkBuffer uniformBuffer;
+  VkDeviceMemory uniformBufferMemory;
+
+  VkDescriptorPool descriptorPool;
+  VkDescriptorSet rayTraceDescriptorSet;
+  VkDescriptorSet materialDescriptorSet;
+  std::vector<VkDescriptorSetLayout> rayTraceDescriptorSetLayoutList;
 public:
   Device(VkPhysicalDevice physicalDevice);
   ~Device();
@@ -72,4 +92,14 @@ public:
   void createVertexBuffer(Scene* scene);
   void createIndexBuffer(Scene* scene);
   void createMaterialBuffers(Scene* scene);
+  void createTextures();
+
+  void createAccelerationStructure(Scene* scene);
+  void bindAccelerationStructure();
+  void buildAccelerationStructure(Scene* scene);
+
+  void createTopLevelAccelerationStructure();
+
+  void createUniformBuffer();
+  void createDescriptorSets();
 };

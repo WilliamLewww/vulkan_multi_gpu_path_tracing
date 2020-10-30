@@ -35,6 +35,15 @@ Renderer::Renderer(Scene* scene) {
   displayDevice->createVertexBuffer(scene);
   displayDevice->createIndexBuffer(scene);
   displayDevice->createMaterialBuffers(scene);
+  displayDevice->createTextures();
+
+  displayDevice->createAccelerationStructure(scene);
+  displayDevice->bindAccelerationStructure();
+  displayDevice->buildAccelerationStructure(scene);
+  displayDevice->createTopLevelAccelerationStructure();
+
+  displayDevice->createUniformBuffer();
+  displayDevice->createDescriptorSets();
 }
 
 Renderer::~Renderer() {
