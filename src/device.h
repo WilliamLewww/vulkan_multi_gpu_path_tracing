@@ -7,8 +7,10 @@
 #include <vector>
 #include <stdio.h>
 #include <string.h>
+#include <math.h>
 
 #include "scene.h"
+#include "camera.h"
 
 class Device {
 protected:
@@ -73,6 +75,19 @@ protected:
   VkDescriptorSet rayTraceDescriptorSet;
   VkDescriptorSet materialDescriptorSet;
   std::vector<VkDescriptorSetLayout> rayTraceDescriptorSetLayoutList;
+
+  std::vector<VkVertexInputBindingDescription> vertexBindingDescriptionList;
+  std::vector<VkVertexInputAttributeDescription> vertexAttributeDescriptionList;
+
+  VkPipelineLayout pipelineLayout;
+  VkPipeline graphicsPipeline;
+
+  std::vector<VkCommandBuffer> commandBufferList;
+  std::vector<VkSemaphore> imageAvailableSemaphoreList;
+  std::vector<VkSemaphore> renderFinishedSemaphoreList;
+  std::vector<VkFence> inFlightFenceList;
+  std::vector<VkFence> imageInFlightList;
+  uint32_t currentFrame;
 public:
   Device(VkPhysicalDevice physicalDevice);
   ~Device();
@@ -102,4 +117,12 @@ public:
 
   void createUniformBuffer();
   void createDescriptorSets();
+
+  void createGraphicsPipeline();
+
+  void createCommandBuffers(Scene* scene);
+  void createSynchronizationObjects();
+
+  void updateUniformBuffer(Camera* camera);
+  void drawFrame(Camera* camera);
 };

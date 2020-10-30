@@ -23,6 +23,10 @@ void Window::createWindowSurface(VkInstance vulkanInstance) {
   }
 }
 
+GLFWwindow* Window::getWindow() {
+  return this->window;
+}
+
 VkSurfaceKHR Window::getSurface() {
   return this->surface;
 }

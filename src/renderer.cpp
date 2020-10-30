@@ -44,6 +44,32 @@ Renderer::Renderer(Scene* scene) {
 
   displayDevice->createUniformBuffer();
   displayDevice->createDescriptorSets();
+
+  displayDevice->createGraphicsPipeline();
+  displayDevice->createCommandBuffers(scene);
+  displayDevice->createSynchronizationObjects();
+
+  Camera camera = {
+    .position = {
+      0, 0, 0, 1
+    },
+    .right = {
+      1, 0, 0, 1
+    },
+    .up = {
+      0, 1, 0, 1
+    },
+    .forward = {
+      0, 0, 1, 1
+    },
+
+    .frameCount = 0,
+  };
+
+  while (!glfwWindowShouldClose(this->window->getWindow())) {
+    glfwPollEvents();
+    displayDevice->drawFrame(&camera);
+  }
 }
 
 Renderer::~Renderer() {

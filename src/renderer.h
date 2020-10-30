@@ -7,6 +7,7 @@
 #include "window.h"
 #include "vulkan_instance.h"
 #include "device_manager.h"
+#include "camera.h"
 
 class Renderer {
 private:
