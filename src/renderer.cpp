@@ -52,6 +52,7 @@ Renderer::Renderer(Scene* scene, Camera* camera) {
   while (!glfwWindowShouldClose(this->window->getWindow())) {
     glfwPollEvents();
     displayDevice->drawFrame(camera->getUniform());
+    camera->update();
   }
 }
 
