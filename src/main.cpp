@@ -4,8 +4,8 @@
 #include "camera.h"
 #include "renderer.h"
 
-int main(void) {
-  Scene* scene = new Scene("cube_scene.obj");
+int main(int argn, const char** argv) {
+  Scene* scene = new Scene(argv[1]);
   if (!scene->checkError()) {
     return EXIT_FAILURE;
   }
