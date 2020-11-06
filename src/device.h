@@ -12,10 +12,10 @@
 #include "scene.h"
 #include "camera.h"
 
-#define MAX_FRAMES_IN_FLIGHT      1
-
 class Device {
 protected:
+  uint32_t framesInFlight;
+
   VkPhysicalDevice physicalDevice;
   VkPhysicalDeviceProperties physicalDeviceProperties;
   VkPhysicalDeviceFeatures physicalDeviceFeatures;

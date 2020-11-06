@@ -1,6 +1,7 @@
 #include "device.h"
 
 Device::Device(VkPhysicalDevice physicalDevice) {
+  this->framesInFlight = 1;
   this->physicalDevice = physicalDevice;
 
   vkGetPhysicalDeviceProperties(physicalDevice, &this->physicalDeviceProperties);
@@ -1521,9 +1522,9 @@ void Device::createCommandBuffers(Scene* scene) {
 }
 
 void Device::createSynchronizationObjects() {
-  this->imageAvailableSemaphoreList.resize(MAX_FRAMES_IN_FLIGHT);
-  this->renderFinishedSemaphoreList.resize(MAX_FRAMES_IN_FLIGHT);
-  this->inFlightFenceList.resize(MAX_FRAMES_IN_FLIGHT);
+  this->imageAvailableSemaphoreList.resize(this->framesInFlight);
+  this->renderFinishedSemaphoreList.resize(this->framesInFlight);
+  this->inFlightFenceList.resize(this->framesInFlight);
   this->imageInFlightList.resize(this->swapchainImageCount);
   for (int x = 0; x < this->swapchainImageCount; x++) {
     this->imageInFlightList[x] = VK_NULL_HANDLE;
@@ -1536,7 +1537,7 @@ void Device::createSynchronizationObjects() {
   fenceCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
   fenceCreateInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
-  for (int x = 0; x < MAX_FRAMES_IN_FLIGHT; x++) {
+  for (int x = 0; x < this->framesInFlight; x++) {
     if (vkCreateSemaphore(this->logicalDevice, &semaphoreCreateInfo, NULL, &this->imageAvailableSemaphoreList[x]) == VK_SUCCESS &&
         vkCreateSemaphore(this->logicalDevice, &semaphoreCreateInfo, NULL, &this->renderFinishedSemaphoreList[x]) == VK_SUCCESS &&
         vkCreateFence(this->logicalDevice, &fenceCreateInfo, NULL, &this->inFlightFenceList[x]) == VK_SUCCESS) {
@@ -1599,5 +1600,5 @@ void Device::drawFrame(CameraUniform camera) {
 
   vkQueuePresentKHR(this->presentQueue, &presentInfo);
 
-  this->currentFrame = (this->currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
+  this->currentFrame = (this->currentFrame + 1) % this->framesInFlight;
 }
