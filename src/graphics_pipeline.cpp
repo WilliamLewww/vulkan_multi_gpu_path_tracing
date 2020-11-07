@@ -41,13 +41,24 @@ void GraphicsPipeline::setFragmentFile(std::string path) {
   fclose(this->fragmentFile);
 }
 
-void GraphicsPipeline::createGraphicsPipeline(VkDevice device, 
-                                              std::vector<VkVertexInputBindingDescription> vertexBindingDescriptionList, 
+void GraphicsPipeline::createPipelineLayout(VkDevice device, std::vector<VkDescriptorSetLayout> descriptorSetLayoutList) {
+  VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo = {};
+  pipelineLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+  pipelineLayoutCreateInfo.setLayoutCount = descriptorSetLayoutList.size();
+  pipelineLayoutCreateInfo.pSetLayouts = descriptorSetLayoutList.data();
+
+  if (vkCreatePipelineLayout(device, &pipelineLayoutCreateInfo, NULL, &this->pipelineLayout) == VK_SUCCESS) {
+    printf("created pipeline layout\n");
+  } 
+}
+
+void GraphicsPipeline::createGraphicsPipeline(VkDevice device,
+                                              std::vector<VkVertexInputBindingDescription> vertexBindingDescriptionList,
                                               std::vector<VkVertexInputAttributeDescription> vertexAttributeDescriptionList,
                                               VkViewport viewport,
                                               VkRect2D scissor,
-                                              VkPipelineLayout pipelineLayout,
                                               VkRenderPass renderPass) {
+
   VkShaderModuleCreateInfo vertexShaderModuleCreateInfo = {};
   vertexShaderModuleCreateInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
   vertexShaderModuleCreateInfo.codeSize = this->vertexFileSize;
@@ -150,7 +161,7 @@ void GraphicsPipeline::createGraphicsPipeline(VkDevice device,
   graphicsPipelineCreateInfo.pMultisampleState = &multisampleStateCreateInfo;
   graphicsPipelineCreateInfo.pDepthStencilState = &depthStencil;
   graphicsPipelineCreateInfo.pColorBlendState = &colorBlendStateCreateInfo;
-  graphicsPipelineCreateInfo.layout = pipelineLayout;
+  graphicsPipelineCreateInfo.layout = this->pipelineLayout;
   graphicsPipelineCreateInfo.renderPass = renderPass;
   graphicsPipelineCreateInfo.subpass = 0;
   graphicsPipelineCreateInfo.basePipelineHandle = VK_NULL_HANDLE;  

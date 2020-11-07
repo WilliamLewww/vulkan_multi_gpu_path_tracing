@@ -14,6 +14,7 @@ private:
   uint32_t fragmentFileSize;
   char* fragmentFileBuffer;
 
+  VkPipelineLayout pipelineLayout;
   VkPipeline graphicsPipeline;
 public:
   GraphicsPipeline();
@@ -21,11 +22,12 @@ public:
 
   void setVertexFile(std::string path);
   void setFragmentFile(std::string path);
-  void createGraphicsPipeline(VkDevice device, 
-                              std::vector<VkVertexInputBindingDescription> vertexBindingDescriptionList, 
+
+  void createPipelineLayout(VkDevice device, std::vector<VkDescriptorSetLayout> descriptorSetLayoutList);
+  void createGraphicsPipeline(VkDevice device,
+                              std::vector<VkVertexInputBindingDescription> vertexBindingDescriptionList,
                               std::vector<VkVertexInputAttributeDescription> vertexAttributeDescriptionList,
                               VkViewport viewport,
                               VkRect2D scissor,
-                              VkPipelineLayout pipelineLayout,
                               VkRenderPass renderPass);
 };
