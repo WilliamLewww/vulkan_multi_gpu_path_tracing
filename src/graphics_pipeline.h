@@ -27,7 +27,6 @@ public:
   void createGraphicsPipeline(VkDevice logicalDevice,
                               std::vector<VkVertexInputBindingDescription> vertexBindingDescriptionList,
                               std::vector<VkVertexInputAttributeDescription> vertexAttributeDescriptionList,
-                              VkViewport viewport,
-                              VkRect2D scissor,
+                              VkExtent2D swapchainExtent,
                               VkRenderPass renderPass);
 };

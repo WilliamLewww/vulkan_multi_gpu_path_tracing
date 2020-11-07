@@ -51,6 +51,23 @@ Renderer::Renderer(Scene* scene, Camera* camera) {
   this->graphicsPipeline->setFragmentFile("bin/basic.frag.spv");
   this->graphicsPipeline->createPipelineLayout(displayDevice->getLogicalDevice(), displayDevice->getRayTraceDescriptorSetLayoutList());
 
+  std::vector<VkVertexInputBindingDescription> vertexBindingDescriptionList(1);
+  vertexBindingDescriptionList[0].binding = 0;
+  vertexBindingDescriptionList[0].stride = sizeof(float) * 3;
+  vertexBindingDescriptionList[0].inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+
+  std::vector<VkVertexInputAttributeDescription> vertexAttributeDescriptionList(1);
+  vertexAttributeDescriptionList[0].binding = 0;
+  vertexAttributeDescriptionList[0].location = 0;
+  vertexAttributeDescriptionList[0].format = VK_FORMAT_R32G32B32_SFLOAT;
+  vertexAttributeDescriptionList[0].offset = 0;
+
+  this->graphicsPipeline->createGraphicsPipeline(displayDevice->getLogicalDevice(),
+                              vertexBindingDescriptionList,
+                              vertexAttributeDescriptionList,
+                              displayDevice->getSwapchainExtent(),
+                              displayDevice->getRenderPass());
+
   displayDevice->createGraphicsPipeline();
   displayDevice->createCommandBuffers(scene);
   displayDevice->createSynchronizationObjects();

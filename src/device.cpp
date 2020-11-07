@@ -21,6 +21,14 @@ std::vector<VkDescriptorSetLayout> Device::getRayTraceDescriptorSetLayoutList() 
   return this->rayTraceDescriptorSetLayoutList;
 }
 
+VkExtent2D Device::getSwapchainExtent() {
+  return this->swapchainExtent;
+}
+
+VkRenderPass Device::getRenderPass() {
+  return this->renderPass;
+}
+
 void Device::createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usageFlags, VkMemoryPropertyFlags propertyFlags, VkImage* image, VkDeviceMemory* imageMemory) {
   VkImageCreateInfo imageCreateInfo = {};
   imageCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;

@@ -55,8 +55,7 @@ void GraphicsPipeline::createPipelineLayout(VkDevice logicalDevice, std::vector<
 void GraphicsPipeline::createGraphicsPipeline(VkDevice logicalDevice,
                                               std::vector<VkVertexInputBindingDescription> vertexBindingDescriptionList,
                                               std::vector<VkVertexInputAttributeDescription> vertexAttributeDescriptionList,
-                                              VkViewport viewport,
-                                              VkRect2D scissor,
+                                              VkExtent2D swapchainExtent,
                                               VkRenderPass renderPass) {
 
   VkShaderModuleCreateInfo vertexShaderModuleCreateInfo = {};
@@ -104,6 +103,19 @@ void GraphicsPipeline::createGraphicsPipeline(VkDevice logicalDevice,
   inputAssemblyCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
   inputAssemblyCreateInfo.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
   inputAssemblyCreateInfo.primitiveRestartEnable = VK_FALSE;
+
+  VkViewport viewport = {};
+  viewport.x = 0.0f;
+  viewport.y = swapchainExtent.height;
+  viewport.width = swapchainExtent.width;
+  viewport.height = swapchainExtent.height;
+  viewport.minDepth = 0.0f;
+  viewport.maxDepth = 1.0f;
+
+  VkRect2D scissor = {};
+  VkOffset2D scissorOffset = {0, 0};
+  scissor.offset = scissorOffset;
+  scissor.extent = swapchainExtent;
 
   VkPipelineViewportStateCreateInfo viewportStateCreateInfo = {};
   viewportStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;

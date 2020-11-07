@@ -96,6 +96,8 @@ public:
 
   VkDevice getLogicalDevice();
   std::vector<VkDescriptorSetLayout> getRayTraceDescriptorSetLayoutList();
+  VkExtent2D getSwapchainExtent();
+  VkRenderPass getRenderPass();
 
   void createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usageFlags, VkMemoryPropertyFlags propertyFlags, VkImage* image, VkDeviceMemory* imageMemory);
   void createBuffer(VkDeviceSize size, VkBufferUsageFlags usageFlags, VkMemoryPropertyFlags propertyFlags, VkBuffer* buffer, VkDeviceMemory* bufferMemory);
