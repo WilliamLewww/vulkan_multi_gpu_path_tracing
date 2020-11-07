@@ -8,12 +8,14 @@
 #include "vulkan_instance.h"
 #include "device_manager.h"
 #include "camera.h"
+#include "graphics_pipeline.h"
 
 class Renderer {
 private:
   Window* window;
   VulkanInstance* vulkanInstance;
   DeviceManager* deviceManager;
+  GraphicsPipeline* graphicsPipeline;
 public:
   Renderer(Scene* scene, Camera* camera);
   ~Renderer();

@@ -13,6 +13,14 @@ Device::~Device() {
 
 }
 
+VkDevice Device::getLogicalDevice() {
+  return this->logicalDevice;
+}
+
+std::vector<VkDescriptorSetLayout> Device::getRayTraceDescriptorSetLayoutList() {
+  return this->rayTraceDescriptorSetLayoutList;
+}
+
 void Device::createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usageFlags, VkMemoryPropertyFlags propertyFlags, VkImage* image, VkDeviceMemory* imageMemory) {
   VkImageCreateInfo imageCreateInfo = {};
   imageCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;

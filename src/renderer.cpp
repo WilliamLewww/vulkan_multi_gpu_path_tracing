@@ -46,6 +46,11 @@ Renderer::Renderer(Scene* scene, Camera* camera) {
   displayDevice->createUniformBuffer();
   displayDevice->createDescriptorSets();
 
+  this->graphicsPipeline = new GraphicsPipeline();
+  this->graphicsPipeline->setVertexFile("bin/basic.vert.spv");
+  this->graphicsPipeline->setFragmentFile("bin/basic.frag.spv");
+  this->graphicsPipeline->createPipelineLayout(displayDevice->getLogicalDevice(), displayDevice->getRayTraceDescriptorSetLayoutList());
+
   displayDevice->createGraphicsPipeline();
   displayDevice->createCommandBuffers(scene);
   displayDevice->createSynchronizationObjects();
@@ -59,4 +64,5 @@ Renderer::Renderer(Scene* scene, Camera* camera) {
 
 Renderer::~Renderer() {
   delete this->window;
+  delete this->graphicsPipeline;
 }

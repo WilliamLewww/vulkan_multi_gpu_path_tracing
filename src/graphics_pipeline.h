@@ -23,8 +23,8 @@ public:
   void setVertexFile(std::string path);
   void setFragmentFile(std::string path);
 
-  void createPipelineLayout(VkDevice device, std::vector<VkDescriptorSetLayout> descriptorSetLayoutList);
-  void createGraphicsPipeline(VkDevice device,
+  void createPipelineLayout(VkDevice logicalDevice, std::vector<VkDescriptorSetLayout> descriptorSetLayoutList);
+  void createGraphicsPipeline(VkDevice logicalDevice,
                               std::vector<VkVertexInputBindingDescription> vertexBindingDescriptionList,
                               std::vector<VkVertexInputAttributeDescription> vertexAttributeDescriptionList,
                               VkViewport viewport,
