@@ -68,8 +68,7 @@ Renderer::Renderer(Scene* scene, Camera* camera) {
                               displayDevice->getSwapchainExtent(),
                               displayDevice->getRenderPass());
 
-  displayDevice->createGraphicsPipeline();
-  displayDevice->createCommandBuffers(scene);
+  displayDevice->createCommandBuffers(scene, this->graphicsPipeline->getPipelineLayout(), this->graphicsPipeline->getPipeline());
   displayDevice->createSynchronizationObjects();
 
   while (!glfwWindowShouldClose(this->window->getWindow())) {

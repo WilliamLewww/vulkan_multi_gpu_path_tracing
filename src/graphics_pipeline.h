@@ -20,6 +20,9 @@ public:
   GraphicsPipeline();
   ~GraphicsPipeline();
 
+  VkPipelineLayout getPipelineLayout();
+  VkPipeline getPipeline();
+
   void setVertexFile(std::string path);
   void setFragmentFile(std::string path);
 

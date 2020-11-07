@@ -13,6 +13,14 @@ GraphicsPipeline::~GraphicsPipeline() {
   }
 }
 
+VkPipelineLayout GraphicsPipeline::getPipelineLayout() {
+  return this->pipelineLayout;
+}
+
+VkPipeline GraphicsPipeline::getPipeline() {
+  return this->graphicsPipeline;
+}
+
 void GraphicsPipeline::setVertexFile(std::string path) {
   this->vertexFile = fopen(path.c_str(), "rb");
   fseek(this->vertexFile, 0, SEEK_END);
@@ -106,9 +114,9 @@ void GraphicsPipeline::createGraphicsPipeline(VkDevice logicalDevice,
 
   VkViewport viewport = {};
   viewport.x = 0.0f;
-  viewport.y = swapchainExtent.height;
-  viewport.width = swapchainExtent.width;
-  viewport.height = swapchainExtent.height;
+  viewport.y = (float)swapchainExtent.height;
+  viewport.width = (float)swapchainExtent.width;
+  viewport.height = -(float)swapchainExtent.height;
   viewport.minDepth = 0.0f;
   viewport.maxDepth = 1.0f;
 

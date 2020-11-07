@@ -78,12 +78,6 @@ protected:
   VkDescriptorSet materialDescriptorSet;
   std::vector<VkDescriptorSetLayout> rayTraceDescriptorSetLayoutList;
 
-  std::vector<VkVertexInputBindingDescription> vertexBindingDescriptionList;
-  std::vector<VkVertexInputAttributeDescription> vertexAttributeDescriptionList;
-
-  VkPipelineLayout pipelineLayout;
-  VkPipeline graphicsPipeline;
-
   std::vector<VkCommandBuffer> commandBufferList;
   std::vector<VkSemaphore> imageAvailableSemaphoreList;
   std::vector<VkSemaphore> renderFinishedSemaphoreList;
@@ -125,9 +119,7 @@ public:
   void createUniformBuffer();
   void createDescriptorSets();
 
-  void createGraphicsPipeline();
-
-  void createCommandBuffers(Scene* scene);
+  void createCommandBuffers(Scene* scene, VkPipelineLayout pipelineLayout, VkPipeline pipeline);
   void createSynchronizationObjects();
 
   void updateUniformBuffer(CameraUniform camera);
