@@ -7,7 +7,9 @@ class DescriptorManager {
 private:
   std::vector<VkDescriptorSet> descriptorSetList;
   std::vector<VkDescriptorSetLayout> descriptorSetLayoutList;
+
   std::vector<std::vector<VkDescriptorSetLayoutBinding>> descriptorSetLayoutBindingList;
+  std::vector<std::vector<VkWriteDescriptorSet>> writeDescriptorSetList;
 
   std::vector<VkDescriptorPoolSize> descriptorPoolSizeList;
 public:
@@ -15,5 +17,12 @@ public:
   ~DescriptorManager();
 
   void addDescriptorSet();
-  void addDescriptorSetLayoutBinding(int descriptorSetIndex, uint32_t binding, VkDescriptorType descriptorType, VkShaderStageFlagBits stageFlags);
+  void addDescriptor(int descriptorSetIndex, 
+                     uint32_t binding, 
+                     VkDescriptorType descriptorType, 
+                     VkShaderStageFlagBits stageFlags,
+                     VkDescriptorImageInfo* pImageInfo = NULL, 
+                     VkDescriptorBufferInfo* pBufferInfo = NULL,
+                     VkBufferView* pTexelBufferView = NULL,
+                     void* pNext = NULL);
 };

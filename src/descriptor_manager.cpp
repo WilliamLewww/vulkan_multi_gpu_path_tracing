@@ -12,9 +12,18 @@ void DescriptorManager::addDescriptorSet() {
   this->descriptorSetList.push_back(VkDescriptorSet());
   this->descriptorSetLayoutList.push_back(VkDescriptorSetLayout());
   this->descriptorSetLayoutBindingList.push_back(std::vector<VkDescriptorSetLayoutBinding>());
+  this->writeDescriptorSetList.push_back(std::vector<VkWriteDescriptorSet>());
 }
 
-void DescriptorManager::addDescriptorSetLayoutBinding(int descriptorSetIndex, uint32_t binding, VkDescriptorType descriptorType, VkShaderStageFlagBits stageFlags) {
+void DescriptorManager::addDescriptor(int descriptorSetIndex, 
+                     uint32_t binding, 
+                     VkDescriptorType descriptorType, 
+                     VkShaderStageFlagBits stageFlags,
+                     VkDescriptorImageInfo* pImageInfo, 
+                     VkDescriptorBufferInfo* pBufferInfo,
+                     VkBufferView* pTexelBufferView,
+                     void* pNext) {
+
   VkDescriptorSetLayoutBinding descriptorSetLayoutBinding = {
     .binding = binding,
     .descriptorType = descriptorType,
@@ -22,12 +31,26 @@ void DescriptorManager::addDescriptorSetLayoutBinding(int descriptorSetIndex, ui
     .stageFlags = stageFlags,
     .pImmutableSamplers = NULL
   };
-  descriptorSetLayoutBindingList[descriptorSetIndex].push_back(descriptorSetLayoutBinding);
+  this->descriptorSetLayoutBindingList[descriptorSetIndex].push_back(descriptorSetLayoutBinding);
+
+  VkWriteDescriptorSet writeDescriptorSet = {
+    .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+    .pNext = pNext,
+    .dstSet = this->descriptorSetList[descriptorSetIndex],
+    .dstBinding = binding,
+    .dstArrayElement = 0,
+    .descriptorCount = 1,
+    .descriptorType = descriptorType,
+    .pImageInfo = pImageInfo,
+    .pBufferInfo = pBufferInfo,
+    .pTexelBufferView = pTexelBufferView
+  };
+  this->writeDescriptorSetList[descriptorSetIndex].push_back(writeDescriptorSet);
 
   bool typeExists = false;
-  for (int x = 0; x < descriptorPoolSizeList.size(); x++) {
-    if (descriptorPoolSizeList[x].type == descriptorType) {
-      descriptorPoolSizeList[x].descriptorCount += 1;
+  for (int x = 0; x < this->descriptorPoolSizeList.size(); x++) {
+    if (this->descriptorPoolSizeList[x].type == descriptorType) {
+      this->descriptorPoolSizeList[x].descriptorCount += 1;
     }
   }
 
@@ -36,6 +59,6 @@ void DescriptorManager::addDescriptorSetLayoutBinding(int descriptorSetIndex, ui
       .type = descriptorType,
       .descriptorCount = 1
     };
-    descriptorPoolSizeList.push_back(descriptorPoolSize);
+    this->descriptorPoolSizeList.push_back(descriptorPoolSize);
   }
 }
