@@ -136,9 +136,6 @@ void main() {
         positionToLightDirection = normalize(lightPosition - interpolatedPosition);
         directColor = surfaceColor * lightColor * dot(geometricNormal, positionToLightDirection);
       }
-      else {
-        directColor = vec3(0.0, 0.0, 0.0);
-      }
     }
   }
 
