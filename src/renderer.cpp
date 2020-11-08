@@ -47,11 +47,12 @@ Renderer::Renderer(Scene* scene, Camera* camera) {
 
   this->descriptorManager = new DescriptorManager(2);
 
-  VkWriteDescriptorSetAccelerationStructureKHR descriptorSetAccelerationStructure = {};
-  descriptorSetAccelerationStructure.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR;
-  descriptorSetAccelerationStructure.pNext = NULL;
-  descriptorSetAccelerationStructure.accelerationStructureCount = 1;
-  descriptorSetAccelerationStructure.pAccelerationStructures = displayDevice->getTopLevelAccelerationStructurePointer();  
+  VkWriteDescriptorSetAccelerationStructureKHR descriptorSetAccelerationStructure = {
+    .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR,
+    .pNext = NULL,
+    .accelerationStructureCount = 1,
+    .pAccelerationStructures = displayDevice->getTopLevelAccelerationStructurePointer()
+  };
   this->descriptorManager->addDescriptor(0, 
                                          0, 
                                          VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR, 
@@ -61,10 +62,11 @@ Renderer::Renderer(Scene* scene, Camera* camera) {
                                          NULL,
                                          &descriptorSetAccelerationStructure);
 
-  VkDescriptorBufferInfo uniformBufferInfo = {};
-  uniformBufferInfo.buffer = displayDevice->getUniformBuffer();
-  uniformBufferInfo.offset = 0;
-  uniformBufferInfo.range = VK_WHOLE_SIZE;
+  VkDescriptorBufferInfo uniformBufferInfo = {
+    .buffer = displayDevice->getUniformBuffer(),
+    .offset = 0,
+    .range = VK_WHOLE_SIZE
+  };
   this->descriptorManager->addDescriptor(0, 
                                          1, 
                                          VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 
@@ -74,10 +76,11 @@ Renderer::Renderer(Scene* scene, Camera* camera) {
                                          NULL,
                                          NULL);
 
-  VkDescriptorBufferInfo indexBufferInfo = {};
-  indexBufferInfo.buffer = displayDevice->getIndexBuffer();
-  indexBufferInfo.offset = 0;
-  indexBufferInfo.range = VK_WHOLE_SIZE;
+  VkDescriptorBufferInfo indexBufferInfo = {
+    .buffer = displayDevice->getIndexBuffer(),
+    .offset = 0,
+    .range = VK_WHOLE_SIZE
+  };
   this->descriptorManager->addDescriptor(0, 
                                          2, 
                                          VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 
@@ -87,10 +90,11 @@ Renderer::Renderer(Scene* scene, Camera* camera) {
                                          NULL,
                                          NULL);
 
-  VkDescriptorBufferInfo vertexBufferInfo = {};
-  vertexBufferInfo.buffer = displayDevice->getVertexBuffer();
-  vertexBufferInfo.offset = 0;
-  vertexBufferInfo.range = VK_WHOLE_SIZE;
+  VkDescriptorBufferInfo vertexBufferInfo = {
+    .buffer = displayDevice->getVertexBuffer(),
+    .offset = 0,
+    .range = VK_WHOLE_SIZE
+  };
   this->descriptorManager->addDescriptor(0, 
                                          3, 
                                          VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 
@@ -100,9 +104,10 @@ Renderer::Renderer(Scene* scene, Camera* camera) {
                                          NULL,
                                          NULL);
 
-  VkDescriptorImageInfo imageInfo = {};
-  imageInfo.imageView = displayDevice->getRayTraceImageView();
-  imageInfo.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
+  VkDescriptorImageInfo imageInfo = {
+    .imageView = displayDevice->getRayTraceImageView(),
+    .imageLayout = VK_IMAGE_LAYOUT_GENERAL
+  };
   this->descriptorManager->addDescriptor(0, 
                                          4, 
                                          VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 
@@ -112,10 +117,11 @@ Renderer::Renderer(Scene* scene, Camera* camera) {
                                          NULL,
                                          NULL);
 
-  VkDescriptorBufferInfo materialIndexBufferInfo = {};
-  materialIndexBufferInfo.buffer = displayDevice->getMaterialIndexBuffer();
-  materialIndexBufferInfo.offset = 0;
-  materialIndexBufferInfo.range = VK_WHOLE_SIZE;
+  VkDescriptorBufferInfo materialIndexBufferInfo = {
+    .buffer = displayDevice->getMaterialIndexBuffer(),
+    .offset = 0,
+    .range = VK_WHOLE_SIZE
+  };
   this->descriptorManager->addDescriptor(1, 
                                          0, 
                                          VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 
@@ -125,10 +131,11 @@ Renderer::Renderer(Scene* scene, Camera* camera) {
                                          NULL,
                                          NULL);
 
-  VkDescriptorBufferInfo materialBufferInfo = {};
-  materialBufferInfo.buffer = displayDevice->getMaterialBuffer();
-  materialBufferInfo.offset = 0;
-  materialBufferInfo.range = VK_WHOLE_SIZE;
+  VkDescriptorBufferInfo materialBufferInfo = {
+    .buffer = displayDevice->getMaterialBuffer(),
+    .offset = 0,
+    .range = VK_WHOLE_SIZE
+  };
   this->descriptorManager->addDescriptor(1, 
                                          1, 
                                          VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 
