@@ -150,7 +150,7 @@ void main() {
   vec3 previousNormal = geometricNormal;
 
   bool rayActive = true;
-  int maxRayDepth = 16;
+  int maxRayDepth = 32;
   for (int rayDepth = 0; rayDepth < maxRayDepth && rayActive; rayDepth++) {
     rayQueryEXT rayQuery;
     rayQueryInitializeEXT(rayQuery, topLevelAS, gl_RayFlagsTerminateOnFirstHitEXT, 0xFF, rayOrigin, 0.001f, rayDirection, 1000.0f);
