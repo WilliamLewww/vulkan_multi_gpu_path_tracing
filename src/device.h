@@ -119,7 +119,7 @@ public:
   void createUniformBuffer();
   void createDescriptorSets();
 
-  void createCommandBuffers(Scene* scene, VkPipelineLayout pipelineLayout, VkPipeline pipeline);
+  void createCommandBuffers(Scene* scene, VkPipeline pipeline, VkPipelineLayout pipelineLayout);
   void createSynchronizationObjects();
 
   void updateUniformBuffer(CameraUniform camera);

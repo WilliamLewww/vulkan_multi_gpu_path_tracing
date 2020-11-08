@@ -68,7 +68,7 @@ Renderer::Renderer(Scene* scene, Camera* camera) {
                               displayDevice->getSwapchainExtent(),
                               displayDevice->getRenderPass());
 
-  displayDevice->createCommandBuffers(scene, this->graphicsPipeline->getPipelineLayout(), this->graphicsPipeline->getPipeline());
+  displayDevice->createCommandBuffers(scene, this->graphicsPipeline->getPipeline(), this->graphicsPipeline->getPipelineLayout());
   displayDevice->createSynchronizationObjects();
 
   while (!glfwWindowShouldClose(this->window->getWindow())) {
@@ -79,6 +79,8 @@ Renderer::Renderer(Scene* scene, Camera* camera) {
 }
 
 Renderer::~Renderer() {
-  delete this->window;
   delete this->graphicsPipeline;
+  delete this->deviceManager;
+  delete this->vulkanInstance;
+  delete this->window;
 }

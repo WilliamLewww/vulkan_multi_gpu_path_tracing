@@ -1206,7 +1206,7 @@ void Device::createDescriptorSets() {
   }
 }
 
-void Device::createCommandBuffers(Scene* scene, VkPipelineLayout pipelineLayout, VkPipeline pipeline) {
+void Device::createCommandBuffers(Scene* scene, VkPipeline pipeline, VkPipelineLayout pipelineLayout) {
   this->commandBufferList.resize(this->swapchainImageCount);
   
   VkCommandBufferAllocateInfo commandBufferAllocateInfo = {};
