@@ -93,6 +93,12 @@ public:
   VkExtent2D getSwapchainExtent();
   VkRenderPass getRenderPass();
 
+  VkAccelerationStructureKHR* getTopLevelAccelerationStructurePointer();
+  VkBuffer getUniformBuffer();
+  VkBuffer getIndexBuffer();
+  VkBuffer getVertexBuffer();
+  VkImageView getRayTraceImageView();
+
   void createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usageFlags, VkMemoryPropertyFlags propertyFlags, VkImage* image, VkDeviceMemory* imageMemory);
   void createBuffer(VkDeviceSize size, VkBufferUsageFlags usageFlags, VkMemoryPropertyFlags propertyFlags, VkBuffer* buffer, VkDeviceMemory* bufferMemory);
   void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);

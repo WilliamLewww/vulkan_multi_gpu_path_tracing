@@ -46,6 +46,75 @@ Renderer::Renderer(Scene* scene, Camera* camera) {
   displayDevice->createUniformBuffer();
   displayDevice->createDescriptorSets();
 
+  this->descriptorManager = new DescriptorManager(2);
+
+  VkWriteDescriptorSetAccelerationStructureKHR descriptorSetAccelerationStructure = {};
+  descriptorSetAccelerationStructure.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR;
+  descriptorSetAccelerationStructure.pNext = NULL;
+  descriptorSetAccelerationStructure.accelerationStructureCount = 1;
+  descriptorSetAccelerationStructure.pAccelerationStructures = displayDevice->getTopLevelAccelerationStructurePointer();  
+  this->descriptorManager->addDescriptor(0, 
+                                         0, 
+                                         VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR, 
+                                         VK_SHADER_STAGE_FRAGMENT_BIT,
+                                         NULL, 
+                                         NULL,
+                                         NULL,
+                                         &descriptorSetAccelerationStructure);
+
+  VkDescriptorBufferInfo uniformBufferInfo = {};
+  uniformBufferInfo.buffer = displayDevice->getUniformBuffer();
+  uniformBufferInfo.offset = 0;
+  uniformBufferInfo.range = VK_WHOLE_SIZE;
+  this->descriptorManager->addDescriptor(0, 
+                                         1, 
+                                         VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 
+                                         (VkShaderStageFlagBits)(VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT),
+                                         NULL, 
+                                         &uniformBufferInfo,
+                                         NULL,
+                                         NULL);
+
+  VkDescriptorBufferInfo indexBufferInfo = {};
+  indexBufferInfo.buffer = displayDevice->getIndexBuffer();
+  indexBufferInfo.offset = 0;
+  indexBufferInfo.range = VK_WHOLE_SIZE;
+  this->descriptorManager->addDescriptor(0, 
+                                         2, 
+                                         VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 
+                                         VK_SHADER_STAGE_FRAGMENT_BIT,
+                                         NULL, 
+                                         &indexBufferInfo,
+                                         NULL,
+                                         NULL);
+
+  VkDescriptorBufferInfo vertexBufferInfo = {};
+  vertexBufferInfo.buffer = displayDevice->getVertexBuffer();
+  vertexBufferInfo.offset = 0;
+  vertexBufferInfo.range = VK_WHOLE_SIZE;
+  this->descriptorManager->addDescriptor(0, 
+                                         3, 
+                                         VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 
+                                         VK_SHADER_STAGE_FRAGMENT_BIT,
+                                         NULL, 
+                                         &vertexBufferInfo,
+                                         NULL,
+                                         NULL);
+
+  VkDescriptorImageInfo imageInfo = {};
+  imageInfo.imageView = displayDevice->getRayTraceImageView();
+  imageInfo.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
+  this->descriptorManager->addDescriptor(0, 
+                                         4, 
+                                         VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 
+                                         VK_SHADER_STAGE_FRAGMENT_BIT,
+                                         &imageInfo, 
+                                         NULL,
+                                         NULL,
+                                         NULL);
+
+  this->descriptorManager->concludeDescriptors(displayDevice->getLogicalDevice());
+
   this->graphicsPipeline = new GraphicsPipeline();
   this->graphicsPipeline->setVertexFile("bin/basic.vert.spv");
   this->graphicsPipeline->setFragmentFile("bin/basic.frag.spv");
@@ -63,10 +132,10 @@ Renderer::Renderer(Scene* scene, Camera* camera) {
   vertexAttributeDescriptionList[0].offset = 0;
 
   this->graphicsPipeline->createGraphicsPipeline(displayDevice->getLogicalDevice(),
-                              vertexBindingDescriptionList,
-                              vertexAttributeDescriptionList,
-                              displayDevice->getSwapchainExtent(),
-                              displayDevice->getRenderPass());
+                                                 vertexBindingDescriptionList,
+                                                 vertexAttributeDescriptionList,
+                                                 displayDevice->getSwapchainExtent(),
+                                                 displayDevice->getRenderPass());
 
   displayDevice->createCommandBuffers(scene, this->graphicsPipeline->getPipeline(), this->graphicsPipeline->getPipelineLayout());
   displayDevice->createSynchronizationObjects();
@@ -80,6 +149,7 @@ Renderer::Renderer(Scene* scene, Camera* camera) {
 
 Renderer::~Renderer() {
   delete this->graphicsPipeline;
+  delete this->descriptorManager;
   delete this->deviceManager;
   delete this->vulkanInstance;
   delete this->window;

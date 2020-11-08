@@ -1,7 +1,8 @@
 #include "graphics_pipeline.h"
 
 GraphicsPipeline::GraphicsPipeline() {
-
+  this->vertexFileBuffer = NULL;
+  this->fragmentFileBuffer = NULL;
 }
 
 GraphicsPipeline::~GraphicsPipeline() {

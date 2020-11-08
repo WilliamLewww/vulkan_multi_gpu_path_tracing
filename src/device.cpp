@@ -29,6 +29,26 @@ VkRenderPass Device::getRenderPass() {
   return this->renderPass;
 }
 
+VkAccelerationStructureKHR* Device::getTopLevelAccelerationStructurePointer() {
+  return &this->topLevelAccelerationStructure;
+}
+
+VkBuffer Device::getUniformBuffer() {
+  return this->uniformBuffer;
+}
+
+VkBuffer Device::getIndexBuffer() {
+  return this->indexBuffer;
+}
+
+VkBuffer Device::getVertexBuffer() {
+  return this->vertexPositionBuffer;
+}
+
+VkImageView Device::getRayTraceImageView() {
+  return this->rayTraceImageView;
+}
+
 void Device::createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usageFlags, VkMemoryPropertyFlags propertyFlags, VkImage* image, VkDeviceMemory* imageMemory) {
   VkImageCreateInfo imageCreateInfo = {};
   imageCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
