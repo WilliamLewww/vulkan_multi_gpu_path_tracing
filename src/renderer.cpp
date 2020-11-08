@@ -113,6 +113,32 @@ Renderer::Renderer(Scene* scene, Camera* camera) {
                                          NULL,
                                          NULL);
 
+  VkDescriptorBufferInfo materialIndexBufferInfo = {};
+  materialIndexBufferInfo.buffer = displayDevice->getMaterialIndexBuffer();
+  materialIndexBufferInfo.offset = 0;
+  materialIndexBufferInfo.range = VK_WHOLE_SIZE;
+  this->descriptorManager->addDescriptor(1, 
+                                         0, 
+                                         VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 
+                                         (VkShaderStageFlagBits)(VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT),
+                                         NULL, 
+                                         &materialIndexBufferInfo,
+                                         NULL,
+                                         NULL);
+
+  VkDescriptorBufferInfo materialBufferInfo = {};
+  materialBufferInfo.buffer = displayDevice->getMaterialBuffer();
+  materialBufferInfo.offset = 0;
+  materialBufferInfo.range = VK_WHOLE_SIZE;
+  this->descriptorManager->addDescriptor(1, 
+                                         1, 
+                                         VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 
+                                         (VkShaderStageFlagBits)(VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT),
+                                         NULL, 
+                                         &materialBufferInfo,
+                                         NULL,
+                                         NULL);
+
   this->descriptorManager->concludeDescriptors(displayDevice->getLogicalDevice());
 
   this->graphicsPipeline = new GraphicsPipeline();

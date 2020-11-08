@@ -49,6 +49,14 @@ VkImageView Device::getRayTraceImageView() {
   return this->rayTraceImageView;
 }
 
+VkBuffer Device::getMaterialIndexBuffer() {
+  return this->materialIndexBuffer;
+}
+
+VkBuffer Device::getMaterialBuffer() {
+  return this->materialBuffer;
+}
+
 void Device::createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usageFlags, VkMemoryPropertyFlags propertyFlags, VkImage* image, VkDeviceMemory* imageMemory) {
   VkImageCreateInfo imageCreateInfo = {};
   imageCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
