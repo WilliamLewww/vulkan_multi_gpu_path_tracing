@@ -44,7 +44,6 @@ Renderer::Renderer(Scene* scene, Camera* camera) {
   displayDevice->createTopLevelAccelerationStructure();
 
   displayDevice->createUniformBuffer();
-  displayDevice->createDescriptorSets();
 
   this->descriptorManager = new DescriptorManager(2);
 
@@ -144,7 +143,7 @@ Renderer::Renderer(Scene* scene, Camera* camera) {
   this->graphicsPipeline = new GraphicsPipeline();
   this->graphicsPipeline->setVertexFile("bin/basic.vert.spv");
   this->graphicsPipeline->setFragmentFile("bin/basic.frag.spv");
-  this->graphicsPipeline->createPipelineLayout(displayDevice->getLogicalDevice(), displayDevice->getRayTraceDescriptorSetLayoutList());
+  this->graphicsPipeline->createPipelineLayout(displayDevice->getLogicalDevice(), descriptorManager->getDescriptorSetLayoutList());
 
   std::vector<VkVertexInputBindingDescription> vertexBindingDescriptionList(1);
   vertexBindingDescriptionList[0].binding = 0;
@@ -163,7 +162,7 @@ Renderer::Renderer(Scene* scene, Camera* camera) {
                                                  displayDevice->getSwapchainExtent(),
                                                  displayDevice->getRenderPass());
 
-  displayDevice->createCommandBuffers(scene, this->graphicsPipeline->getPipeline(), this->graphicsPipeline->getPipelineLayout());
+  displayDevice->createCommandBuffers(scene, this->graphicsPipeline->getPipeline(), this->graphicsPipeline->getPipelineLayout(), this->descriptorManager->getDescriptorSetListReference());
   displayDevice->createSynchronizationObjects();
 
   while (!glfwWindowShouldClose(this->window->getWindow())) {

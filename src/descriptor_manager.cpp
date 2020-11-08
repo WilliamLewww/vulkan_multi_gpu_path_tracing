@@ -13,6 +13,14 @@ DescriptorManager::~DescriptorManager() {
 
 }
 
+std::vector<VkDescriptorSetLayout> DescriptorManager::getDescriptorSetLayoutList() {
+  return this->descriptorSetLayoutList;
+}
+
+std::vector<VkDescriptorSet>& DescriptorManager:: getDescriptorSetListReference() {
+  return this->descriptorSetList;
+}
+
 void DescriptorManager::addDescriptor(int descriptorSetIndex, 
                      uint32_t binding, 
                      VkDescriptorType descriptorType, 

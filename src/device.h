@@ -73,11 +73,6 @@ protected:
   VkBuffer uniformBuffer;
   VkDeviceMemory uniformBufferMemory;
 
-  VkDescriptorPool descriptorPool;
-  VkDescriptorSet rayTraceDescriptorSet;
-  VkDescriptorSet materialDescriptorSet;
-  std::vector<VkDescriptorSetLayout> rayTraceDescriptorSetLayoutList;
-
   std::vector<VkCommandBuffer> commandBufferList;
   std::vector<VkSemaphore> imageAvailableSemaphoreList;
   std::vector<VkSemaphore> renderFinishedSemaphoreList;
@@ -89,7 +84,6 @@ public:
   ~Device();
 
   VkDevice getLogicalDevice();
-  std::vector<VkDescriptorSetLayout> getRayTraceDescriptorSetLayoutList();
   VkExtent2D getSwapchainExtent();
   VkRenderPass getRenderPass();
 
@@ -125,9 +119,8 @@ public:
   void createTopLevelAccelerationStructure();
 
   void createUniformBuffer();
-  void createDescriptorSets();
 
-  void createCommandBuffers(Scene* scene, VkPipeline pipeline, VkPipelineLayout pipelineLayout);
+  void createCommandBuffers(Scene* scene, VkPipeline pipeline, VkPipelineLayout pipelineLayout, std::vector<VkDescriptorSet>& descriptorSetList);
   void createSynchronizationObjects();
 
   void updateUniformBuffer(CameraUniform camera);

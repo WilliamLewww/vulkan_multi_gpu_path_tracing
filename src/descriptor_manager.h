@@ -18,6 +18,9 @@ public:
   DescriptorManager(int descriptorSetCount);
   ~DescriptorManager();
 
+  std::vector<VkDescriptorSetLayout> getDescriptorSetLayoutList();
+  std::vector<VkDescriptorSet>& getDescriptorSetListReference();
+
   void addDescriptor(int descriptorSetIndex, 
                      uint32_t binding, 
                      VkDescriptorType descriptorType, 
