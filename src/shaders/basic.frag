@@ -78,10 +78,10 @@ void main() {
     directColor = materialBuffer.data[materialIndexBuffer.data[gl_PrimitiveID]].emission;
   }
   else {
-    int randomIndex = materialLightBuffer.indices[int(random(gl_FragCoord.xy, camera.frameCount) * materialLightBuffer.count)];
-    vec3 lightColor = materialBuffer.data[materialIndexBuffer.data[randomIndex]].emission;
+    int lightIndex = materialLightBuffer.indices[int(random(gl_FragCoord.xy, camera.frameCount) * materialLightBuffer.count)];
+    vec3 lightColor = materialBuffer.data[materialIndexBuffer.data[lightIndex]].emission;
 
-    ivec3 lightIndices = ivec3(indexBuffer.data[3 * randomIndex + 0], indexBuffer.data[3 * randomIndex + 1], indexBuffer.data[3 * randomIndex + 2]);
+    ivec3 lightIndices = ivec3(indexBuffer.data[3 * lightIndex + 0], indexBuffer.data[3 * lightIndex + 1], indexBuffer.data[3 * lightIndex + 2]);
 
     vec3 lightVertexA = vec3(vertexBuffer.data[3 * lightIndices.x + 0], vertexBuffer.data[3 * lightIndices.x + 1], vertexBuffer.data[3 * lightIndices.x + 2]);
     vec3 lightVertexB = vec3(vertexBuffer.data[3 * lightIndices.y + 0], vertexBuffer.data[3 * lightIndices.y + 1], vertexBuffer.data[3 * lightIndices.y + 2]);
@@ -111,7 +111,34 @@ void main() {
       directColor = surfaceColor * lightColor * dot(geometricNormal, positionToLightDirection);
     }
     else {
-      directColor = vec3(0.0, 0.0, 0.0);
+      int intersectionPrimitiveIndex = rayQueryGetIntersectionPrimitiveIndexEXT(rayQuery, true);
+      bool intersectionIsLight = false;
+      for (int x = 0; x < materialLightBuffer.count; x++) {
+        if (intersectionPrimitiveIndex == materialLightBuffer.indices[x]) {
+          intersectionIsLight = true;
+          lightIndex = intersectionPrimitiveIndex;
+        }
+      }
+
+      if (intersectionIsLight) {
+        lightColor = materialBuffer.data[materialIndexBuffer.data[lightIndex]].emission;
+        uv = rayQueryGetIntersectionBarycentricsEXT(rayQuery, true);
+        lightBarycentric = vec3(1.0 - uv.x - uv.y, uv.x, uv.y);
+
+        ivec3 lightIndices = ivec3(indexBuffer.data[3 * lightIndex + 0], indexBuffer.data[3 * lightIndex + 1], indexBuffer.data[3 * lightIndex + 2]);
+
+        vec3 lightVertexA = vec3(vertexBuffer.data[3 * lightIndices.x + 0], vertexBuffer.data[3 * lightIndices.x + 1], vertexBuffer.data[3 * lightIndices.x + 2]);
+        vec3 lightVertexB = vec3(vertexBuffer.data[3 * lightIndices.y + 0], vertexBuffer.data[3 * lightIndices.y + 1], vertexBuffer.data[3 * lightIndices.y + 2]);
+        vec3 lightVertexC = vec3(vertexBuffer.data[3 * lightIndices.z + 0], vertexBuffer.data[3 * lightIndices.z + 1], vertexBuffer.data[3 * lightIndices.z + 2]);
+
+        lightPosition = lightVertexA * lightBarycentric.x + lightVertexB * lightBarycentric.y + lightVertexC * lightBarycentric.z;
+        
+        positionToLightDirection = normalize(lightPosition - interpolatedPosition);
+        directColor = surfaceColor * lightColor * dot(geometricNormal, positionToLightDirection);
+      }
+      else {
+        directColor = vec3(0.0, 0.0, 0.0);
+      }
     }
   }
 
