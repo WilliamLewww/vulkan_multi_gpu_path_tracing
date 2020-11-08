@@ -32,6 +32,7 @@ layout(binding = 4, set = 0, rgba32f) uniform image2D image;
 
 layout(binding = 0, set = 1) buffer MaterialIndexBuffer { uint data[]; } materialIndexBuffer;
 layout(binding = 1, set = 1) buffer MaterialBuffer { Material data[]; } materialBuffer;
+layout(binding = 2, set = 1) buffer MaterialLightBuffer { int count; int indices[64]; } materialLightBuffer;
 
 float random(vec2 uv, float seed) {
   return fract(sin(mod(dot(uv, vec2(12.9898, 78.233)) + 1113.1 * seed, M_PI)) * 43758.5453);;
@@ -66,13 +67,19 @@ void main() {
 
   vec3 surfaceColor = materialBuffer.data[materialIndexBuffer.data[gl_PrimitiveID]].diffuse;
 
-  // 40 & 41 == light
-  if (gl_PrimitiveID == 40 || gl_PrimitiveID == 41) {
+  bool isLight = false;
+  for (int x = 0; x < materialLightBuffer.count; x++) {
+    if (gl_PrimitiveID == materialLightBuffer.indices[x]) {
+      isLight = true;
+    }
+  }
+
+  if (isLight) {
     directColor = materialBuffer.data[materialIndexBuffer.data[gl_PrimitiveID]].emission;
   }
   else {
-    int randomIndex = int(random(gl_FragCoord.xy, camera.frameCount) * 2 + 40);
-    vec3 lightColor = vec3(0.6, 0.6, 0.6);
+    int randomIndex = materialLightBuffer.indices[int(random(gl_FragCoord.xy, camera.frameCount) * materialLightBuffer.count)];
+    vec3 lightColor = materialBuffer.data[materialIndexBuffer.data[randomIndex]].emission;
 
     ivec3 lightIndices = ivec3(indexBuffer.data[3 * randomIndex + 0], indexBuffer.data[3 * randomIndex + 1], indexBuffer.data[3 * randomIndex + 2]);
 
@@ -139,12 +146,18 @@ void main() {
 
       vec3 extensionSurfaceColor = materialBuffer.data[materialIndexBuffer.data[extensionPrimitiveIndex]].diffuse;
 
-      if (extensionPrimitiveIndex == 40 || extensionPrimitiveIndex == 41) {
+      bool extensionIsLight = false;
+      for (int x = 0; x < materialLightBuffer.count; x++) {
+        if (gl_PrimitiveID == materialLightBuffer.indices[x]) {
+          extensionIsLight = true;
+        }
+      }
+      if (extensionIsLight) {
         indirectColor += (1.0 / (rayDepth + 1)) * materialBuffer.data[materialIndexBuffer.data[extensionPrimitiveIndex]].emission * dot(previousNormal, rayDirection);
       }
       else {
-        int randomIndex = int(random(gl_FragCoord.xy, camera.frameCount + rayDepth) * 2 + 40);
-        vec3 lightColor = vec3(0.6, 0.6, 0.6);
+        int randomIndex = materialLightBuffer.indices[int(random(gl_FragCoord.xy, camera.frameCount) * materialLightBuffer.count)];
+        vec3 lightColor = materialBuffer.data[materialIndexBuffer.data[randomIndex]].emission;
 
         ivec3 lightIndices = ivec3(indexBuffer.data[3 * randomIndex + 0], indexBuffer.data[3 * randomIndex + 1], indexBuffer.data[3 * randomIndex + 2]);
 

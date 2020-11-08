@@ -12,6 +12,11 @@ struct Material {
   float emission[3]; int padD;
 };
 
+struct LightContainer {
+  int count;
+  int indices[64];
+};
+
 class Scene {
 private:
   std::string fileName;

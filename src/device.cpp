@@ -53,6 +53,10 @@ VkBuffer Device::getMaterialBuffer() {
   return this->materialBuffer;
 }
 
+VkBuffer Device::getMaterialLightBuffer() {
+  return this->materialLightBuffer;
+}
+
 void Device::createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usageFlags, VkMemoryPropertyFlags propertyFlags, VkImage* image, VkDeviceMemory* imageMemory) {
   VkImageCreateInfo imageCreateInfo = {};
   imageCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -548,6 +552,31 @@ void Device::createMaterialBuffers(Scene* scene) {
   
   vkDestroyBuffer(this->logicalDevice, materialStagingBuffer, NULL);
   vkFreeMemory(this->logicalDevice, materialStagingBufferMemory, NULL);
+
+  LightContainer lightContainer = {};
+  for (int x = 0; x < scene->getTotalMaterialIndexCount(); x++) {
+    float* materialEmission = scene->getMaterial(scene->getTotalMaterialIndex(x)).emission;
+    if (materialEmission[0] > 0 || materialEmission[1] > 0 || materialEmission[2] > 0) {
+      lightContainer.indices[lightContainer.count] = x;
+      lightContainer.count += 1;
+    }
+  }
+  
+  VkBuffer materialLightStagingBuffer;
+  VkDeviceMemory materialLightStagingBufferMemory;
+  createBuffer(sizeof(LightContainer), VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &materialLightStagingBuffer, &materialLightStagingBufferMemory);
+
+  void* materialLightData;
+  vkMapMemory(this->logicalDevice, materialLightStagingBufferMemory, 0, sizeof(LightContainer), 0, &materialLightData);
+  memcpy(materialLightData, &lightContainer, sizeof(LightContainer));
+  vkUnmapMemory(this->logicalDevice, materialLightStagingBufferMemory);
+
+  createBuffer(sizeof(LightContainer), VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &this->materialLightBuffer, &this->materialLightBufferMemory);
+
+  copyBuffer(materialLightStagingBuffer, this->materialLightBuffer, sizeof(LightContainer));
+  
+  vkDestroyBuffer(this->logicalDevice, materialLightStagingBuffer, NULL);
+  vkFreeMemory(this->logicalDevice, materialLightStagingBufferMemory, NULL);
 }
 
 void Device::createTextures() {

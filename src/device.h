@@ -58,6 +58,9 @@ protected:
   VkBuffer materialBuffer;
   VkDeviceMemory materialBufferMemory;
 
+  VkBuffer materialLightBuffer;
+  VkDeviceMemory materialLightBufferMemory;
+
   VkImageView rayTraceImageView;
   VkImage rayTraceImage;
   VkDeviceMemory rayTraceImageMemory;
@@ -94,6 +97,7 @@ public:
   VkImageView getRayTraceImageView();
   VkBuffer getMaterialIndexBuffer();
   VkBuffer getMaterialBuffer();
+  VkBuffer getMaterialLightBuffer();
 
   void createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usageFlags, VkMemoryPropertyFlags propertyFlags, VkImage* image, VkDeviceMemory* imageMemory);
   void createBuffer(VkDeviceSize size, VkBufferUsageFlags usageFlags, VkMemoryPropertyFlags propertyFlags, VkBuffer* buffer, VkDeviceMemory* bufferMemory);

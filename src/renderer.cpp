@@ -145,6 +145,20 @@ Renderer::Renderer(Scene* scene, Camera* camera) {
                                          NULL,
                                          NULL);
 
+  VkDescriptorBufferInfo materialLightBufferInfo = {
+    .buffer = displayDevice->getMaterialLightBuffer(),
+    .offset = 0,
+    .range = VK_WHOLE_SIZE
+  };
+  this->descriptorManager->addDescriptor(1, 
+                                         2, 
+                                         VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 
+                                         (VkShaderStageFlagBits)(VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT),
+                                         NULL, 
+                                         &materialLightBufferInfo,
+                                         NULL,
+                                         NULL);
+
   this->descriptorManager->concludeDescriptors(displayDevice->getLogicalDevice());
 
   this->graphicsPipeline = new GraphicsPipeline();
