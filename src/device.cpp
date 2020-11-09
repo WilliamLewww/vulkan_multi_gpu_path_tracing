@@ -25,6 +25,10 @@ VkRenderPass Device::getRenderPass() {
   return this->renderPass;
 }
 
+VkPhysicalDeviceMemoryProperties Device::getPhysicalMemoryProperties() {
+  return this->physicalDeviceMemoryProperties;
+}
+
 VkAccelerationStructureKHR* Device::getTopLevelAccelerationStructurePointer() {
   return &this->topLevelAccelerationStructure;
 }

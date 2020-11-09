@@ -89,6 +89,7 @@ public:
   VkDevice getLogicalDevice();
   VkExtent2D getSwapchainExtent();
   VkRenderPass getRenderPass();
+  VkPhysicalDeviceMemoryProperties getPhysicalMemoryProperties();
 
   VkAccelerationStructureKHR* getTopLevelAccelerationStructurePointer();
   VkBuffer getUniformBuffer();
