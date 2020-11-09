@@ -40,17 +40,13 @@ Renderer::Renderer(Scene* scene, Camera* camera) {
   displayDevice->createUniformBuffer();
 
   this->accelerationStructureManager = new AccelerationStructureManager();
-  this->accelerationStructureManager->createBottomLevelAccelerationStructure(*displayDevice, 
-                                                                             displayDevice->getCommandPool(), 
-                                                                             displayDevice->getComputeQueue(), 
+  this->accelerationStructureManager->createBottomLevelAccelerationStructure(displayDevice, 
                                                                              scene->getPrimitiveCount(), 
                                                                              scene->getVertexCount(), 
                                                                              displayDevice->getVertexBuffer(), 
                                                                              displayDevice->getIndexBuffer());
 
-  this->accelerationStructureManager->createTopLevelAccelerationStructure(*displayDevice,
-                                                                          displayDevice->getCommandPool(),
-                                                                          displayDevice->getComputeQueue());
+  this->accelerationStructureManager->createTopLevelAccelerationStructure(displayDevice);
 
   this->descriptorManager = new DescriptorManager(2);
 

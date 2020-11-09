@@ -24,6 +24,6 @@ public:
 
   VkAccelerationStructureKHR* getTopLevelAccelerationStructurePointer();
 
-  void createBottomLevelAccelerationStructure(Device device, VkCommandPool commandPool, VkQueue computeQueue, uint32_t primitiveCount, uint32_t vertexCount, VkBuffer vertexBuffer, VkBuffer indexBuffer);
-  void createTopLevelAccelerationStructure(Device device, VkCommandPool commandPool, VkQueue computeQueue);
+  void createBottomLevelAccelerationStructure(Device* device, uint32_t primitiveCount, uint32_t vertexCount, VkBuffer vertexBuffer, VkBuffer indexBuffer);
+  void createTopLevelAccelerationStructure(Device* device);
 };
