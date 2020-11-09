@@ -2,26 +2,35 @@
 
 #include <vulkan/vulkan.h>
 #include <vector>
+#include <map>
 #include <stdio.h>
+
+#include "device.h"
 
 class DescriptorManager {
 private:
-  std::vector<VkDescriptorSet> descriptorSetList;
-  std::vector<VkDescriptorSetLayout> descriptorSetLayoutList;
+  struct DeviceContainer {
+    std::vector<VkDescriptorSet> descriptorSetList;
+    std::vector<VkDescriptorSetLayout> descriptorSetLayoutList;
 
-  std::vector<std::vector<VkDescriptorSetLayoutBinding>> descriptorSetLayoutBindingList;
-  std::vector<std::vector<VkWriteDescriptorSet>> writeDescriptorSetList;
+    std::vector<std::vector<VkDescriptorSetLayoutBinding>> descriptorSetLayoutBindingList;
+    std::vector<std::vector<VkWriteDescriptorSet>> writeDescriptorSetList;
 
-  VkDescriptorPool descriptorPool;
-  std::vector<VkDescriptorPoolSize> descriptorPoolSizeList;
+    VkDescriptorPool descriptorPool;
+    std::vector<VkDescriptorPoolSize> descriptorPoolSizeList;
+  };
+  std::map<Device*, DeviceContainer> deviceMap;
 public:
-  DescriptorManager(int descriptorSetCount);
+  DescriptorManager();
   ~DescriptorManager();
 
-  std::vector<VkDescriptorSetLayout> getDescriptorSetLayoutList();
-  std::vector<VkDescriptorSet>& getDescriptorSetListReference();
+  std::vector<VkDescriptorSetLayout> getDescriptorSetLayoutList(Device* device);
+  std::vector<VkDescriptorSet>& getDescriptorSetListReference(Device* device);
 
-  void addDescriptor(int descriptorSetIndex, 
+  void initializeContainerOnDevice(Device* device, int descriptorSetCount);
+
+  void addDescriptor(Device* device,
+                     int descriptorSetIndex, 
                      uint32_t binding, 
                      VkDescriptorType descriptorType, 
                      VkShaderStageFlagBits stageFlags,
@@ -30,5 +39,5 @@ public:
                      VkBufferView* pTexelBufferView = NULL,
                      void* pNext = NULL);
 
-  void concludeDescriptors(VkDevice logicalDevice);
+  void concludeDescriptors(Device* device);
 };

@@ -8,8 +8,12 @@ AccelerationStructureManager::~AccelerationStructureManager() {
 
 }
 
-VkAccelerationStructureKHR* AccelerationStructureManager::getTopLevelAccelerationStructurePointer() {
-  return &this->topLevelAccelerationStructure;
+VkAccelerationStructureKHR* AccelerationStructureManager::getTopLevelAccelerationStructurePointer(Device* device) {
+  return &this->deviceMap[device].topLevelAccelerationStructure;
+}
+
+void AccelerationStructureManager::initializeContainerOnDevice(Device* device) {
+  this->deviceMap.insert(std::pair<Device*, DeviceContainer>(device, DeviceContainer()));
 }
 
 void AccelerationStructureManager::createBottomLevelAccelerationStructure(Device* device, uint32_t primitiveCount, uint32_t vertexCount, VkBuffer vertexBuffer, VkBuffer indexBuffer) {
@@ -35,8 +39,8 @@ void AccelerationStructureManager::createBottomLevelAccelerationStructure(Device
   accelerationStructureCreateInfo.maxGeometryCount = 1;
   accelerationStructureCreateInfo.pGeometryInfos = &geometryInfos;
 
-  this->bottomLevelAccelerationStructureList.push_back(VkAccelerationStructureKHR());
-  if (pvkCreateAccelerationStructureKHR(device->getLogicalDevice(), &accelerationStructureCreateInfo, NULL, &this->bottomLevelAccelerationStructureList.back()) == VK_SUCCESS) {
+  this->deviceMap[device].bottomLevelAccelerationStructureList.push_back(VkAccelerationStructureKHR());
+  if (pvkCreateAccelerationStructureKHR(device->getLogicalDevice(), &accelerationStructureCreateInfo, NULL, &this->deviceMap[device].bottomLevelAccelerationStructureList.back()) == VK_SUCCESS) {
     printf("%s\n", "created acceleration structure");
   }
 
@@ -45,7 +49,7 @@ void AccelerationStructureManager::createBottomLevelAccelerationStructure(Device
   VkAccelerationStructureMemoryRequirementsInfoKHR memoryRequirementsInfo = {};
   memoryRequirementsInfo.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_MEMORY_REQUIREMENTS_INFO_KHR;
   memoryRequirementsInfo.type = VK_ACCELERATION_STRUCTURE_MEMORY_REQUIREMENTS_TYPE_OBJECT_KHR;
-  memoryRequirementsInfo.accelerationStructure = this->bottomLevelAccelerationStructureList.back();
+  memoryRequirementsInfo.accelerationStructure = this->deviceMap[device].bottomLevelAccelerationStructureList.back();
   memoryRequirementsInfo.buildType = VK_ACCELERATION_STRUCTURE_BUILD_TYPE_DEVICE_KHR;
 
   VkMemoryRequirements2 memoryRequirements = {};
@@ -54,15 +58,15 @@ void AccelerationStructureManager::createBottomLevelAccelerationStructure(Device
 
   VkDeviceSize accelerationStructureSize = memoryRequirements.memoryRequirements.size;
 
-  this->bottomLevelAccelerationStructureBufferList.push_back(VkBuffer());
-  this->bottomLevelAccelerationStructureDeviceMemoryList.push_back(VkDeviceMemory());
-  Buffer::createBuffer(device, accelerationStructureSize, VK_BUFFER_USAGE_RAY_TRACING_BIT_KHR | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &this->bottomLevelAccelerationStructureBufferList.back(), &this->bottomLevelAccelerationStructureDeviceMemoryList.back());
+  this->deviceMap[device].bottomLevelAccelerationStructureBufferList.push_back(VkBuffer());
+  this->deviceMap[device].bottomLevelAccelerationStructureDeviceMemoryList.push_back(VkDeviceMemory());
+  Buffer::createBuffer(device, accelerationStructureSize, VK_BUFFER_USAGE_RAY_TRACING_BIT_KHR | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &this->deviceMap[device].bottomLevelAccelerationStructureBufferList.back(), &this->deviceMap[device].bottomLevelAccelerationStructureDeviceMemoryList.back());
 
   const VkBindAccelerationStructureMemoryInfoKHR accelerationStructureMemoryInfo = {
     .sType = VK_STRUCTURE_TYPE_BIND_ACCELERATION_STRUCTURE_MEMORY_INFO_KHR,
     .pNext = NULL,
-    .accelerationStructure = this->bottomLevelAccelerationStructureList.back(),
-    .memory = this->bottomLevelAccelerationStructureDeviceMemoryList.back(),
+    .accelerationStructure = this->deviceMap[device].bottomLevelAccelerationStructureList.back(),
+    .memory = this->deviceMap[device].bottomLevelAccelerationStructureDeviceMemoryList.back(),
     .memoryOffset = 0,
     .deviceIndexCount = 0,
     .pDeviceIndices = NULL
@@ -133,7 +137,7 @@ void AccelerationStructureManager::createBottomLevelAccelerationStructure(Device
     .flags = VK_BUILD_ACCELERATION_STRUCTURE_PREFER_FAST_TRACE_BIT_KHR,
     .update = VK_FALSE,
     .srcAccelerationStructure = VK_NULL_HANDLE,
-    .dstAccelerationStructure = this->bottomLevelAccelerationStructureList.back(),
+    .dstAccelerationStructure = this->deviceMap[device].bottomLevelAccelerationStructureList.back(),
     .geometryArrayOfPointers = VK_TRUE,
     .geometryCount = 1,
     .ppGeometries = &geometriesPointer,
@@ -200,7 +204,7 @@ void AccelerationStructureManager::createTopLevelAccelerationStructure(Device* d
   accelerationStructureCreateInfo.maxGeometryCount = 1;
   accelerationStructureCreateInfo.pGeometryInfos = &geometryInfos;
 
-  if (pvkCreateAccelerationStructureKHR(device->getLogicalDevice(), &accelerationStructureCreateInfo, NULL, &this->topLevelAccelerationStructure) == VK_SUCCESS) {
+  if (pvkCreateAccelerationStructureKHR(device->getLogicalDevice(), &accelerationStructureCreateInfo, NULL, &this->deviceMap[device].topLevelAccelerationStructure) == VK_SUCCESS) {
     printf("%s\n", "created acceleration structure");
   }
 
@@ -209,7 +213,7 @@ void AccelerationStructureManager::createTopLevelAccelerationStructure(Device* d
   VkAccelerationStructureMemoryRequirementsInfoKHR memoryRequirementsInfo = {};
   memoryRequirementsInfo.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_MEMORY_REQUIREMENTS_INFO_KHR;
   memoryRequirementsInfo.type = VK_ACCELERATION_STRUCTURE_MEMORY_REQUIREMENTS_TYPE_BUILD_SCRATCH_KHR;
-  memoryRequirementsInfo.accelerationStructure = this->topLevelAccelerationStructure;
+  memoryRequirementsInfo.accelerationStructure = this->deviceMap[device].topLevelAccelerationStructure;
   memoryRequirementsInfo.buildType = VK_ACCELERATION_STRUCTURE_BUILD_TYPE_DEVICE_KHR;
 
   VkMemoryRequirements2 memoryRequirements = {};
@@ -218,13 +222,13 @@ void AccelerationStructureManager::createTopLevelAccelerationStructure(Device* d
 
   VkDeviceSize accelerationStructureSize = memoryRequirements.memoryRequirements.size;
 
-  Buffer::createBuffer(device, accelerationStructureSize, VK_BUFFER_USAGE_RAY_TRACING_BIT_KHR | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &this->topLevelAccelerationStructureBuffer, &this->topLevelAccelerationStructureDeviceMemory);
+  Buffer::createBuffer(device, accelerationStructureSize, VK_BUFFER_USAGE_RAY_TRACING_BIT_KHR | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &this->deviceMap[device].topLevelAccelerationStructureBuffer, &this->deviceMap[device].topLevelAccelerationStructureDeviceMemory);
 
   const VkBindAccelerationStructureMemoryInfoKHR accelerationStructureMemoryInfo = {
     .sType = VK_STRUCTURE_TYPE_BIND_ACCELERATION_STRUCTURE_MEMORY_INFO_KHR,
     .pNext = NULL,
-    .accelerationStructure = this->topLevelAccelerationStructure,
-    .memory = this->topLevelAccelerationStructureDeviceMemory,
+    .accelerationStructure = this->deviceMap[device].topLevelAccelerationStructure,
+    .memory = this->deviceMap[device].topLevelAccelerationStructureDeviceMemory,
     .memoryOffset = 0,
     .deviceIndexCount = 0,
     .pDeviceIndices = NULL
@@ -241,7 +245,7 @@ void AccelerationStructureManager::createTopLevelAccelerationStructure(Device* d
 
   VkAccelerationStructureDeviceAddressInfoKHR accelerationStructureDeviceAddressInfo = {};
   accelerationStructureDeviceAddressInfo.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_DEVICE_ADDRESS_INFO_KHR;
-  accelerationStructureDeviceAddressInfo.accelerationStructure = this->bottomLevelAccelerationStructureList.back();
+  accelerationStructureDeviceAddressInfo.accelerationStructure = this->deviceMap[device].bottomLevelAccelerationStructureList.back();
 
   VkDeviceAddress accelerationStructureDeviceAddress = pvkGetAccelerationStructureDeviceAddressKHR(device->getLogicalDevice(), &accelerationStructureDeviceAddressInfo);
 
@@ -304,7 +308,7 @@ void AccelerationStructureManager::createTopLevelAccelerationStructure(Device* d
   VkAccelerationStructureMemoryRequirementsInfoKHR scratchMemoryRequirementInfo = {};
   scratchMemoryRequirementInfo.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_MEMORY_REQUIREMENTS_INFO_KHR;
   scratchMemoryRequirementInfo.type = VK_ACCELERATION_STRUCTURE_MEMORY_REQUIREMENTS_TYPE_BUILD_SCRATCH_KHR;
-  scratchMemoryRequirementInfo.accelerationStructure = this->topLevelAccelerationStructure;
+  scratchMemoryRequirementInfo.accelerationStructure = this->deviceMap[device].topLevelAccelerationStructure;
   scratchMemoryRequirementInfo.buildType = VK_ACCELERATION_STRUCTURE_BUILD_TYPE_DEVICE_KHR;
 
   VkMemoryRequirements2 scratchMemoryRequirements = {};
@@ -331,7 +335,7 @@ void AccelerationStructureManager::createTopLevelAccelerationStructure(Device* d
     .flags = VK_BUILD_ACCELERATION_STRUCTURE_PREFER_FAST_TRACE_BIT_KHR,
     .update = VK_FALSE,
     .srcAccelerationStructure = VK_NULL_HANDLE,
-    .dstAccelerationStructure = this->topLevelAccelerationStructure,
+    .dstAccelerationStructure = this->deviceMap[device].topLevelAccelerationStructure,
     .geometryArrayOfPointers = VK_TRUE,
     .geometryCount = 1,
     .ppGeometries = &geometriesPointer,

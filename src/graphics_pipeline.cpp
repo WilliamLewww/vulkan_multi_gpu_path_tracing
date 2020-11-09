@@ -14,12 +14,12 @@ GraphicsPipeline::~GraphicsPipeline() {
   }
 }
 
-VkPipelineLayout GraphicsPipeline::getPipelineLayout() {
-  return this->pipelineLayout;
+VkPipelineLayout GraphicsPipeline::getPipelineLayout(Device* device) {
+  return this->deviceMap[device].pipelineLayout;
 }
 
-VkPipeline GraphicsPipeline::getPipeline() {
-  return this->graphicsPipeline;
+VkPipeline GraphicsPipeline::getPipeline(Device* device) {
+  return this->deviceMap[device].graphicsPipeline;
 }
 
 void GraphicsPipeline::setVertexFile(std::string path) {
@@ -50,22 +50,26 @@ void GraphicsPipeline::setFragmentFile(std::string path) {
   fclose(this->fragmentFile);
 }
 
-void GraphicsPipeline::createPipelineLayout(VkDevice logicalDevice, std::vector<VkDescriptorSetLayout> descriptorSetLayoutList) {
+void GraphicsPipeline::initializeContainerOnDevice(Device* device) {
+  this->deviceMap.insert(std::pair<Device*, DeviceContainer>(device, DeviceContainer()));
+}
+
+void GraphicsPipeline::createPipelineLayout(Device* device, std::vector<VkDescriptorSetLayout> descriptorSetLayoutList) {
   VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo = {};
   pipelineLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
   pipelineLayoutCreateInfo.setLayoutCount = descriptorSetLayoutList.size();
   pipelineLayoutCreateInfo.pSetLayouts = descriptorSetLayoutList.data();
 
-  if (vkCreatePipelineLayout(logicalDevice, &pipelineLayoutCreateInfo, NULL, &this->pipelineLayout) == VK_SUCCESS) {
+  if (vkCreatePipelineLayout(device->getLogicalDevice(), &pipelineLayoutCreateInfo, NULL, &this->deviceMap[device].pipelineLayout) == VK_SUCCESS) {
     printf("created pipeline layout\n");
   } 
 }
 
-void GraphicsPipeline::createGraphicsPipeline(VkDevice logicalDevice,
-                                              std::vector<VkVertexInputBindingDescription> vertexBindingDescriptionList,
-                                              std::vector<VkVertexInputAttributeDescription> vertexAttributeDescriptionList,
-                                              VkExtent2D swapchainExtent,
-                                              VkRenderPass renderPass) {
+void GraphicsPipeline::createPipeline(Device* device,
+                                      std::vector<VkVertexInputBindingDescription> vertexBindingDescriptionList,
+                                      std::vector<VkVertexInputAttributeDescription> vertexAttributeDescriptionList,
+                                      VkExtent2D swapchainExtent,
+                                      VkRenderPass renderPass) {
 
   VkShaderModuleCreateInfo vertexShaderModuleCreateInfo = {};
   vertexShaderModuleCreateInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
@@ -73,7 +77,7 @@ void GraphicsPipeline::createGraphicsPipeline(VkDevice logicalDevice,
   vertexShaderModuleCreateInfo.pCode = (uint32_t*)this->vertexFileBuffer;
   
   VkShaderModule vertexShaderModule;
-  if (vkCreateShaderModule(logicalDevice, &vertexShaderModuleCreateInfo, NULL, &vertexShaderModule) == VK_SUCCESS) {
+  if (vkCreateShaderModule(device->getLogicalDevice(), &vertexShaderModuleCreateInfo, NULL, &vertexShaderModule) == VK_SUCCESS) {
     printf("created vertex shader module\n");
   }
 
@@ -83,7 +87,7 @@ void GraphicsPipeline::createGraphicsPipeline(VkDevice logicalDevice,
   fragmentShaderModuleCreateInfo.pCode = (uint32_t*)this->fragmentFileBuffer;
 
   VkShaderModule fragmentShaderModule;
-  if (vkCreateShaderModule(logicalDevice, &fragmentShaderModuleCreateInfo, NULL, &fragmentShaderModule) == VK_SUCCESS) {
+  if (vkCreateShaderModule(device->getLogicalDevice(), &fragmentShaderModuleCreateInfo, NULL, &fragmentShaderModule) == VK_SUCCESS) {
     printf("created fragment shader module\n");
   }
 
@@ -182,15 +186,15 @@ void GraphicsPipeline::createGraphicsPipeline(VkDevice logicalDevice,
   graphicsPipelineCreateInfo.pMultisampleState = &multisampleStateCreateInfo;
   graphicsPipelineCreateInfo.pDepthStencilState = &depthStencil;
   graphicsPipelineCreateInfo.pColorBlendState = &colorBlendStateCreateInfo;
-  graphicsPipelineCreateInfo.layout = this->pipelineLayout;
+  graphicsPipelineCreateInfo.layout = this->deviceMap[device].pipelineLayout;
   graphicsPipelineCreateInfo.renderPass = renderPass;
   graphicsPipelineCreateInfo.subpass = 0;
   graphicsPipelineCreateInfo.basePipelineHandle = VK_NULL_HANDLE;  
 
-  if (vkCreateGraphicsPipelines(logicalDevice, VK_NULL_HANDLE, 1, &graphicsPipelineCreateInfo, NULL, &this->graphicsPipeline) == VK_SUCCESS) {
+  if (vkCreateGraphicsPipelines(device->getLogicalDevice(), VK_NULL_HANDLE, 1, &graphicsPipelineCreateInfo, NULL, &this->deviceMap[device].graphicsPipeline) == VK_SUCCESS) {
     printf("created graphics pipeline\n");
   }
 
-  vkDestroyShaderModule(logicalDevice, vertexShaderModule, NULL);
-  vkDestroyShaderModule(logicalDevice, fragmentShaderModule, NULL);
+  vkDestroyShaderModule(device->getLogicalDevice(), vertexShaderModule, NULL);
+  vkDestroyShaderModule(device->getLogicalDevice(), fragmentShaderModule, NULL);
 }

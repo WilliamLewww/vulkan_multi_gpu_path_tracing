@@ -40,6 +40,9 @@ Renderer::Renderer(Scene* scene, Camera* camera) {
   displayDevice->createUniformBuffer();
 
   this->accelerationStructureManager = new AccelerationStructureManager();
+  
+  this->accelerationStructureManager->initializeContainerOnDevice(displayDevice);
+
   this->accelerationStructureManager->createBottomLevelAccelerationStructure(displayDevice, 
                                                                              scene->getPrimitiveCount(), 
                                                                              scene->getVertexCount(), 
@@ -48,15 +51,18 @@ Renderer::Renderer(Scene* scene, Camera* camera) {
 
   this->accelerationStructureManager->createTopLevelAccelerationStructure(displayDevice);
 
-  this->descriptorManager = new DescriptorManager(2);
+  this->descriptorManager = new DescriptorManager();
+
+  this->descriptorManager->initializeContainerOnDevice(displayDevice, 2);
 
   VkWriteDescriptorSetAccelerationStructureKHR descriptorSetAccelerationStructure = {
     .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR,
     .pNext = NULL,
     .accelerationStructureCount = 1,
-    .pAccelerationStructures = this->accelerationStructureManager->getTopLevelAccelerationStructurePointer()
+    .pAccelerationStructures = this->accelerationStructureManager->getTopLevelAccelerationStructurePointer(displayDevice)
   };
-  this->descriptorManager->addDescriptor(0, 
+  this->descriptorManager->addDescriptor(displayDevice,
+                                         0, 
                                          0, 
                                          VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR, 
                                          VK_SHADER_STAGE_FRAGMENT_BIT,
@@ -70,7 +76,8 @@ Renderer::Renderer(Scene* scene, Camera* camera) {
     .offset = 0,
     .range = VK_WHOLE_SIZE
   };
-  this->descriptorManager->addDescriptor(0, 
+  this->descriptorManager->addDescriptor(displayDevice,
+                                         0, 
                                          1, 
                                          VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 
                                          (VkShaderStageFlagBits)(VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT),
@@ -84,7 +91,8 @@ Renderer::Renderer(Scene* scene, Camera* camera) {
     .offset = 0,
     .range = VK_WHOLE_SIZE
   };
-  this->descriptorManager->addDescriptor(0, 
+  this->descriptorManager->addDescriptor(displayDevice,
+                                         0, 
                                          2, 
                                          VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 
                                          VK_SHADER_STAGE_FRAGMENT_BIT,
@@ -98,7 +106,8 @@ Renderer::Renderer(Scene* scene, Camera* camera) {
     .offset = 0,
     .range = VK_WHOLE_SIZE
   };
-  this->descriptorManager->addDescriptor(0, 
+  this->descriptorManager->addDescriptor(displayDevice,
+                                         0, 
                                          3, 
                                          VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 
                                          VK_SHADER_STAGE_FRAGMENT_BIT,
@@ -111,7 +120,8 @@ Renderer::Renderer(Scene* scene, Camera* camera) {
     .imageView = displayDevice->getRayTraceImageView(),
     .imageLayout = VK_IMAGE_LAYOUT_GENERAL
   };
-  this->descriptorManager->addDescriptor(0, 
+  this->descriptorManager->addDescriptor(displayDevice,
+                                         0, 
                                          4, 
                                          VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 
                                          VK_SHADER_STAGE_FRAGMENT_BIT,
@@ -125,7 +135,8 @@ Renderer::Renderer(Scene* scene, Camera* camera) {
     .offset = 0,
     .range = VK_WHOLE_SIZE
   };
-  this->descriptorManager->addDescriptor(1, 
+  this->descriptorManager->addDescriptor(displayDevice,
+                                         1, 
                                          0, 
                                          VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 
                                          (VkShaderStageFlagBits)(VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT),
@@ -139,7 +150,8 @@ Renderer::Renderer(Scene* scene, Camera* camera) {
     .offset = 0,
     .range = VK_WHOLE_SIZE
   };
-  this->descriptorManager->addDescriptor(1, 
+  this->descriptorManager->addDescriptor(displayDevice,
+                                         1, 
                                          1, 
                                          VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 
                                          (VkShaderStageFlagBits)(VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT),
@@ -153,7 +165,8 @@ Renderer::Renderer(Scene* scene, Camera* camera) {
     .offset = 0,
     .range = VK_WHOLE_SIZE
   };
-  this->descriptorManager->addDescriptor(1, 
+  this->descriptorManager->addDescriptor(displayDevice,
+                                         1, 
                                          2, 
                                          VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 
                                          (VkShaderStageFlagBits)(VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT),
@@ -162,12 +175,14 @@ Renderer::Renderer(Scene* scene, Camera* camera) {
                                          NULL,
                                          NULL);
 
-  this->descriptorManager->concludeDescriptors(displayDevice->getLogicalDevice());
+  this->descriptorManager->concludeDescriptors(displayDevice);
 
   this->graphicsPipeline = new GraphicsPipeline();
   this->graphicsPipeline->setVertexFile("bin/basic.vert.spv");
   this->graphicsPipeline->setFragmentFile("bin/basic.frag.spv");
-  this->graphicsPipeline->createPipelineLayout(displayDevice->getLogicalDevice(), descriptorManager->getDescriptorSetLayoutList());
+
+  this->graphicsPipeline->initializeContainerOnDevice(displayDevice);
+  this->graphicsPipeline->createPipelineLayout(displayDevice, descriptorManager->getDescriptorSetLayoutList(displayDevice));
 
   std::vector<VkVertexInputBindingDescription> vertexBindingDescriptionList(1);
   vertexBindingDescriptionList[0].binding = 0;
@@ -180,13 +195,13 @@ Renderer::Renderer(Scene* scene, Camera* camera) {
   vertexAttributeDescriptionList[0].format = VK_FORMAT_R32G32B32_SFLOAT;
   vertexAttributeDescriptionList[0].offset = 0;
 
-  this->graphicsPipeline->createGraphicsPipeline(displayDevice->getLogicalDevice(),
-                                                 vertexBindingDescriptionList,
-                                                 vertexAttributeDescriptionList,
-                                                 displayDevice->getSwapchainExtent(),
-                                                 displayDevice->getRenderPass());
+  this->graphicsPipeline->createPipeline(displayDevice,
+                                         vertexBindingDescriptionList,
+                                         vertexAttributeDescriptionList,
+                                         displayDevice->getSwapchainExtent(),
+                                         displayDevice->getRenderPass());
 
-  displayDevice->createCommandBuffers(scene, this->graphicsPipeline->getPipeline(), this->graphicsPipeline->getPipelineLayout(), this->descriptorManager->getDescriptorSetListReference());
+  displayDevice->createCommandBuffers(scene, this->graphicsPipeline->getPipeline(displayDevice), this->graphicsPipeline->getPipelineLayout(displayDevice), this->descriptorManager->getDescriptorSetListReference(displayDevice));
   displayDevice->createSynchronizationObjects();
 
   while (!glfwWindowShouldClose(this->window->getWindow())) {

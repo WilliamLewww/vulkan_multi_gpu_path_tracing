@@ -11,19 +11,23 @@
 
 class AccelerationStructureManager {
 private:
-  std::vector<VkAccelerationStructureKHR> bottomLevelAccelerationStructureList;
-  std::vector<VkBuffer> bottomLevelAccelerationStructureBufferList;
-  std::vector<VkDeviceMemory> bottomLevelAccelerationStructureDeviceMemoryList;
+  struct DeviceContainer {
+    std::vector<VkAccelerationStructureKHR> bottomLevelAccelerationStructureList;
+    std::vector<VkBuffer> bottomLevelAccelerationStructureBufferList;
+    std::vector<VkDeviceMemory> bottomLevelAccelerationStructureDeviceMemoryList;
 
-  VkAccelerationStructureKHR topLevelAccelerationStructure;
-  VkBuffer topLevelAccelerationStructureBuffer;
-  VkDeviceMemory topLevelAccelerationStructureDeviceMemory;
+    VkAccelerationStructureKHR topLevelAccelerationStructure;
+    VkBuffer topLevelAccelerationStructureBuffer;
+    VkDeviceMemory topLevelAccelerationStructureDeviceMemory;
+  };
+  std::map<Device*, DeviceContainer> deviceMap;
 public:
   AccelerationStructureManager();
   ~AccelerationStructureManager();
 
-  VkAccelerationStructureKHR* getTopLevelAccelerationStructurePointer();
+  VkAccelerationStructureKHR* getTopLevelAccelerationStructurePointer(Device* device);
 
+  void initializeContainerOnDevice(Device* device);
   void createBottomLevelAccelerationStructure(Device* device, uint32_t primitiveCount, uint32_t vertexCount, VkBuffer vertexBuffer, VkBuffer indexBuffer);
   void createTopLevelAccelerationStructure(Device* device);
 };

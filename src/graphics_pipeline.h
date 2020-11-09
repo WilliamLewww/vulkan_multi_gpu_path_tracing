@@ -3,6 +3,9 @@
 #include <vulkan/vulkan.h>
 #include <string>
 #include <vector>
+#include <map>
+
+#include "device.h"
 
 class GraphicsPipeline {
 private:
@@ -14,20 +17,24 @@ private:
   uint32_t fragmentFileSize;
   char* fragmentFileBuffer;
 
-  VkPipelineLayout pipelineLayout;
-  VkPipeline graphicsPipeline;
+  struct DeviceContainer {
+    VkPipelineLayout pipelineLayout;
+    VkPipeline graphicsPipeline;
+  };
+  std::map<Device*, DeviceContainer> deviceMap;
 public:
   GraphicsPipeline();
   ~GraphicsPipeline();
 
-  VkPipelineLayout getPipelineLayout();
-  VkPipeline getPipeline();
+  VkPipelineLayout getPipelineLayout(Device* device);
+  VkPipeline getPipeline(Device* device);
 
   void setVertexFile(std::string path);
   void setFragmentFile(std::string path);
 
-  void createPipelineLayout(VkDevice logicalDevice, std::vector<VkDescriptorSetLayout> descriptorSetLayoutList);
-  void createGraphicsPipeline(VkDevice logicalDevice,
+  void initializeContainerOnDevice(Device* device);
+  void createPipelineLayout(Device* device, std::vector<VkDescriptorSetLayout> descriptorSetLayoutList);
+  void createPipeline(Device* device,
                               std::vector<VkVertexInputBindingDescription> vertexBindingDescriptionList,
                               std::vector<VkVertexInputAttributeDescription> vertexAttributeDescriptionList,
                               VkExtent2D swapchainExtent,
