@@ -65,14 +65,6 @@ protected:
   VkImage rayTraceImage;
   VkDeviceMemory rayTraceImageMemory;
 
-  VkAccelerationStructureKHR accelerationStructure;
-  VkBuffer accelerationStructureBuffer;
-  VkDeviceMemory accelerationStructureBufferMemory;
-
-  VkAccelerationStructureKHR topLevelAccelerationStructure;
-  VkBuffer topLevelAccelerationStructureBuffer;
-  VkDeviceMemory topLevelAccelerationStructureBufferMemory;
-
   VkBuffer uniformBuffer;
   VkDeviceMemory uniformBufferMemory;
 
@@ -91,7 +83,6 @@ public:
   VkRenderPass getRenderPass();
   VkPhysicalDeviceMemoryProperties getPhysicalMemoryProperties();
 
-  VkAccelerationStructureKHR* getTopLevelAccelerationStructurePointer();
   VkBuffer getUniformBuffer();
   VkBuffer getIndexBuffer();
   VkBuffer getVertexBuffer();
@@ -118,13 +109,6 @@ public:
   void createIndexBuffer(Scene* scene);
   void createMaterialBuffers(Scene* scene);
   void createTextures();
-
-  void createAccelerationStructure(Scene* scene);
-  void bindAccelerationStructure();
-  void buildAccelerationStructure(Scene* scene);
-
-  void createTopLevelAccelerationStructure();
-
   void createUniformBuffer();
 
   void createCommandBuffers(Scene* scene, VkPipeline pipeline, VkPipelineLayout pipelineLayout, std::vector<VkDescriptorSet>& descriptorSetList);

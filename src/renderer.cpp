@@ -48,10 +48,9 @@ Renderer::Renderer(Scene* scene, Camera* camera) {
                                                                              displayDevice->getVertexBuffer(), 
                                                                              displayDevice->getIndexBuffer());
 
-  displayDevice->createAccelerationStructure(scene);
-  displayDevice->bindAccelerationStructure();
-  displayDevice->buildAccelerationStructure(scene);
-  displayDevice->createTopLevelAccelerationStructure();
+  this->accelerationStructureManager->createTopLevelAccelerationStructure(*displayDevice,
+                                                                          displayDevice->getCommandPool(),
+                                                                          displayDevice->getComputeQueue());
 
   this->descriptorManager = new DescriptorManager(2);
 
@@ -59,7 +58,7 @@ Renderer::Renderer(Scene* scene, Camera* camera) {
     .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR,
     .pNext = NULL,
     .accelerationStructureCount = 1,
-    .pAccelerationStructures = displayDevice->getTopLevelAccelerationStructurePointer()
+    .pAccelerationStructures = this->accelerationStructureManager->getTopLevelAccelerationStructurePointer()
   };
   this->descriptorManager->addDescriptor(0, 
                                          0, 

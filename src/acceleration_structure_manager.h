@@ -13,10 +13,17 @@ class AccelerationStructureManager {
 private:
   std::vector<VkAccelerationStructureKHR> bottomLevelAccelerationStructureList;
   std::vector<VkBuffer> bottomLevelAccelerationStructureBufferList;
-  std::vector<VkDeviceMemory> bottomLevelAccelerationStructureMemoryList;
+  std::vector<VkDeviceMemory> bottomLevelAccelerationStructureDeviceMemoryList;
+
+  VkAccelerationStructureKHR topLevelAccelerationStructure;
+  VkBuffer topLevelAccelerationStructureBuffer;
+  VkDeviceMemory topLevelAccelerationStructureDeviceMemory;
 public:
   AccelerationStructureManager();
   ~AccelerationStructureManager();
 
+  VkAccelerationStructureKHR* getTopLevelAccelerationStructurePointer();
+
   void createBottomLevelAccelerationStructure(Device device, VkCommandPool commandPool, VkQueue computeQueue, uint32_t primitiveCount, uint32_t vertexCount, VkBuffer vertexBuffer, VkBuffer indexBuffer);
+  void createTopLevelAccelerationStructure(Device device, VkCommandPool commandPool, VkQueue computeQueue);
 };

@@ -33,3 +33,34 @@ void Buffer::createBuffer(Device device, VkDeviceSize size, VkBufferUsageFlags u
 
   vkBindBufferMemory(device.getLogicalDevice(), *buffer, *bufferMemory, 0);
 }
+
+void Buffer::copyBuffer(Device device, VkCommandPool commandPool, VkQueue computeQueue, VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) {
+  VkCommandBufferAllocateInfo bufferAllocateInfo = {};
+  bufferAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+  bufferAllocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+  bufferAllocateInfo.commandPool = commandPool;
+  bufferAllocateInfo.commandBufferCount = 1;
+
+  VkCommandBuffer commandBuffer;
+  vkAllocateCommandBuffers(device.getLogicalDevice(), &bufferAllocateInfo, &commandBuffer);
+  
+  VkCommandBufferBeginInfo commandBufferBeginInfo = {};
+  commandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+  commandBufferBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+  
+  vkBeginCommandBuffer(commandBuffer, &commandBufferBeginInfo);
+  VkBufferCopy bufferCopy = {};
+  bufferCopy.size = size;
+  vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &bufferCopy);
+  vkEndCommandBuffer(commandBuffer);
+
+  VkSubmitInfo submitInfo = {};
+  submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+  submitInfo.commandBufferCount = 1;
+  submitInfo.pCommandBuffers = &commandBuffer;
+
+  vkQueueSubmit(computeQueue, 1, &submitInfo, VK_NULL_HANDLE);
+  vkQueueWaitIdle(computeQueue);
+
+  vkFreeCommandBuffers(device.getLogicalDevice(), commandPool, 1, &commandBuffer);
+}
