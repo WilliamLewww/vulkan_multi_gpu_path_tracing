@@ -37,13 +37,21 @@ Renderer::Renderer(Scene* scene, Camera* camera) {
   displayDevice->createIndexBuffer(scene);
   displayDevice->createMaterialBuffers(scene);
   displayDevice->createTextures();
+  displayDevice->createUniformBuffer();
+
+  this->accelerationStructureManager = new AccelerationStructureManager();
+  this->accelerationStructureManager->createBottomLevelAccelerationStructure(*displayDevice, 
+                                                                             displayDevice->getCommandPool(), 
+                                                                             displayDevice->getComputeQueue(), 
+                                                                             scene->getPrimitiveCount(), 
+                                                                             scene->getVertexCount(), 
+                                                                             displayDevice->getVertexBuffer(), 
+                                                                             displayDevice->getIndexBuffer());
 
   displayDevice->createAccelerationStructure(scene);
   displayDevice->bindAccelerationStructure();
   displayDevice->buildAccelerationStructure(scene);
   displayDevice->createTopLevelAccelerationStructure();
-
-  displayDevice->createUniformBuffer();
 
   this->descriptorManager = new DescriptorManager(2);
 
@@ -196,6 +204,7 @@ Renderer::Renderer(Scene* scene, Camera* camera) {
 Renderer::~Renderer() {
   delete this->graphicsPipeline;
   delete this->descriptorManager;
+  delete this->accelerationStructureManager;
   delete this->deviceManager;
   delete this->vulkanInstance;
   delete this->window;

@@ -61,6 +61,14 @@ VkBuffer Device::getMaterialLightBuffer() {
   return this->materialLightBuffer;
 }
 
+VkCommandPool Device::getCommandPool() {
+  return this->commandPool;
+}
+
+VkQueue Device::getComputeQueue() {
+  return this->computeQueue;
+}
+
 void Device::createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usageFlags, VkMemoryPropertyFlags propertyFlags, VkImage* image, VkDeviceMemory* imageMemory) {
   VkImageCreateInfo imageCreateInfo = {};
   imageCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;

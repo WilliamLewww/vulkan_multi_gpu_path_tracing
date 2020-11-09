@@ -10,12 +10,14 @@
 #include "camera.h"
 #include "graphics_pipeline.h"
 #include "descriptor_manager.h"
+#include "acceleration_structure_manager.h"
 
 class Renderer {
 private:
   Window* window;
   VulkanInstance* vulkanInstance;
   DeviceManager* deviceManager;
+  AccelerationStructureManager* accelerationStructureManager;
   DescriptorManager* descriptorManager;
   GraphicsPipeline* graphicsPipeline;
 public:
