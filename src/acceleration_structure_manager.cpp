@@ -361,7 +361,7 @@ void AccelerationStructureManager::createTopLevelAccelerationStructure(Device* d
     .update = VK_FALSE,
     .srcAccelerationStructure = VK_NULL_HANDLE,
     .dstAccelerationStructure = this->deviceMap[device].topLevelAccelerationStructure,
-    .geometryArrayOfPointers = VK_TRUE,
+    .geometryArrayOfPointers = VK_FALSE,
     .geometryCount = (uint32_t)geometries.size(),
     .ppGeometries = &geometriesPointer,
     .scratchData = scratchDeviceOrHostAddress
