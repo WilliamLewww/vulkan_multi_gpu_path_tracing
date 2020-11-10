@@ -253,10 +253,13 @@ void AccelerationStructureManager::createTopLevelAccelerationStructure(Device* d
   // ==============================================================================================================
 
   // row major
-  VkTransformMatrixKHR transformMatrix = {};
-  transformMatrix.matrix[0][0] = 1.0;
-  transformMatrix.matrix[1][1] = 1.0;
-  transformMatrix.matrix[2][2] = 1.0;
+  VkTransformMatrixKHR transformMatrix = {
+    .matrix = {
+      {1, 0, 0, 0},
+      {0, 1, 0, 0},
+      {0, 0, 1, 0}
+    }
+  };
 
   VkAccelerationStructureDeviceAddressInfoKHR accelerationStructureDeviceAddressInfo = {
     .sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_DEVICE_ADDRESS_INFO_KHR,
