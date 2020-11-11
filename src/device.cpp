@@ -33,6 +33,10 @@ VkBuffer Device::getCameraUniformBuffer() {
   return this->cameraUniformBuffer;
 }
 
+VkBuffer Device::getTransformUniformBuffer() {
+  return this->transformUniformBuffer;
+}
+
 VkBuffer Device::getIndexBuffer() {
   return this->indexBuffer;
 }
@@ -648,8 +652,27 @@ void Device::createTextures() {
 }
 
 void Device::createUniformBuffers() {
-  VkDeviceSize bufferSize = sizeof(CameraUniform);
-  createBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &this->cameraUniformBuffer, &this->cameraUniformBufferMemory);
+  VkDeviceSize cameraBufferSize = sizeof(CameraUniform);
+  createBuffer(cameraBufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &this->cameraUniformBuffer, &this->cameraUniformBufferMemory);
+
+  VkDeviceSize transformBufferSize = (sizeof(float) * 16) * 2;
+  createBuffer(transformBufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &this->transformUniformBuffer, &this->transformUniformBufferMemory);
+
+  float transform[32] = {
+    1, 0, 0, 0,
+    0, 1, 0, 0,
+    0, 0, 1, 0,
+    0, 0, 0, 1,
+    0.5, 0, 0, 0,
+    0, 0.5, 0, 0,
+    0, 0, 0.5, 0,
+    0, 0, 0, 1.0,
+  };
+
+  void* data;
+  vkMapMemory(this->logicalDevice, this->transformUniformBufferMemory, 0, transformBufferSize, 0, &data);
+  memcpy(data, transform, transformBufferSize);
+  vkUnmapMemory(this->logicalDevice, this->transformUniformBufferMemory);
 }
 
 void Device::createCommandBuffers(Scene* scene, VkPipeline pipeline, VkPipelineLayout pipelineLayout, std::vector<VkDescriptorSet>& descriptorSetList) {
@@ -708,7 +731,7 @@ void Device::createCommandBuffers(Scene* scene, VkPipeline pipeline, VkPipelineL
       vkCmdBindDescriptorSets(this->commandBufferList[x], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, y, 1, &descriptorSetList[y], 0, 0);
     }
 
-    vkCmdDrawIndexed(this->commandBufferList[x], scene->getPrimitiveCount() * 3, 1, 0, 0, 0);
+    vkCmdDrawIndexed(this->commandBufferList[x], scene->getPrimitiveCount() * 3, 2, 0, 0, 0);
     vkCmdEndRenderPass(this->commandBufferList[x]);
 
     { 
@@ -839,7 +862,7 @@ void Device::createSynchronizationObjects() {
   }
 }
 
-void Device::updateUniformBuffer(CameraUniform camera) {
+void Device::updateCameraUniformBuffer(CameraUniform camera) {
   void* data;
   vkMapMemory(this->logicalDevice, this->cameraUniformBufferMemory, 0, sizeof(CameraUniform), 0, &data);
   memcpy(data, &camera, sizeof(CameraUniform));
@@ -857,7 +880,7 @@ void Device::drawFrame(CameraUniform camera) {
   }
   this->imageInFlightList[imageIndex] = this->inFlightFenceList[this->currentFrame];
  
-  updateUniformBuffer(camera);
+  updateCameraUniformBuffer(camera);
    
   VkSubmitInfo submitInfo = {};
   submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;

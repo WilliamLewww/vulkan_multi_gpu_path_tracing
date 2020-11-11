@@ -68,6 +68,9 @@ protected:
   VkBuffer cameraUniformBuffer;
   VkDeviceMemory cameraUniformBufferMemory;
 
+  VkBuffer transformUniformBuffer;
+  VkDeviceMemory transformUniformBufferMemory;
+
   std::vector<VkCommandBuffer> commandBufferList;
   std::vector<VkSemaphore> imageAvailableSemaphoreList;
   std::vector<VkSemaphore> renderFinishedSemaphoreList;
@@ -84,6 +87,7 @@ public:
   VkPhysicalDeviceMemoryProperties getPhysicalMemoryProperties();
 
   VkBuffer getCameraUniformBuffer();
+  VkBuffer getTransformUniformBuffer();
   VkBuffer getIndexBuffer();
   VkBuffer getVertexBuffer();
   VkImageView getRayTraceImageView();
@@ -114,6 +118,6 @@ public:
   void createCommandBuffers(Scene* scene, VkPipeline pipeline, VkPipelineLayout pipelineLayout, std::vector<VkDescriptorSet>& descriptorSetList);
   void createSynchronizationObjects();
 
-  void updateUniformBuffer(CameraUniform camera);
+  void updateCameraUniformBuffer(CameraUniform camera);
   void drawFrame(CameraUniform camera);
 };

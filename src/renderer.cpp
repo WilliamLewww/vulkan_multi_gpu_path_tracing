@@ -49,15 +49,23 @@ Renderer::Renderer(Scene* scene, Camera* camera) {
                                                                              displayDevice->getVertexBuffer(), 
                                                                              displayDevice->getIndexBuffer());
 
-  VkTransformMatrixKHR transformMatrix = {
+  VkTransformMatrixKHR transformMatrix1 = {
     .matrix = {
       {1, 0, 0, 0},
       {0, 1, 0, 0},
       {0, 0, 1, 0}
     }
   };
+  this->accelerationStructureManager->addBottomLevelAccelerationStructureInstance(displayDevice, 0, 0, transformMatrix1);
 
-  this->accelerationStructureManager->addBottomLevelAccelerationStructureInstance(displayDevice, 0, 0, transformMatrix);
+  VkTransformMatrixKHR transformMatrix2 = {
+    .matrix = {
+      {0.5, 0, 0, 0},
+      {0, 0.5, 0, 0},
+      {0, 0, 0.5, 0}
+    }
+  };
+  this->accelerationStructureManager->addBottomLevelAccelerationStructureInstance(displayDevice, 0, 1, transformMatrix2);
 
   this->accelerationStructureManager->createTopLevelAccelerationStructure(displayDevice);
 
@@ -81,7 +89,7 @@ Renderer::Renderer(Scene* scene, Camera* camera) {
                                          NULL,
                                          &descriptorSetAccelerationStructure);
 
-  VkDescriptorBufferInfo uniformBufferInfo = {
+  VkDescriptorBufferInfo cameraUniformBufferInfo = {
     .buffer = displayDevice->getCameraUniformBuffer(),
     .offset = 0,
     .range = VK_WHOLE_SIZE
@@ -92,7 +100,7 @@ Renderer::Renderer(Scene* scene, Camera* camera) {
                                          VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 
                                          (VkShaderStageFlagBits)(VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT),
                                          NULL, 
-                                         &uniformBufferInfo,
+                                         &cameraUniformBufferInfo,
                                          NULL,
                                          NULL);
 
@@ -137,6 +145,21 @@ Renderer::Renderer(Scene* scene, Camera* camera) {
                                          VK_SHADER_STAGE_FRAGMENT_BIT,
                                          &imageInfo, 
                                          NULL,
+                                         NULL,
+                                         NULL);
+
+  VkDescriptorBufferInfo transformUniformBufferInfo = {
+    .buffer = displayDevice->getTransformUniformBuffer(),
+    .offset = 0,
+    .range = VK_WHOLE_SIZE
+  };
+  this->descriptorManager->addDescriptor(displayDevice,
+                                         0, 
+                                         5, 
+                                         VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 
+                                         (VkShaderStageFlagBits)(VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT),
+                                         NULL, 
+                                         &transformUniformBufferInfo,
                                          NULL,
                                          NULL);
 
