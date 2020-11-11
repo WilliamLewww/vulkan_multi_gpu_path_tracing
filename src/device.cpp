@@ -655,17 +655,13 @@ void Device::createUniformBuffers() {
   VkDeviceSize cameraBufferSize = sizeof(CameraUniform);
   createBuffer(cameraBufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &this->cameraUniformBuffer, &this->cameraUniformBufferMemory);
 
-  VkDeviceSize transformBufferSize = (sizeof(float) * 16) * 2;
+  VkDeviceSize transformBufferSize = sizeof(float) * 16;
   createBuffer(transformBufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &this->transformUniformBuffer, &this->transformUniformBufferMemory);
 
-  float transform[32] = {
-    1, 0, 0, 0,
-    0, 1, 0, 0,
-    0, 0, 1, 0,
-    0, 0, 0, 1,
-    0.5, 0, 0, 0,
-    0, 0.5, 0, 0,
-    0, 0, 0.5, 0,
+  float transform[16] = {
+    1.0, 0, 0, 0,
+    0, 1.0, 0, 0,
+    0, 0, 1.0, 0,
     0, 0, 0, 1.0,
   };
 
@@ -731,7 +727,7 @@ void Device::createCommandBuffers(Scene* scene, VkPipeline pipeline, VkPipelineL
       vkCmdBindDescriptorSets(this->commandBufferList[x], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, y, 1, &descriptorSetList[y], 0, 0);
     }
 
-    vkCmdDrawIndexed(this->commandBufferList[x], scene->getPrimitiveCount() * 3, 2, 0, 0, 0);
+    vkCmdDrawIndexed(this->commandBufferList[x], scene->getPrimitiveCount() * 3, 1, 0, 0, 0);
     vkCmdEndRenderPass(this->commandBufferList[x]);
 
     { 

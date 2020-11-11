@@ -11,7 +11,6 @@
 #include "graphics_pipeline.h"
 #include "descriptor_manager.h"
 #include "acceleration_structure_manager.h"
-#include "transformation.h"
 
 class Renderer {
 private:
