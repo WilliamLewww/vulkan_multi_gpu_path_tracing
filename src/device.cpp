@@ -37,36 +37,16 @@ VkBuffer Device::getTransformUniformBuffer() {
   return this->transformUniformBuffer;
 }
 
-VkBuffer Device::getIndexBuffer() {
-  return this->indexBuffer;
-}
-
-VkBuffer Device::getVertexBuffer() {
-  return this->vertexPositionBuffer;
-}
-
-VkImageView Device::getRayTraceImageView() {
-  return this->rayTraceImageView;
-}
-
-VkBuffer Device::getMaterialIndexBuffer() {
-  return this->materialIndexBuffer;
-}
-
-VkBuffer Device::getMaterialBuffer() {
-  return this->materialBuffer;
-}
-
-VkBuffer Device::getMaterialLightBuffer() {
-  return this->materialLightBuffer;
-}
-
 VkCommandPool Device::getCommandPool() {
   return this->commandPool;
 }
 
 VkQueue Device::getComputeQueue() {
   return this->computeQueue;
+}
+
+VkImageView Device::getRayTraceImageView() {
+  return this->rayTraceImageView;
 }
 
 void Device::createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usageFlags, VkMemoryPropertyFlags propertyFlags, VkImage* image, VkDeviceMemory* imageMemory) {
@@ -470,127 +450,6 @@ void Device::createFramebuffers() {
   }
 }
 
-void Device::createVertexBuffer(Model* model) {
-  VkDeviceSize positionBufferSize = sizeof(float) * model->getVertexCount();
-  
-  VkBuffer positionStagingBuffer;
-  VkDeviceMemory positionStagingBufferMemory;
-  createBuffer(positionBufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &positionStagingBuffer, &positionStagingBufferMemory);
-
-  void* positionData;
-  vkMapMemory(this->logicalDevice, positionStagingBufferMemory, 0, positionBufferSize, 0, &positionData);
-  memcpy(positionData, model->getVertices().data(), positionBufferSize);
-  vkUnmapMemory(this->logicalDevice, positionStagingBufferMemory);
-
-  createBuffer(positionBufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &this->vertexPositionBuffer, &this->vertexPositionBufferMemory);  
-
-  copyBuffer(positionStagingBuffer, this->vertexPositionBuffer, positionBufferSize);
-
-  vkDestroyBuffer(this->logicalDevice, positionStagingBuffer, NULL);
-  vkFreeMemory(this->logicalDevice, positionStagingBufferMemory, NULL);
-}
-
-void Device::createIndexBuffer(Model* model) {
-  VkDeviceSize bufferSize = sizeof(uint32_t) * model->getTotalIndexCount();
-
-  std::vector<uint32_t> positionIndexList(model->getTotalIndexCount());
-  for (int x = 0; x < model->getTotalIndexCount(); x++) {
-    positionIndexList[x] = model->getTotalIndex(x).vertex_index;
-  }
-  
-  VkBuffer stagingBuffer;
-  VkDeviceMemory stagingBufferMemory;
-  createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &stagingBuffer, &stagingBufferMemory);
-
-  void* data;
-  vkMapMemory(this->logicalDevice, stagingBufferMemory, 0, bufferSize, 0, &data);
-  memcpy(data, positionIndexList.data(), bufferSize);
-  vkUnmapMemory(this->logicalDevice, stagingBufferMemory);
-
-  createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &this->indexBuffer, &this->indexBufferMemory);
-
-  copyBuffer(stagingBuffer, this->indexBuffer, bufferSize);
-  
-  vkDestroyBuffer(this->logicalDevice, stagingBuffer, NULL);
-  vkFreeMemory(this->logicalDevice, stagingBufferMemory, NULL);
-}
-
-void Device::createMaterialBuffers(Model* model) {
-  VkDeviceSize indexBufferSize = sizeof(uint32_t) * model->getTotalMaterialIndexCount();
-
-  std::vector<int> materialIndexList(model->getTotalMaterialIndexCount());
-  for (int x = 0; x < model->getTotalMaterialIndexCount(); x++) {
-    materialIndexList[x] = model->getTotalMaterialIndex(x);
-  }
-
-  VkBuffer indexStagingBuffer;
-  VkDeviceMemory indexStagingBufferMemory;
-  createBuffer(indexBufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &indexStagingBuffer, &indexStagingBufferMemory);
-
-  void* indexData;
-  vkMapMemory(this->logicalDevice, indexStagingBufferMemory, 0, indexBufferSize, 0, &indexData);
-  memcpy(indexData, materialIndexList.data(), indexBufferSize);
-  vkUnmapMemory(this->logicalDevice, indexStagingBufferMemory);
-
-  createBuffer(indexBufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &this->materialIndexBuffer, &this->materialIndexBufferMemory);
-
-  copyBuffer(indexStagingBuffer, this->materialIndexBuffer, indexBufferSize);
-  
-  vkDestroyBuffer(this->logicalDevice, indexStagingBuffer, NULL);
-  vkFreeMemory(this->logicalDevice, indexStagingBufferMemory, NULL);
-
-  VkDeviceSize materialBufferSize = sizeof(struct Material) * model->getMaterialCount();
-
-  std::vector<Material> materialList(model->getMaterialCount());
-  for (int x = 0; x < model->getMaterialCount(); x++) {
-    memcpy(materialList[x].ambient, model->getMaterial(x).ambient, sizeof(float) * 3);
-    memcpy(materialList[x].diffuse, model->getMaterial(x).diffuse, sizeof(float) * 3);
-    memcpy(materialList[x].specular, model->getMaterial(x).specular, sizeof(float) * 3);
-    memcpy(materialList[x].emission, model->getMaterial(x).emission, sizeof(float) * 3);
-  }
-
-  VkBuffer materialStagingBuffer;
-  VkDeviceMemory materialStagingBufferMemory;
-  createBuffer(materialBufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &materialStagingBuffer, &materialStagingBufferMemory);
-
-  void* materialData;
-  vkMapMemory(this->logicalDevice, materialStagingBufferMemory, 0, materialBufferSize, 0, &materialData);
-  memcpy(materialData, materialList.data(), materialBufferSize);
-  vkUnmapMemory(this->logicalDevice, materialStagingBufferMemory);
-
-  createBuffer(materialBufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &this->materialBuffer, &this->materialBufferMemory);
-
-  copyBuffer(materialStagingBuffer, this->materialBuffer, materialBufferSize);
-  
-  vkDestroyBuffer(this->logicalDevice, materialStagingBuffer, NULL);
-  vkFreeMemory(this->logicalDevice, materialStagingBufferMemory, NULL);
-
-  LightContainer lightContainer = {};
-  for (int x = 0; x < model->getTotalMaterialIndexCount(); x++) {
-    float* materialEmission = model->getMaterial(model->getTotalMaterialIndex(x)).emission;
-    if (materialEmission[0] > 0 || materialEmission[1] > 0 || materialEmission[2] > 0) {
-      lightContainer.indices[lightContainer.count] = x;
-      lightContainer.count += 1;
-    }
-  }
-  
-  VkBuffer materialLightStagingBuffer;
-  VkDeviceMemory materialLightStagingBufferMemory;
-  createBuffer(sizeof(LightContainer), VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &materialLightStagingBuffer, &materialLightStagingBufferMemory);
-
-  void* materialLightData;
-  vkMapMemory(this->logicalDevice, materialLightStagingBufferMemory, 0, sizeof(LightContainer), 0, &materialLightData);
-  memcpy(materialLightData, &lightContainer, sizeof(LightContainer));
-  vkUnmapMemory(this->logicalDevice, materialLightStagingBufferMemory);
-
-  createBuffer(sizeof(LightContainer), VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &this->materialLightBuffer, &this->materialLightBufferMemory);
-
-  copyBuffer(materialLightStagingBuffer, this->materialLightBuffer, sizeof(LightContainer));
-  
-  vkDestroyBuffer(this->logicalDevice, materialLightStagingBuffer, NULL);
-  vkFreeMemory(this->logicalDevice, materialLightStagingBufferMemory, NULL);
-}
-
 void Device::createTextures() {
   createImage(800, 600, this->swapchainImageFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_STORAGE_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &this->rayTraceImage, &this->rayTraceImageMemory);
 
@@ -671,7 +530,13 @@ void Device::createUniformBuffers() {
   vkUnmapMemory(this->logicalDevice, this->transformUniformBufferMemory);
 }
 
-void Device::createCommandBuffers(Model* model, VkPipeline pipeline, VkPipelineLayout pipelineLayout, std::vector<VkDescriptorSet>& descriptorSetList) {
+void Device::createCommandBuffers(std::vector<VkBuffer> vertexBufferList, 
+                                  std::vector<VkBuffer> indexBufferList, 
+                                  std::vector<uint32_t> primitiveCountList, 
+                                  VkPipeline pipeline, 
+                                  VkPipelineLayout pipelineLayout, 
+                                  std::vector<VkDescriptorSet>& descriptorSetList) {
+
   this->commandBufferList.resize(this->swapchainImageCount);
   
   VkCommandBufferAllocateInfo commandBufferAllocateInfo = {};
@@ -704,8 +569,7 @@ void Device::createCommandBuffers(Model* model, VkPipeline pipeline, VkPipelineL
     renderPassBeginInfo.clearValueCount = 2;
     renderPassBeginInfo.pClearValues = clearValues;
 
-    VkBuffer vertexBuffers[1] = {this->vertexPositionBuffer};
-    VkDeviceSize offsets[1] = {0};
+    std::vector<VkDeviceSize> offsetList(vertexBufferList.size());
 
     VkImageSubresourceRange subresourceRange = {};
     subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
@@ -721,13 +585,13 @@ void Device::createCommandBuffers(Model* model, VkPipeline pipeline, VkPipelineL
     vkCmdBeginRenderPass(this->commandBufferList[x], &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
     vkCmdBindPipeline(this->commandBufferList[x], VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
 
-    vkCmdBindVertexBuffers(this->commandBufferList[x], 0, 1, vertexBuffers, offsets);
-    vkCmdBindIndexBuffer(this->commandBufferList[x], this->indexBuffer, 0, VK_INDEX_TYPE_UINT32);
+    vkCmdBindVertexBuffers(this->commandBufferList[x], 0, vertexBufferList.size(), vertexBufferList.data(), offsetList.data());
+    vkCmdBindIndexBuffer(this->commandBufferList[x], indexBufferList[0], 0, VK_INDEX_TYPE_UINT32);
     for (int y = 0; y < descriptorSetList.size(); y++) {
       vkCmdBindDescriptorSets(this->commandBufferList[x], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, y, 1, &descriptorSetList[y], 0, 0);
     }
 
-    vkCmdDrawIndexed(this->commandBufferList[x], model->getPrimitiveCount() * 3, 1, 0, 0, 0);
+    vkCmdDrawIndexed(this->commandBufferList[x], primitiveCountList[0] * 3, 1, 0, 0, 0);
     vkCmdEndRenderPass(this->commandBufferList[x]);
 
     { 

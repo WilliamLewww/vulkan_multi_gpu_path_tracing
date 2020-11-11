@@ -1,6 +1,6 @@
 #include "renderer.h"
 
-Renderer::Renderer(Model* model, Camera* camera) {
+Renderer::Renderer(std::vector<Model*> modelList, Camera* camera) {
   this->window = new Window(800, 600);
   this->window->setKeyCallback(Input::keyCallback);
   this->window->setCursorPositionCallback(Input::cursorPositionCallback);
@@ -33,21 +33,22 @@ Renderer::Renderer(Model* model, Camera* camera) {
   displayDevice->createDepthResource();
   displayDevice->createFramebuffers();
 
-  displayDevice->createVertexBuffer(model);
-  displayDevice->createIndexBuffer(model);
-  displayDevice->createMaterialBuffers(model);
   displayDevice->createTextures();
   displayDevice->createUniformBuffers();
+
+  modelList[0]->createVertexBuffer(displayDevice);
+  modelList[0]->createIndexBuffer(displayDevice);
+  modelList[0]->createMaterialBuffers(displayDevice);
 
   this->accelerationStructureManager = new AccelerationStructureManager();
   
   this->accelerationStructureManager->initializeContainerOnDevice(displayDevice);
 
   this->accelerationStructureManager->createBottomLevelAccelerationStructure(displayDevice, 
-                                                                             model->getPrimitiveCount(), 
-                                                                             model->getVertexCount(), 
-                                                                             displayDevice->getVertexBuffer(), 
-                                                                             displayDevice->getIndexBuffer());
+                                                                             modelList[0]->getPrimitiveCount(), 
+                                                                             modelList[0]->getVertexCount(), 
+                                                                             modelList[0]->getVertexBuffer(displayDevice), 
+                                                                             modelList[0]->getIndexBuffer(displayDevice));
 
   VkTransformMatrixKHR transformMatrix = {
     .matrix = {
@@ -96,7 +97,7 @@ Renderer::Renderer(Model* model, Camera* camera) {
                                          NULL);
 
   VkDescriptorBufferInfo indexBufferInfo = {
-    .buffer = displayDevice->getIndexBuffer(),
+    .buffer = modelList[0]->getIndexBuffer(displayDevice),
     .offset = 0,
     .range = VK_WHOLE_SIZE
   };
@@ -111,7 +112,7 @@ Renderer::Renderer(Model* model, Camera* camera) {
                                          NULL);
 
   VkDescriptorBufferInfo vertexBufferInfo = {
-    .buffer = displayDevice->getVertexBuffer(),
+    .buffer = modelList[0]->getVertexBuffer(displayDevice),
     .offset = 0,
     .range = VK_WHOLE_SIZE
   };
@@ -155,7 +156,7 @@ Renderer::Renderer(Model* model, Camera* camera) {
                                          NULL);
 
   VkDescriptorBufferInfo materialIndexBufferInfo = {
-    .buffer = displayDevice->getMaterialIndexBuffer(),
+    .buffer = modelList[0]->getMaterialIndexBuffer(displayDevice),
     .offset = 0,
     .range = VK_WHOLE_SIZE
   };
@@ -170,7 +171,7 @@ Renderer::Renderer(Model* model, Camera* camera) {
                                          NULL);
 
   VkDescriptorBufferInfo materialBufferInfo = {
-    .buffer = displayDevice->getMaterialBuffer(),
+    .buffer = modelList[0]->getMaterialBuffer(displayDevice),
     .offset = 0,
     .range = VK_WHOLE_SIZE
   };
@@ -185,7 +186,7 @@ Renderer::Renderer(Model* model, Camera* camera) {
                                          NULL);
 
   VkDescriptorBufferInfo materialLightBufferInfo = {
-    .buffer = displayDevice->getMaterialLightBuffer(),
+    .buffer = modelList[0]->getMaterialLightBuffer(displayDevice),
     .offset = 0,
     .range = VK_WHOLE_SIZE
   };
@@ -225,7 +226,17 @@ Renderer::Renderer(Model* model, Camera* camera) {
                                          displayDevice->getSwapchainExtent(),
                                          displayDevice->getRenderPass());
 
-  displayDevice->createCommandBuffers(model, this->graphicsPipeline->getPipeline(displayDevice), this->graphicsPipeline->getPipelineLayout(displayDevice), this->descriptorManager->getDescriptorSetListReference(displayDevice));
+std::vector<VkBuffer> vertexBufferList = {modelList[0]->getVertexBuffer(displayDevice)};
+std::vector<VkBuffer> indexBufferList = {modelList[0]->getIndexBuffer(displayDevice)};
+std::vector<uint32_t> primitiveCountList = {modelList[0]->getPrimitiveCount()};
+
+displayDevice->createCommandBuffers(vertexBufferList,
+                                    indexBufferList,
+                                    primitiveCountList,
+                                    this->graphicsPipeline->getPipeline(displayDevice), 
+                                    this->graphicsPipeline->getPipelineLayout(displayDevice), 
+                                    this->descriptorManager->getDescriptorSetListReference(displayDevice));
+
   displayDevice->createSynchronizationObjects();
 
   while (!glfwWindowShouldClose(this->window->getWindow())) {

@@ -1,9 +1,13 @@
 #pragma once
 
+#include <vulkan/vulkan.h>
+#include <map>
 #include <stdio.h>
 #include <unistd.h>
 
 #include "tiny_obj_loader.h"
+#include "device.h"
+#include "buffer.h"
 
 struct Material {
   float ambient[3]; int padA;
@@ -27,6 +31,24 @@ private:
   std::string warning;
   std::string error;
   bool success;
+
+  struct DeviceContainer {
+    VkBuffer vertexBuffer;
+    VkDeviceMemory vertexBufferMemory;
+
+    VkBuffer indexBuffer;
+    VkDeviceMemory indexBufferMemory;
+
+    VkBuffer materialIndexBuffer;
+    VkDeviceMemory materialIndexBufferMemory;
+
+    VkBuffer materialBuffer;
+    VkDeviceMemory materialBufferMemory;
+
+    VkBuffer materialLightBuffer;
+    VkDeviceMemory materialLightBufferMemory;
+  };
+  std::map<Device*, DeviceContainer> deviceMap;
 public:
   Model(std::string fileName);
   ~Model();
@@ -46,4 +68,14 @@ public:
   tinyobj::material_t getMaterial(uint32_t index);
 
   uint32_t getPrimitiveCount();
+
+  VkBuffer getVertexBuffer(Device* device);
+  VkBuffer getIndexBuffer(Device* device);
+  VkBuffer getMaterialIndexBuffer(Device* device);
+  VkBuffer getMaterialBuffer(Device* device);
+  VkBuffer getMaterialLightBuffer(Device* device);
+
+  void createVertexBuffer(Device* device);
+  void createIndexBuffer(Device* device);
+  void createMaterialBuffers(Device* device);
 };

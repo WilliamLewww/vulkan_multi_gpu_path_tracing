@@ -35,8 +35,8 @@ public:
   void initializeContainerOnDevice(Device* device);
   void createPipelineLayout(Device* device, std::vector<VkDescriptorSetLayout> descriptorSetLayoutList);
   void createPipeline(Device* device,
-                              std::vector<VkVertexInputBindingDescription> vertexBindingDescriptionList,
-                              std::vector<VkVertexInputAttributeDescription> vertexAttributeDescriptionList,
-                              VkExtent2D swapchainExtent,
-                              VkRenderPass renderPass);
+                      std::vector<VkVertexInputBindingDescription> vertexBindingDescriptionList,
+                      std::vector<VkVertexInputAttributeDescription> vertexAttributeDescriptionList,
+                      VkExtent2D swapchainExtent,
+                      VkRenderPass renderPass);
 };

@@ -11,6 +11,7 @@
 #include "graphics_pipeline.h"
 #include "descriptor_manager.h"
 #include "acceleration_structure_manager.h"
+#include "model.h"
 
 class Renderer {
 private:
@@ -21,6 +22,6 @@ private:
   DescriptorManager* descriptorManager;
   GraphicsPipeline* graphicsPipeline;
 public:
-  Renderer(Model* model, Camera* camera);
+  Renderer(std::vector<Model*> modelList, Camera* camera);
   ~Renderer();
 };

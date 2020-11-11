@@ -9,7 +9,6 @@
 #include <string.h>
 #include <math.h>
 
-#include "model.h"
 #include "camera.h"
 
 class Device {
@@ -46,21 +45,6 @@ protected:
 
   std::vector<VkFramebuffer> framebufferList;
 
-  VkBuffer vertexPositionBuffer;
-  VkDeviceMemory vertexPositionBufferMemory;
-
-  VkBuffer indexBuffer;
-  VkDeviceMemory indexBufferMemory;
-
-  VkBuffer materialIndexBuffer;
-  VkDeviceMemory materialIndexBufferMemory;
-
-  VkBuffer materialBuffer;
-  VkDeviceMemory materialBufferMemory;
-
-  VkBuffer materialLightBuffer;
-  VkDeviceMemory materialLightBufferMemory;
-
   VkImageView rayTraceImageView;
   VkImage rayTraceImage;
   VkDeviceMemory rayTraceImageMemory;
@@ -88,14 +72,10 @@ public:
 
   VkBuffer getCameraUniformBuffer();
   VkBuffer getTransformUniformBuffer();
-  VkBuffer getIndexBuffer();
-  VkBuffer getVertexBuffer();
-  VkImageView getRayTraceImageView();
-  VkBuffer getMaterialIndexBuffer();
-  VkBuffer getMaterialBuffer();
-  VkBuffer getMaterialLightBuffer();
   VkCommandPool getCommandPool();
   VkQueue getComputeQueue();
+
+  VkImageView getRayTraceImageView();
 
   void createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usageFlags, VkMemoryPropertyFlags propertyFlags, VkImage* image, VkDeviceMemory* imageMemory);
   void createBuffer(VkDeviceSize size, VkBufferUsageFlags usageFlags, VkMemoryPropertyFlags propertyFlags, VkBuffer* buffer, VkDeviceMemory* bufferMemory);
@@ -109,13 +89,16 @@ public:
   void createDepthResource();
   void createFramebuffers();
 
-  void createVertexBuffer(Model* model);
-  void createIndexBuffer(Model* model);
-  void createMaterialBuffers(Model* model);
   void createTextures();
   void createUniformBuffers();
 
-  void createCommandBuffers(Model* model, VkPipeline pipeline, VkPipelineLayout pipelineLayout, std::vector<VkDescriptorSet>& descriptorSetList);
+  void createCommandBuffers(std::vector<VkBuffer> vertexBufferList, 
+                            std::vector<VkBuffer> indexBufferList, 
+                            std::vector<uint32_t> primitiveCountList, 
+                            VkPipeline pipeline, 
+                            VkPipelineLayout pipelineLayout, 
+                            std::vector<VkDescriptorSet>& descriptorSetList);
+  
   void createSynchronizationObjects();
 
   void updateCameraUniformBuffer(CameraUniform camera);
