@@ -194,8 +194,10 @@ void AccelerationStructureManager::addBottomLevelAccelerationStructureInstance(D
 
   VkDeviceAddress accelerationStructureDeviceAddress = pvkGetAccelerationStructureDeviceAddressKHR(device->getLogicalDevice(), &accelerationStructureDeviceAddressInfo);
 
+  this->deviceMap[device].instanceTransformMatrixList.push_back(transformMatrix);
+
   VkAccelerationStructureInstanceKHR geometryInstance = {
-    .transform = transformMatrix,
+    .transform = this->deviceMap[device].instanceTransformMatrixList.back(),
     .instanceCustomIndex = instanceIndex,
     .mask = 0xFF,
     .instanceShaderBindingTableRecordOffset = 0,

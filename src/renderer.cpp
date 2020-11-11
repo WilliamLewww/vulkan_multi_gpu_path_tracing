@@ -37,7 +37,7 @@ Renderer::Renderer(Scene* scene, Camera* camera) {
   displayDevice->createIndexBuffer(scene);
   displayDevice->createMaterialBuffers(scene);
   displayDevice->createTextures();
-  displayDevice->createUniformBuffer();
+  displayDevice->createUniformBuffers();
 
   this->accelerationStructureManager = new AccelerationStructureManager();
   
@@ -82,7 +82,7 @@ Renderer::Renderer(Scene* scene, Camera* camera) {
                                          &descriptorSetAccelerationStructure);
 
   VkDescriptorBufferInfo uniformBufferInfo = {
-    .buffer = displayDevice->getUniformBuffer(),
+    .buffer = displayDevice->getCameraUniformBuffer(),
     .offset = 0,
     .range = VK_WHOLE_SIZE
   };

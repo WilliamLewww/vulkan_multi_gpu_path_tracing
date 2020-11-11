@@ -65,8 +65,8 @@ protected:
   VkImage rayTraceImage;
   VkDeviceMemory rayTraceImageMemory;
 
-  VkBuffer uniformBuffer;
-  VkDeviceMemory uniformBufferMemory;
+  VkBuffer cameraUniformBuffer;
+  VkDeviceMemory cameraUniformBufferMemory;
 
   std::vector<VkCommandBuffer> commandBufferList;
   std::vector<VkSemaphore> imageAvailableSemaphoreList;
@@ -83,7 +83,7 @@ public:
   VkRenderPass getRenderPass();
   VkPhysicalDeviceMemoryProperties getPhysicalMemoryProperties();
 
-  VkBuffer getUniformBuffer();
+  VkBuffer getCameraUniformBuffer();
   VkBuffer getIndexBuffer();
   VkBuffer getVertexBuffer();
   VkImageView getRayTraceImageView();
@@ -109,7 +109,7 @@ public:
   void createIndexBuffer(Scene* scene);
   void createMaterialBuffers(Scene* scene);
   void createTextures();
-  void createUniformBuffer();
+  void createUniformBuffers();
 
   void createCommandBuffers(Scene* scene, VkPipeline pipeline, VkPipelineLayout pipelineLayout, std::vector<VkDescriptorSet>& descriptorSetList);
   void createSynchronizationObjects();

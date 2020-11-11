@@ -21,6 +21,7 @@ private:
     VkDeviceMemory topLevelAccelerationStructureDeviceMemory;
 
     std::vector<VkAccelerationStructureInstanceKHR> bottomLevelAccelerationStructureInstanceList;
+    std::vector<VkTransformMatrixKHR> instanceTransformMatrixList;
   };
   std::map<Device*, DeviceContainer> deviceMap;
 public:

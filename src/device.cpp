@@ -29,8 +29,8 @@ VkPhysicalDeviceMemoryProperties Device::getPhysicalMemoryProperties() {
   return this->physicalDeviceMemoryProperties;
 }
 
-VkBuffer Device::getUniformBuffer() {
-  return this->uniformBuffer;
+VkBuffer Device::getCameraUniformBuffer() {
+  return this->cameraUniformBuffer;
 }
 
 VkBuffer Device::getIndexBuffer() {
@@ -647,9 +647,9 @@ void Device::createTextures() {
   vkFreeCommandBuffers(this->logicalDevice, this->commandPool, 1, &commandBuffer);
 }
 
-void Device::createUniformBuffer() {
+void Device::createUniformBuffers() {
   VkDeviceSize bufferSize = sizeof(CameraUniform);
-  createBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &this->uniformBuffer, &this->uniformBufferMemory);
+  createBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &this->cameraUniformBuffer, &this->cameraUniformBufferMemory);
 }
 
 void Device::createCommandBuffers(Scene* scene, VkPipeline pipeline, VkPipelineLayout pipelineLayout, std::vector<VkDescriptorSet>& descriptorSetList) {
@@ -841,9 +841,9 @@ void Device::createSynchronizationObjects() {
 
 void Device::updateUniformBuffer(CameraUniform camera) {
   void* data;
-  vkMapMemory(this->logicalDevice, this->uniformBufferMemory, 0, sizeof(CameraUniform), 0, &data);
+  vkMapMemory(this->logicalDevice, this->cameraUniformBufferMemory, 0, sizeof(CameraUniform), 0, &data);
   memcpy(data, &camera, sizeof(CameraUniform));
-  vkUnmapMemory(this->logicalDevice, this->uniformBufferMemory);
+  vkUnmapMemory(this->logicalDevice, this->cameraUniformBufferMemory);
 }
 
 void Device::drawFrame(CameraUniform camera) {
