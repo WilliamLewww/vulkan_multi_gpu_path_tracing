@@ -61,24 +61,23 @@ Renderer::Renderer(std::vector<Model*> modelList, Camera* camera) {
 
   this->descriptorManager->initializeContainerOnDevice(displayDevice, 2);
 
-  VkWriteDescriptorSetAccelerationStructureKHR descriptorSetAccelerationStructure = {
-    .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR,
-    .pNext = NULL,
-    .accelerationStructureCount = 1,
-    .pAccelerationStructures = this->accelerationStructureManager->getTopLevelAccelerationStructurePointer(displayDevice)
+  VkDescriptorBufferInfo cameraUniformBufferInfo = {
+    .buffer = displayDevice->getCameraUniformBuffer(),
+    .offset = 0,
+    .range = VK_WHOLE_SIZE
   };
   this->descriptorManager->addDescriptor(displayDevice,
                                          0, 
                                          0, 
-                                         VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR, 
-                                         VK_SHADER_STAGE_FRAGMENT_BIT,
+                                         VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 
+                                         (VkShaderStageFlagBits)(VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT),
                                          NULL, 
+                                         &cameraUniformBufferInfo,
                                          NULL,
-                                         NULL,
-                                         &descriptorSetAccelerationStructure);
+                                         NULL);
 
-  VkDescriptorBufferInfo cameraUniformBufferInfo = {
-    .buffer = displayDevice->getCameraUniformBuffer(),
+  VkDescriptorBufferInfo transformUniformBufferInfo = {
+    .buffer = displayDevice->getTransformUniformBuffer(),
     .offset = 0,
     .range = VK_WHOLE_SIZE
   };
@@ -88,7 +87,37 @@ Renderer::Renderer(std::vector<Model*> modelList, Camera* camera) {
                                          VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 
                                          (VkShaderStageFlagBits)(VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT),
                                          NULL, 
-                                         &cameraUniformBufferInfo,
+                                         &transformUniformBufferInfo,
+                                         NULL,
+                                         NULL);
+
+  VkWriteDescriptorSetAccelerationStructureKHR descriptorSetAccelerationStructure = {
+    .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR,
+    .pNext = NULL,
+    .accelerationStructureCount = 1,
+    .pAccelerationStructures = this->accelerationStructureManager->getTopLevelAccelerationStructurePointer(displayDevice)
+  };
+  this->descriptorManager->addDescriptor(displayDevice,
+                                         0, 
+                                         2, 
+                                         VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR, 
+                                         VK_SHADER_STAGE_FRAGMENT_BIT,
+                                         NULL, 
+                                         NULL,
+                                         NULL,
+                                         &descriptorSetAccelerationStructure);
+
+  VkDescriptorImageInfo imageInfo = {
+    .imageView = displayDevice->getRayTraceImageView(),
+    .imageLayout = VK_IMAGE_LAYOUT_GENERAL
+  };
+  this->descriptorManager->addDescriptor(displayDevice,
+                                         0, 
+                                         3, 
+                                         VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 
+                                         VK_SHADER_STAGE_FRAGMENT_BIT,
+                                         &imageInfo, 
+                                         NULL,
                                          NULL,
                                          NULL);
 
@@ -98,8 +127,8 @@ Renderer::Renderer(std::vector<Model*> modelList, Camera* camera) {
     .range = VK_WHOLE_SIZE
   };
   this->descriptorManager->addDescriptor(displayDevice,
+                                         1, 
                                          0, 
-                                         2, 
                                          VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 
                                          VK_SHADER_STAGE_FRAGMENT_BIT,
                                          NULL, 
@@ -113,41 +142,12 @@ Renderer::Renderer(std::vector<Model*> modelList, Camera* camera) {
     .range = VK_WHOLE_SIZE
   };
   this->descriptorManager->addDescriptor(displayDevice,
-                                         0, 
-                                         3, 
+                                         1, 
+                                         1, 
                                          VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 
                                          VK_SHADER_STAGE_FRAGMENT_BIT,
                                          NULL, 
                                          &vertexBufferInfo,
-                                         NULL,
-                                         NULL);
-
-  VkDescriptorImageInfo imageInfo = {
-    .imageView = displayDevice->getRayTraceImageView(),
-    .imageLayout = VK_IMAGE_LAYOUT_GENERAL
-  };
-  this->descriptorManager->addDescriptor(displayDevice,
-                                         0, 
-                                         4, 
-                                         VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 
-                                         VK_SHADER_STAGE_FRAGMENT_BIT,
-                                         &imageInfo, 
-                                         NULL,
-                                         NULL,
-                                         NULL);
-
-  VkDescriptorBufferInfo transformUniformBufferInfo = {
-    .buffer = displayDevice->getTransformUniformBuffer(),
-    .offset = 0,
-    .range = VK_WHOLE_SIZE
-  };
-  this->descriptorManager->addDescriptor(displayDevice,
-                                         0, 
-                                         5, 
-                                         VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 
-                                         (VkShaderStageFlagBits)(VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT),
-                                         NULL, 
-                                         &transformUniformBufferInfo,
                                          NULL,
                                          NULL);
 
@@ -158,7 +158,7 @@ Renderer::Renderer(std::vector<Model*> modelList, Camera* camera) {
   };
   this->descriptorManager->addDescriptor(displayDevice,
                                          1, 
-                                         0, 
+                                         2, 
                                          VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 
                                          (VkShaderStageFlagBits)(VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT),
                                          NULL, 
@@ -173,7 +173,7 @@ Renderer::Renderer(std::vector<Model*> modelList, Camera* camera) {
   };
   this->descriptorManager->addDescriptor(displayDevice,
                                          1, 
-                                         1, 
+                                         3, 
                                          VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 
                                          (VkShaderStageFlagBits)(VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT),
                                          NULL, 
@@ -188,7 +188,7 @@ Renderer::Renderer(std::vector<Model*> modelList, Camera* camera) {
   };
   this->descriptorManager->addDescriptor(displayDevice,
                                          1, 
-                                         2, 
+                                         4, 
                                          VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 
                                          (VkShaderStageFlagBits)(VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT),
                                          NULL, 

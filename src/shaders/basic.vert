@@ -5,7 +5,7 @@ layout(location = 0) in vec3 inPosition;
 
 layout(location = 0) out vec3 interpolatedPosition;
 
-layout(binding = 1, set = 0) uniform Camera {
+layout(binding = 0, set = 0) uniform Camera {
   vec4 position;
   vec4 right;
   vec4 up;
@@ -14,7 +14,7 @@ layout(binding = 1, set = 0) uniform Camera {
   uint frameCount;
 } camera;
 
-layout(binding = 5, set = 0) uniform InstanceTransformMatrix {
+layout(binding = 1, set = 0) uniform InstanceTransformMatrix {
   mat4 transformMatrix[2];
 
 } instanceTransformMatrix;
