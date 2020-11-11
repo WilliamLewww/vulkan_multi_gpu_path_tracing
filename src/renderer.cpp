@@ -1,6 +1,6 @@
 #include "renderer.h"
 
-Renderer::Renderer(Scene* scene, Camera* camera) {
+Renderer::Renderer(Model* model, Camera* camera) {
   this->window = new Window(800, 600);
   this->window->setKeyCallback(Input::keyCallback);
   this->window->setCursorPositionCallback(Input::cursorPositionCallback);
@@ -33,9 +33,9 @@ Renderer::Renderer(Scene* scene, Camera* camera) {
   displayDevice->createDepthResource();
   displayDevice->createFramebuffers();
 
-  displayDevice->createVertexBuffer(scene);
-  displayDevice->createIndexBuffer(scene);
-  displayDevice->createMaterialBuffers(scene);
+  displayDevice->createVertexBuffer(model);
+  displayDevice->createIndexBuffer(model);
+  displayDevice->createMaterialBuffers(model);
   displayDevice->createTextures();
   displayDevice->createUniformBuffers();
 
@@ -44,8 +44,8 @@ Renderer::Renderer(Scene* scene, Camera* camera) {
   this->accelerationStructureManager->initializeContainerOnDevice(displayDevice);
 
   this->accelerationStructureManager->createBottomLevelAccelerationStructure(displayDevice, 
-                                                                             scene->getPrimitiveCount(), 
-                                                                             scene->getVertexCount(), 
+                                                                             model->getPrimitiveCount(), 
+                                                                             model->getVertexCount(), 
                                                                              displayDevice->getVertexBuffer(), 
                                                                              displayDevice->getIndexBuffer());
 
@@ -225,7 +225,7 @@ Renderer::Renderer(Scene* scene, Camera* camera) {
                                          displayDevice->getSwapchainExtent(),
                                          displayDevice->getRenderPass());
 
-  displayDevice->createCommandBuffers(scene, this->graphicsPipeline->getPipeline(displayDevice), this->graphicsPipeline->getPipelineLayout(displayDevice), this->descriptorManager->getDescriptorSetListReference(displayDevice));
+  displayDevice->createCommandBuffers(model, this->graphicsPipeline->getPipeline(displayDevice), this->graphicsPipeline->getPipelineLayout(displayDevice), this->descriptorManager->getDescriptorSetListReference(displayDevice));
   displayDevice->createSynchronizationObjects();
 
   while (!glfwWindowShouldClose(this->window->getWindow())) {

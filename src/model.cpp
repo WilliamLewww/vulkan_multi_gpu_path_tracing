@@ -1,6 +1,6 @@
-#include "scene.h"
+#include "model.h"
 
-Scene::Scene(std::string fileName) {
+Model::Model(std::string fileName) {
   chdir("res");
 
   this->fileName = fileName;
@@ -11,11 +11,11 @@ Scene::Scene(std::string fileName) {
   this->checkError();
 }
 
-Scene::~Scene() {
+Model::~Model() {
 
 }
 
-bool Scene::checkError() {
+bool Model::checkError() {
   if (!this->warning.empty()) {
     printf("%s\n", this->warning.c_str());
   }
@@ -27,15 +27,15 @@ bool Scene::checkError() {
   return this->success;
 }
 
-uint32_t Scene::getVertexCount() {
+uint32_t Model::getVertexCount() {
   return this->attrib.vertices.size();
 }
 
-std::vector<float> Scene::getVertices() {
+std::vector<float> Model::getVertices() {
   return this->attrib.vertices;
 }
 
-uint32_t Scene::getTotalIndexCount() {
+uint32_t Model::getTotalIndexCount() {
   uint32_t indexCount = 0;
   for (int x = 0; x < this->shapes.size(); x++) {
     indexCount += this->shapes[x].mesh.indices.size();
@@ -44,7 +44,7 @@ uint32_t Scene::getTotalIndexCount() {
   return indexCount;
 }
 
-tinyobj::index_t Scene::getTotalIndex(uint32_t index) {
+tinyobj::index_t Model::getTotalIndex(uint32_t index) {
   for (int x = 0; x < this->shapes.size(); x++) {
     if (index >= this->shapes[x].mesh.indices.size()) {
       index -= this->shapes[x].mesh.indices.size();
@@ -57,7 +57,7 @@ tinyobj::index_t Scene::getTotalIndex(uint32_t index) {
   return {-1, -1, -1};
 }
 
-uint32_t Scene::getTotalMaterialIndexCount() {
+uint32_t Model::getTotalMaterialIndexCount() {
   uint32_t indexCount = 0;
   for (int x = 0; x < this->shapes.size(); x++) {
     indexCount += this->shapes[x].mesh.material_ids.size();
@@ -66,7 +66,7 @@ uint32_t Scene::getTotalMaterialIndexCount() {
   return indexCount;
 }
 
-int Scene::getTotalMaterialIndex(uint32_t index) {
+int Model::getTotalMaterialIndex(uint32_t index) {
   for (int x = 0; x < this->shapes.size(); x++) {
     if (index >= this->shapes[x].mesh.material_ids.size()) {
       index -= this->shapes[x].mesh.material_ids.size();
@@ -79,15 +79,15 @@ int Scene::getTotalMaterialIndex(uint32_t index) {
   return -1;
 }
 
-uint32_t Scene::getMaterialCount() {
+uint32_t Model::getMaterialCount() {
   return this->materials.size();
 }
 
-tinyobj::material_t Scene::getMaterial(uint32_t index) {
+tinyobj::material_t Model::getMaterial(uint32_t index) {
   return this->materials[index];
 }
 
-uint32_t Scene::getPrimitiveCount() {
+uint32_t Model::getPrimitiveCount() {
   uint32_t primitiveCount = 0;
   for (int x = 0; x < this->shapes.size(); x++) {
     primitiveCount += this->shapes[x].mesh.num_face_vertices.size();

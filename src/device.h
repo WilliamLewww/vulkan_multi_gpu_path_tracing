@@ -9,7 +9,7 @@
 #include <string.h>
 #include <math.h>
 
-#include "scene.h"
+#include "model.h"
 #include "camera.h"
 
 class Device {
@@ -109,13 +109,13 @@ public:
   void createDepthResource();
   void createFramebuffers();
 
-  void createVertexBuffer(Scene* scene);
-  void createIndexBuffer(Scene* scene);
-  void createMaterialBuffers(Scene* scene);
+  void createVertexBuffer(Model* model);
+  void createIndexBuffer(Model* model);
+  void createMaterialBuffers(Model* model);
   void createTextures();
   void createUniformBuffers();
 
-  void createCommandBuffers(Scene* scene, VkPipeline pipeline, VkPipelineLayout pipelineLayout, std::vector<VkDescriptorSet>& descriptorSetList);
+  void createCommandBuffers(Model* model, VkPipeline pipeline, VkPipelineLayout pipelineLayout, std::vector<VkDescriptorSet>& descriptorSetList);
   void createSynchronizationObjects();
 
   void updateCameraUniformBuffer(CameraUniform camera);

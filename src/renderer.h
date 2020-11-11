@@ -21,6 +21,6 @@ private:
   DescriptorManager* descriptorManager;
   GraphicsPipeline* graphicsPipeline;
 public:
-  Renderer(Scene* scene, Camera* camera);
+  Renderer(Model* model, Camera* camera);
   ~Renderer();
 };

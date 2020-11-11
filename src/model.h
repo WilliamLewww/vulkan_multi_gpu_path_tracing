@@ -17,7 +17,7 @@ struct LightContainer {
   int indices[64];
 };
 
-class Scene {
+class Model {
 private:
   std::string fileName;
   tinyobj::attrib_t attrib;
@@ -28,8 +28,8 @@ private:
   std::string error;
   bool success;
 public:
-  Scene(std::string fileName);
-  ~Scene();
+  Model(std::string fileName);
+  ~Model();
 
   bool checkError();
 

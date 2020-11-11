@@ -470,8 +470,8 @@ void Device::createFramebuffers() {
   }
 }
 
-void Device::createVertexBuffer(Scene* scene) {
-  VkDeviceSize positionBufferSize = sizeof(float) * scene->getVertexCount();
+void Device::createVertexBuffer(Model* model) {
+  VkDeviceSize positionBufferSize = sizeof(float) * model->getVertexCount();
   
   VkBuffer positionStagingBuffer;
   VkDeviceMemory positionStagingBufferMemory;
@@ -479,7 +479,7 @@ void Device::createVertexBuffer(Scene* scene) {
 
   void* positionData;
   vkMapMemory(this->logicalDevice, positionStagingBufferMemory, 0, positionBufferSize, 0, &positionData);
-  memcpy(positionData, scene->getVertices().data(), positionBufferSize);
+  memcpy(positionData, model->getVertices().data(), positionBufferSize);
   vkUnmapMemory(this->logicalDevice, positionStagingBufferMemory);
 
   createBuffer(positionBufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, &this->vertexPositionBuffer, &this->vertexPositionBufferMemory);  
@@ -490,12 +490,12 @@ void Device::createVertexBuffer(Scene* scene) {
   vkFreeMemory(this->logicalDevice, positionStagingBufferMemory, NULL);
 }
 
-void Device::createIndexBuffer(Scene* scene) {
-  VkDeviceSize bufferSize = sizeof(uint32_t) * scene->getTotalIndexCount();
+void Device::createIndexBuffer(Model* model) {
+  VkDeviceSize bufferSize = sizeof(uint32_t) * model->getTotalIndexCount();
 
-  std::vector<uint32_t> positionIndexList(scene->getTotalIndexCount());
-  for (int x = 0; x < scene->getTotalIndexCount(); x++) {
-    positionIndexList[x] = scene->getTotalIndex(x).vertex_index;
+  std::vector<uint32_t> positionIndexList(model->getTotalIndexCount());
+  for (int x = 0; x < model->getTotalIndexCount(); x++) {
+    positionIndexList[x] = model->getTotalIndex(x).vertex_index;
   }
   
   VkBuffer stagingBuffer;
@@ -515,12 +515,12 @@ void Device::createIndexBuffer(Scene* scene) {
   vkFreeMemory(this->logicalDevice, stagingBufferMemory, NULL);
 }
 
-void Device::createMaterialBuffers(Scene* scene) {
-  VkDeviceSize indexBufferSize = sizeof(uint32_t) * scene->getTotalMaterialIndexCount();
+void Device::createMaterialBuffers(Model* model) {
+  VkDeviceSize indexBufferSize = sizeof(uint32_t) * model->getTotalMaterialIndexCount();
 
-  std::vector<int> materialIndexList(scene->getTotalMaterialIndexCount());
-  for (int x = 0; x < scene->getTotalMaterialIndexCount(); x++) {
-    materialIndexList[x] = scene->getTotalMaterialIndex(x);
+  std::vector<int> materialIndexList(model->getTotalMaterialIndexCount());
+  for (int x = 0; x < model->getTotalMaterialIndexCount(); x++) {
+    materialIndexList[x] = model->getTotalMaterialIndex(x);
   }
 
   VkBuffer indexStagingBuffer;
@@ -539,14 +539,14 @@ void Device::createMaterialBuffers(Scene* scene) {
   vkDestroyBuffer(this->logicalDevice, indexStagingBuffer, NULL);
   vkFreeMemory(this->logicalDevice, indexStagingBufferMemory, NULL);
 
-  VkDeviceSize materialBufferSize = sizeof(struct Material) * scene->getMaterialCount();
+  VkDeviceSize materialBufferSize = sizeof(struct Material) * model->getMaterialCount();
 
-  std::vector<Material> materialList(scene->getMaterialCount());
-  for (int x = 0; x < scene->getMaterialCount(); x++) {
-    memcpy(materialList[x].ambient, scene->getMaterial(x).ambient, sizeof(float) * 3);
-    memcpy(materialList[x].diffuse, scene->getMaterial(x).diffuse, sizeof(float) * 3);
-    memcpy(materialList[x].specular, scene->getMaterial(x).specular, sizeof(float) * 3);
-    memcpy(materialList[x].emission, scene->getMaterial(x).emission, sizeof(float) * 3);
+  std::vector<Material> materialList(model->getMaterialCount());
+  for (int x = 0; x < model->getMaterialCount(); x++) {
+    memcpy(materialList[x].ambient, model->getMaterial(x).ambient, sizeof(float) * 3);
+    memcpy(materialList[x].diffuse, model->getMaterial(x).diffuse, sizeof(float) * 3);
+    memcpy(materialList[x].specular, model->getMaterial(x).specular, sizeof(float) * 3);
+    memcpy(materialList[x].emission, model->getMaterial(x).emission, sizeof(float) * 3);
   }
 
   VkBuffer materialStagingBuffer;
@@ -566,8 +566,8 @@ void Device::createMaterialBuffers(Scene* scene) {
   vkFreeMemory(this->logicalDevice, materialStagingBufferMemory, NULL);
 
   LightContainer lightContainer = {};
-  for (int x = 0; x < scene->getTotalMaterialIndexCount(); x++) {
-    float* materialEmission = scene->getMaterial(scene->getTotalMaterialIndex(x)).emission;
+  for (int x = 0; x < model->getTotalMaterialIndexCount(); x++) {
+    float* materialEmission = model->getMaterial(model->getTotalMaterialIndex(x)).emission;
     if (materialEmission[0] > 0 || materialEmission[1] > 0 || materialEmission[2] > 0) {
       lightContainer.indices[lightContainer.count] = x;
       lightContainer.count += 1;
@@ -671,7 +671,7 @@ void Device::createUniformBuffers() {
   vkUnmapMemory(this->logicalDevice, this->transformUniformBufferMemory);
 }
 
-void Device::createCommandBuffers(Scene* scene, VkPipeline pipeline, VkPipelineLayout pipelineLayout, std::vector<VkDescriptorSet>& descriptorSetList) {
+void Device::createCommandBuffers(Model* model, VkPipeline pipeline, VkPipelineLayout pipelineLayout, std::vector<VkDescriptorSet>& descriptorSetList) {
   this->commandBufferList.resize(this->swapchainImageCount);
   
   VkCommandBufferAllocateInfo commandBufferAllocateInfo = {};
@@ -727,7 +727,7 @@ void Device::createCommandBuffers(Scene* scene, VkPipeline pipeline, VkPipelineL
       vkCmdBindDescriptorSets(this->commandBufferList[x], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, y, 1, &descriptorSetList[y], 0, 0);
     }
 
-    vkCmdDrawIndexed(this->commandBufferList[x], scene->getPrimitiveCount() * 3, 1, 0, 0, 0);
+    vkCmdDrawIndexed(this->commandBufferList[x], model->getPrimitiveCount() * 3, 1, 0, 0, 0);
     vkCmdEndRenderPass(this->commandBufferList[x]);
 
     { 
