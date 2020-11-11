@@ -585,9 +585,7 @@ void Device::createCommandBuffers(std::vector<VkBuffer> vertexBufferList,
 
     vkCmdBindVertexBuffers(this->commandBufferList[x], 0, vertexBufferList.size(), vertexBufferList.data(), offsetList.data());
     vkCmdBindIndexBuffer(this->commandBufferList[x], indexBufferList[0], 0, VK_INDEX_TYPE_UINT32);
-    for (int y = 0; y < descriptorSetList.size(); y++) {
-      vkCmdBindDescriptorSets(this->commandBufferList[x], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, y, 1, &descriptorSetList[y], 0, 0);
-    }
+    vkCmdBindDescriptorSets(this->commandBufferList[x], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 2, descriptorSetList.data(), 0, 0);
     vkCmdDrawIndexed(this->commandBufferList[x], primitiveCountList[0] * 3, 1, 0, 0, 0);
     
     vkCmdEndRenderPass(this->commandBufferList[x]);
