@@ -49,6 +49,16 @@ Renderer::Renderer(Scene* scene, Camera* camera) {
                                                                              displayDevice->getVertexBuffer(), 
                                                                              displayDevice->getIndexBuffer());
 
+  VkTransformMatrixKHR transformMatrix = {
+    .matrix = {
+      {1, 0, 0, 0},
+      {0, 1, 0, 0},
+      {0, 0, 1, 0}
+    }
+  };
+
+  this->accelerationStructureManager->addBottomLevelAccelerationStructureInstance(displayDevice, 0, 0, transformMatrix);
+
   this->accelerationStructureManager->createTopLevelAccelerationStructure(displayDevice);
 
   this->descriptorManager = new DescriptorManager();

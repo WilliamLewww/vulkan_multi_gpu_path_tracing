@@ -19,6 +19,8 @@ private:
     VkAccelerationStructureKHR topLevelAccelerationStructure;
     VkBuffer topLevelAccelerationStructureBuffer;
     VkDeviceMemory topLevelAccelerationStructureDeviceMemory;
+
+    std::vector<VkAccelerationStructureInstanceKHR> bottomLevelAccelerationStructureInstanceList;
   };
   std::map<Device*, DeviceContainer> deviceMap;
 public:
@@ -29,5 +31,7 @@ public:
 
   void initializeContainerOnDevice(Device* device);
   void createBottomLevelAccelerationStructure(Device* device, uint32_t primitiveCount, uint32_t vertexCount, VkBuffer vertexBuffer, VkBuffer indexBuffer);
+  void addBottomLevelAccelerationStructureInstance(Device* device, uint32_t bottomLevelAccelerationStructureIndex, uint32_t instanceIndex, VkTransformMatrixKHR transformMatrix);
+  
   void createTopLevelAccelerationStructure(Device* device);
 };

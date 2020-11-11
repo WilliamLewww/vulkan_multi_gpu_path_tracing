@@ -183,6 +183,29 @@ void AccelerationStructureManager::createBottomLevelAccelerationStructure(Device
   vkFreeMemory(device->getLogicalDevice(), scratchBufferMemory, NULL);
 }
 
+void AccelerationStructureManager::addBottomLevelAccelerationStructureInstance(Device* device, uint32_t bottomLevelAccelerationStructureIndex, uint32_t instanceIndex, VkTransformMatrixKHR transformMatrix) {
+  PFN_vkGetAccelerationStructureDeviceAddressKHR pvkGetAccelerationStructureDeviceAddressKHR = (PFN_vkGetAccelerationStructureDeviceAddressKHR)vkGetDeviceProcAddr(device->getLogicalDevice(), "vkGetAccelerationStructureDeviceAddressKHR");
+
+  VkAccelerationStructureDeviceAddressInfoKHR accelerationStructureDeviceAddressInfo = {
+    .sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_DEVICE_ADDRESS_INFO_KHR,
+    .pNext = NULL,
+    .accelerationStructure = this->deviceMap[device].bottomLevelAccelerationStructureList[bottomLevelAccelerationStructureIndex]
+  };
+
+  VkDeviceAddress accelerationStructureDeviceAddress = pvkGetAccelerationStructureDeviceAddressKHR(device->getLogicalDevice(), &accelerationStructureDeviceAddressInfo);
+
+  VkAccelerationStructureInstanceKHR geometryInstance = {
+    .transform = transformMatrix,
+    .instanceCustomIndex = instanceIndex,
+    .mask = 0xFF,
+    .instanceShaderBindingTableRecordOffset = 0,
+    .flags = VK_GEOMETRY_INSTANCE_TRIANGLE_FACING_CULL_DISABLE_BIT_KHR,
+    .accelerationStructureReference = accelerationStructureDeviceAddress
+  };
+
+  this->deviceMap[device].bottomLevelAccelerationStructureInstanceList.push_back(geometryInstance);
+}
+
 void AccelerationStructureManager::createTopLevelAccelerationStructure(Device* device) {
   PFN_vkCreateAccelerationStructureKHR pvkCreateAccelerationStructureKHR = (PFN_vkCreateAccelerationStructureKHR)vkGetDeviceProcAddr(device->getLogicalDevice(), "vkCreateAccelerationStructureKHR");
   PFN_vkGetAccelerationStructureMemoryRequirementsKHR pvkGetAccelerationStructureMemoryRequirementsKHR = (PFN_vkGetAccelerationStructureMemoryRequirementsKHR)vkGetDeviceProcAddr(device->getLogicalDevice(), "vkGetAccelerationStructureMemoryRequirementsKHR");
@@ -195,8 +218,8 @@ void AccelerationStructureManager::createTopLevelAccelerationStructure(Device* d
     .sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_CREATE_GEOMETRY_TYPE_INFO_KHR,
     .pNext = NULL,
     .geometryType = VK_GEOMETRY_TYPE_INSTANCES_KHR,
-    .maxPrimitiveCount = 2,
-    .indexType = VK_INDEX_TYPE_UINT16,
+    .maxPrimitiveCount = (uint32_t)this->deviceMap[device].bottomLevelAccelerationStructureInstanceList.size(),
+    .indexType = VK_INDEX_TYPE_NONE_NV,
     .maxVertexCount = 0,
     .vertexFormat = VK_FORMAT_UNDEFINED,
     .allowsTransforms = VK_TRUE
@@ -252,69 +275,7 @@ void AccelerationStructureManager::createTopLevelAccelerationStructure(Device* d
 
   // ==============================================================================================================
 
-  std::vector<VkAccelerationStructureInstanceKHR> geometryInstanceList;
-
-  {
-    // row major
-    VkTransformMatrixKHR transformMatrix = {
-      .matrix = {
-        {1, 0, 0, 0},
-        {0, 1, 0, 0},
-        {0, 0, 1, 0}
-      }
-    };
-
-    VkAccelerationStructureDeviceAddressInfoKHR accelerationStructureDeviceAddressInfo = {
-      .sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_DEVICE_ADDRESS_INFO_KHR,
-      .pNext = NULL,
-      .accelerationStructure = this->deviceMap[device].bottomLevelAccelerationStructureList.back()
-    };
-
-    VkDeviceAddress accelerationStructureDeviceAddress = pvkGetAccelerationStructureDeviceAddressKHR(device->getLogicalDevice(), &accelerationStructureDeviceAddressInfo);
-
-    VkAccelerationStructureInstanceKHR geometryInstance = {
-      .transform = transformMatrix,
-      .instanceCustomIndex = 0,
-      .mask = 0xFF,
-      .instanceShaderBindingTableRecordOffset = 0,
-      .flags = VK_GEOMETRY_INSTANCE_TRIANGLE_FACING_CULL_DISABLE_BIT_KHR,
-      .accelerationStructureReference = accelerationStructureDeviceAddress
-    };
-
-    geometryInstanceList.push_back(geometryInstance);
-  }
-
-  {
-    // row major
-    VkTransformMatrixKHR transformMatrix = {
-      .matrix = {
-        {0.5, 0, 0, 0},
-        {0, 0.5, 0, 0},
-        {0, 0, 0.5, 0}
-      }
-    };
-
-    VkAccelerationStructureDeviceAddressInfoKHR accelerationStructureDeviceAddressInfo = {
-      .sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_DEVICE_ADDRESS_INFO_KHR,
-      .pNext = NULL,
-      .accelerationStructure = this->deviceMap[device].bottomLevelAccelerationStructureList.back()
-    };
-
-    VkDeviceAddress accelerationStructureDeviceAddress = pvkGetAccelerationStructureDeviceAddressKHR(device->getLogicalDevice(), &accelerationStructureDeviceAddressInfo);
-
-    VkAccelerationStructureInstanceKHR geometryInstance = {
-      .transform = transformMatrix,
-      .instanceCustomIndex = 1,
-      .mask = 0xFF,
-      .instanceShaderBindingTableRecordOffset = 0,
-      .flags = VK_GEOMETRY_INSTANCE_TRIANGLE_FACING_CULL_DISABLE_BIT_KHR,
-      .accelerationStructureReference = accelerationStructureDeviceAddress
-    };
-
-    geometryInstanceList.push_back(geometryInstance);
-  }
-
-  VkDeviceSize geometryInstanceBufferSize = geometryInstanceList.size() * sizeof(VkAccelerationStructureInstanceKHR);
+  VkDeviceSize geometryInstanceBufferSize = this->deviceMap[device].bottomLevelAccelerationStructureInstanceList.size() * sizeof(VkAccelerationStructureInstanceKHR);
   
   VkBuffer geometryInstanceStagingBuffer;
   VkDeviceMemory geometryInstanceStagingBufferMemory;
@@ -322,7 +283,7 @@ void AccelerationStructureManager::createTopLevelAccelerationStructure(Device* d
 
   void* geometryInstanceData;
   vkMapMemory(device->getLogicalDevice(), geometryInstanceStagingBufferMemory, 0, geometryInstanceBufferSize, 0, &geometryInstanceData);
-  memcpy(geometryInstanceData, geometryInstanceList.data(), geometryInstanceBufferSize);
+  memcpy(geometryInstanceData, this->deviceMap[device].bottomLevelAccelerationStructureInstanceList.data(), geometryInstanceBufferSize);
   vkUnmapMemory(device->getLogicalDevice(), geometryInstanceStagingBufferMemory);
 
   VkBuffer geometryInstanceBuffer;
@@ -399,7 +360,7 @@ void AccelerationStructureManager::createTopLevelAccelerationStructure(Device* d
   };
 
   VkAccelerationStructureBuildOffsetInfoKHR buildOffsetInfo = {
-    .primitiveCount = 2,
+    .primitiveCount = (uint32_t)this->deviceMap[device].bottomLevelAccelerationStructureInstanceList.size(),
     .primitiveOffset = 0,
     .firstVertex = 0,
     .transformOffset = 0  
