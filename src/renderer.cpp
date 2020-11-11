@@ -33,8 +33,11 @@ Renderer::Renderer(std::vector<Model*> modelList, Camera* camera) {
   displayDevice->createDepthResource();
   displayDevice->createFramebuffers();
 
+  std::vector<Transformation> transformationList;
+  transformationList.push_back(Transformation());
+
   displayDevice->createTextures();
-  displayDevice->createUniformBuffers();
+  displayDevice->createUniformBuffers(transformationList);
 
   modelList[0]->createVertexBuffer(displayDevice);
   modelList[0]->createIndexBuffer(displayDevice);
@@ -50,14 +53,7 @@ Renderer::Renderer(std::vector<Model*> modelList, Camera* camera) {
                                                                              modelList[0]->getVertexBuffer(displayDevice), 
                                                                              modelList[0]->getIndexBuffer(displayDevice));
 
-  VkTransformMatrixKHR transformMatrix = {
-    .matrix = {
-      {1, 0, 0, 0},
-      {0, 1, 0, 0},
-      {0, 0, 1, 0}
-    }
-  };
-  this->accelerationStructureManager->addBottomLevelAccelerationStructureInstance(displayDevice, 0, 0, transformMatrix);
+  this->accelerationStructureManager->addBottomLevelAccelerationStructureInstance(displayDevice, 0, 0, transformationList[0].getVulkanTransformMatrix());
 
   this->accelerationStructureManager->createTopLevelAccelerationStructure(displayDevice);
 

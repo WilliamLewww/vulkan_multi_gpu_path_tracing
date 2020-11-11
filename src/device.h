@@ -10,6 +10,7 @@
 #include <math.h>
 
 #include "camera.h"
+#include "transformation.h"
 
 class Device {
 protected:
@@ -90,7 +91,7 @@ public:
   void createFramebuffers();
 
   void createTextures();
-  void createUniformBuffers();
+  void createUniformBuffers(std::vector<Transformation> transformationList);
 
   void createCommandBuffers(std::vector<VkBuffer> vertexBufferList, 
                             std::vector<VkBuffer> indexBufferList, 
@@ -98,7 +99,7 @@ public:
                             VkPipeline pipeline, 
                             VkPipelineLayout pipelineLayout, 
                             std::vector<VkDescriptorSet>& descriptorSetList);
-  
+
   void createSynchronizationObjects();
 
   void updateCameraUniformBuffer(CameraUniform camera);
