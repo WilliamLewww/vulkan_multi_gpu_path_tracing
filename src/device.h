@@ -11,6 +11,7 @@
 
 #include "camera.h"
 #include "transformation.h"
+#include "model_instance.h"
 
 class Device {
 protected:

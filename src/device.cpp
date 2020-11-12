@@ -510,11 +510,6 @@ void Device::createTextures() {
   vkFreeCommandBuffers(this->logicalDevice, this->commandPool, 1, &commandBuffer);
 }
 
-struct InstanceDescriptionContainer {
-  uint32_t instanceCount; int padA[3];
-  float transformMatrix[16];
-};
-
 void Device::createUniformBuffers(std::vector<Transformation> transformationList) {
   VkDeviceSize cameraBufferSize = sizeof(CameraUniform);
   createBuffer(cameraBufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &this->cameraUniformBuffer, &this->cameraUniformBufferMemory);
@@ -528,7 +523,6 @@ void Device::createUniformBuffers(std::vector<Transformation> transformationList
       0.0, 0.0, 0.0, 1.0
     }
   };
-
 
   VkDeviceSize transformBufferSize = sizeof(InstanceDescriptionContainer);
   createBuffer(transformBufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &this->transformUniformBuffer, &this->transformUniformBufferMemory);
