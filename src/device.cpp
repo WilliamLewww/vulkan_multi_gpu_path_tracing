@@ -510,21 +510,32 @@ void Device::createTextures() {
   vkFreeCommandBuffers(this->logicalDevice, this->commandPool, 1, &commandBuffer);
 }
 
+struct InstanceDescriptionContainer {
+  uint32_t instanceCount; int padA[3];
+  float transformMatrix[16];
+};
+
 void Device::createUniformBuffers(std::vector<Transformation> transformationList) {
   VkDeviceSize cameraBufferSize = sizeof(CameraUniform);
   createBuffer(cameraBufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &this->cameraUniformBuffer, &this->cameraUniformBufferMemory);
 
-  VkDeviceSize transformBufferSize = sizeof(float) * 16 * transformationList.size();
-  createBuffer(transformBufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &this->transformUniformBuffer, &this->transformUniformBufferMemory);
+  InstanceDescriptionContainer instanceDescriptionContainer = {
+    .instanceCount = 1,
+    .transformMatrix = {
+      1.0, 0.0, 0.0, 0.0,
+      0.0, 1.0, 0.0, 0.0,
+      0.0, 0.0, 1.0, 0.0,
+      0.0, 0.0, 0.0, 1.0
+    }
+  };
 
-  float* transform = (float*)malloc(sizeof(float) * 16 * transformationList.size());
-  for (int x = 0; x < transformationList.size(); x++) {
-    memcpy(16 * x + transform, transformationList[x].getTransformMatrix(), sizeof(float) * 16);
-  }
+
+  VkDeviceSize transformBufferSize = sizeof(InstanceDescriptionContainer);
+  createBuffer(transformBufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &this->transformUniformBuffer, &this->transformUniformBufferMemory);
 
   void* data;
   vkMapMemory(this->logicalDevice, this->transformUniformBufferMemory, 0, transformBufferSize, 0, &data);
-  memcpy(data, transform, transformBufferSize);
+  memcpy(data, &instanceDescriptionContainer, transformBufferSize);
   vkUnmapMemory(this->logicalDevice, this->transformUniformBufferMemory);
 }
 

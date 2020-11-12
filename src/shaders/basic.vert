@@ -15,10 +15,10 @@ layout(binding = 0, set = 0) uniform Camera {
   uint frameCount;
 } camera;
 
-layout(binding = 1, set = 0) uniform InstanceTransformMatrix {
-  mat4 transformMatrix[2];
-
-} instanceTransformMatrix;
+layout(binding = 1, set = 0) uniform InstanceDescriptionContainer {
+  uint instanceCount;
+  mat4 transformMatrix[1];
+} instanceDescriptionContainer;
 
 void main() {
   mat4 viewMatrix = {
@@ -42,8 +42,8 @@ void main() {
     vec4(0, 0, (-farDist * nearDist) * oneOverDepth, 0)
   };
 
-  gl_Position = projectionMatrix * viewMatrix * instanceTransformMatrix.transformMatrix[gl_InstanceIndex] * vec4(inPosition, 1.0);
+  gl_Position = projectionMatrix * viewMatrix * instanceDescriptionContainer.transformMatrix[gl_InstanceIndex] * vec4(inPosition, 1.0);
 
-  interpolatedPosition = (instanceTransformMatrix.transformMatrix[gl_InstanceIndex] * vec4(inPosition, 1.0)).xyz;
+  interpolatedPosition = (instanceDescriptionContainer.transformMatrix[gl_InstanceIndex] * vec4(inPosition, 1.0)).xyz;
   instanceIndex = gl_InstanceIndex;
 }

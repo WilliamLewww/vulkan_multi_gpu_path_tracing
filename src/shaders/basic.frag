@@ -26,10 +26,10 @@ layout(binding = 0, set = 0) uniform Camera {
   uint frameCount;
 } camera;
 
-layout(binding = 1, set = 0) uniform InstanceTransformMatrix {
-  mat4 transformMatrix[2];
-
-} instanceTransformMatrix;
+layout(binding = 1, set = 0) uniform InstanceDescriptionContainer {
+  uint instanceCount;
+  mat4 transformMatrix[1];
+} instanceDescriptionContainer;
 
 layout(binding = 2, set = 0) uniform accelerationStructureEXT topLevelAS;
 layout(binding = 3, set = 0, rgba32f) uniform image2D image;
@@ -65,9 +65,9 @@ void main() {
 
   ivec3 indices = ivec3(indexBuffer.data[3 * gl_PrimitiveID + 0], indexBuffer.data[3 * gl_PrimitiveID + 1], indexBuffer.data[3 * gl_PrimitiveID + 2]);
 
-  vec3 vertexA = (instanceTransformMatrix.transformMatrix[0] * vec4(vertexBuffer.data[3 * indices.x + 0], vertexBuffer.data[3 * indices.x + 1], vertexBuffer.data[3 * indices.x + 2], 1.0)).xyz;
-  vec3 vertexB = (instanceTransformMatrix.transformMatrix[0] * vec4(vertexBuffer.data[3 * indices.y + 0], vertexBuffer.data[3 * indices.y + 1], vertexBuffer.data[3 * indices.y + 2], 1.0)).xyz;
-  vec3 vertexC = (instanceTransformMatrix.transformMatrix[0] * vec4(vertexBuffer.data[3 * indices.z + 0], vertexBuffer.data[3 * indices.z + 1], vertexBuffer.data[3 * indices.z + 2], 1.0)).xyz;
+  vec3 vertexA = (instanceDescriptionContainer.transformMatrix[0] * vec4(vertexBuffer.data[3 * indices.x + 0], vertexBuffer.data[3 * indices.x + 1], vertexBuffer.data[3 * indices.x + 2], 1.0)).xyz;
+  vec3 vertexB = (instanceDescriptionContainer.transformMatrix[0] * vec4(vertexBuffer.data[3 * indices.y + 0], vertexBuffer.data[3 * indices.y + 1], vertexBuffer.data[3 * indices.y + 2], 1.0)).xyz;
+  vec3 vertexC = (instanceDescriptionContainer.transformMatrix[0] * vec4(vertexBuffer.data[3 * indices.z + 0], vertexBuffer.data[3 * indices.z + 1], vertexBuffer.data[3 * indices.z + 2], 1.0)).xyz;
   
   vec3 geometricNormal = normalize(cross(vertexB - vertexA, vertexC - vertexA));
 
@@ -89,9 +89,9 @@ void main() {
 
     ivec3 lightIndices = ivec3(indexBuffer.data[3 * lightIndex + 0], indexBuffer.data[3 * lightIndex + 1], indexBuffer.data[3 * lightIndex + 2]);
 
-    vec3 lightVertexA = (instanceTransformMatrix.transformMatrix[0] * vec4(vertexBuffer.data[3 * lightIndices.x + 0], vertexBuffer.data[3 * lightIndices.x + 1], vertexBuffer.data[3 * lightIndices.x + 2], 1.0)).xyz;
-    vec3 lightVertexB = (instanceTransformMatrix.transformMatrix[0] * vec4(vertexBuffer.data[3 * lightIndices.y + 0], vertexBuffer.data[3 * lightIndices.y + 1], vertexBuffer.data[3 * lightIndices.y + 2], 1.0)).xyz;
-    vec3 lightVertexC = (instanceTransformMatrix.transformMatrix[0] * vec4(vertexBuffer.data[3 * lightIndices.z + 0], vertexBuffer.data[3 * lightIndices.z + 1], vertexBuffer.data[3 * lightIndices.z + 2], 1.0)).xyz;
+    vec3 lightVertexA = (instanceDescriptionContainer.transformMatrix[0] * vec4(vertexBuffer.data[3 * lightIndices.x + 0], vertexBuffer.data[3 * lightIndices.x + 1], vertexBuffer.data[3 * lightIndices.x + 2], 1.0)).xyz;
+    vec3 lightVertexB = (instanceDescriptionContainer.transformMatrix[0] * vec4(vertexBuffer.data[3 * lightIndices.y + 0], vertexBuffer.data[3 * lightIndices.y + 1], vertexBuffer.data[3 * lightIndices.y + 2], 1.0)).xyz;
+    vec3 lightVertexC = (instanceDescriptionContainer.transformMatrix[0] * vec4(vertexBuffer.data[3 * lightIndices.z + 0], vertexBuffer.data[3 * lightIndices.z + 1], vertexBuffer.data[3 * lightIndices.z + 2], 1.0)).xyz;
 
     vec2 uv = vec2(random(gl_FragCoord.xy, camera.frameCount), random(gl_FragCoord.xy, camera.frameCount + 1));
     if (uv.x + uv.y > 1.0f) {
@@ -133,9 +133,9 @@ void main() {
 
         ivec3 lightIndices = ivec3(indexBuffer.data[3 * lightIndex + 0], indexBuffer.data[3 * lightIndex + 1], indexBuffer.data[3 * lightIndex + 2]);
 
-        vec3 lightVertexA = (instanceTransformMatrix.transformMatrix[0] * vec4(vertexBuffer.data[3 * lightIndices.x + 0], vertexBuffer.data[3 * lightIndices.x + 1], vertexBuffer.data[3 * lightIndices.x + 2], 1.0)).xyz;
-        vec3 lightVertexB = (instanceTransformMatrix.transformMatrix[0] * vec4(vertexBuffer.data[3 * lightIndices.y + 0], vertexBuffer.data[3 * lightIndices.y + 1], vertexBuffer.data[3 * lightIndices.y + 2], 1.0)).xyz;
-        vec3 lightVertexC = (instanceTransformMatrix.transformMatrix[0] * vec4(vertexBuffer.data[3 * lightIndices.z + 0], vertexBuffer.data[3 * lightIndices.z + 1], vertexBuffer.data[3 * lightIndices.z + 2], 1.0)).xyz;
+        vec3 lightVertexA = (instanceDescriptionContainer.transformMatrix[0] * vec4(vertexBuffer.data[3 * lightIndices.x + 0], vertexBuffer.data[3 * lightIndices.x + 1], vertexBuffer.data[3 * lightIndices.x + 2], 1.0)).xyz;
+        vec3 lightVertexB = (instanceDescriptionContainer.transformMatrix[0] * vec4(vertexBuffer.data[3 * lightIndices.y + 0], vertexBuffer.data[3 * lightIndices.y + 1], vertexBuffer.data[3 * lightIndices.y + 2], 1.0)).xyz;
+        vec3 lightVertexC = (instanceDescriptionContainer.transformMatrix[0] * vec4(vertexBuffer.data[3 * lightIndices.z + 0], vertexBuffer.data[3 * lightIndices.z + 1], vertexBuffer.data[3 * lightIndices.z + 2], 1.0)).xyz;
 
         lightPosition = lightVertexA * lightBarycentric.x + lightVertexB * lightBarycentric.y + lightVertexC * lightBarycentric.z;
         
@@ -167,9 +167,9 @@ void main() {
       ivec3 extensionIndices = ivec3(indexBuffer.data[3 * extensionPrimitiveIndex + 0], indexBuffer.data[3 * extensionPrimitiveIndex + 1], indexBuffer.data[3 * extensionPrimitiveIndex + 2]);
       vec3 extensionBarycentric = vec3(1.0 - extensionIntersectionBarycentric.x - extensionIntersectionBarycentric.y, extensionIntersectionBarycentric.x, extensionIntersectionBarycentric.y);
       
-      vec3 extensionVertexA = (instanceTransformMatrix.transformMatrix[0] * vec4(vertexBuffer.data[3 * extensionIndices.x + 0], vertexBuffer.data[3 * extensionIndices.x + 1], vertexBuffer.data[3 * extensionIndices.x + 2], 1.0)).xyz;
-      vec3 extensionVertexB = (instanceTransformMatrix.transformMatrix[0] * vec4(vertexBuffer.data[3 * extensionIndices.y + 0], vertexBuffer.data[3 * extensionIndices.y + 1], vertexBuffer.data[3 * extensionIndices.y + 2], 1.0)).xyz;
-      vec3 extensionVertexC = (instanceTransformMatrix.transformMatrix[0] * vec4(vertexBuffer.data[3 * extensionIndices.z + 0], vertexBuffer.data[3 * extensionIndices.z + 1], vertexBuffer.data[3 * extensionIndices.z + 2], 1.0)).xyz;
+      vec3 extensionVertexA = (instanceDescriptionContainer.transformMatrix[0] * vec4(vertexBuffer.data[3 * extensionIndices.x + 0], vertexBuffer.data[3 * extensionIndices.x + 1], vertexBuffer.data[3 * extensionIndices.x + 2], 1.0)).xyz;
+      vec3 extensionVertexB = (instanceDescriptionContainer.transformMatrix[0] * vec4(vertexBuffer.data[3 * extensionIndices.y + 0], vertexBuffer.data[3 * extensionIndices.y + 1], vertexBuffer.data[3 * extensionIndices.y + 2], 1.0)).xyz;
+      vec3 extensionVertexC = (instanceDescriptionContainer.transformMatrix[0] * vec4(vertexBuffer.data[3 * extensionIndices.z + 0], vertexBuffer.data[3 * extensionIndices.z + 1], vertexBuffer.data[3 * extensionIndices.z + 2], 1.0)).xyz;
     
       vec3 extensionPosition = extensionVertexA * extensionBarycentric.x + extensionVertexB * extensionBarycentric.y + extensionVertexC * extensionBarycentric.z;
       vec3 extensionNormal = normalize(cross(extensionVertexB - extensionVertexA, extensionVertexC - extensionVertexA));
@@ -191,9 +191,9 @@ void main() {
 
         ivec3 lightIndices = ivec3(indexBuffer.data[3 * randomIndex + 0], indexBuffer.data[3 * randomIndex + 1], indexBuffer.data[3 * randomIndex + 2]);
 
-        vec3 lightVertexA = (instanceTransformMatrix.transformMatrix[0] * vec4(vertexBuffer.data[3 * lightIndices.x + 0], vertexBuffer.data[3 * lightIndices.x + 1], vertexBuffer.data[3 * lightIndices.x + 2], 1.0)).xyz;
-        vec3 lightVertexB = (instanceTransformMatrix.transformMatrix[0] * vec4(vertexBuffer.data[3 * lightIndices.y + 0], vertexBuffer.data[3 * lightIndices.y + 1], vertexBuffer.data[3 * lightIndices.y + 2], 1.0)).xyz;
-        vec3 lightVertexC = (instanceTransformMatrix.transformMatrix[0] * vec4(vertexBuffer.data[3 * lightIndices.z + 0], vertexBuffer.data[3 * lightIndices.z + 1], vertexBuffer.data[3 * lightIndices.z + 2], 1.0)).xyz;
+        vec3 lightVertexA = (instanceDescriptionContainer.transformMatrix[0] * vec4(vertexBuffer.data[3 * lightIndices.x + 0], vertexBuffer.data[3 * lightIndices.x + 1], vertexBuffer.data[3 * lightIndices.x + 2], 1.0)).xyz;
+        vec3 lightVertexB = (instanceDescriptionContainer.transformMatrix[0] * vec4(vertexBuffer.data[3 * lightIndices.y + 0], vertexBuffer.data[3 * lightIndices.y + 1], vertexBuffer.data[3 * lightIndices.y + 2], 1.0)).xyz;
+        vec3 lightVertexC = (instanceDescriptionContainer.transformMatrix[0] * vec4(vertexBuffer.data[3 * lightIndices.z + 0], vertexBuffer.data[3 * lightIndices.z + 1], vertexBuffer.data[3 * lightIndices.z + 2], 1.0)).xyz;
 
         vec2 uv = vec2(random(gl_FragCoord.xy, camera.frameCount + rayDepth), random(gl_FragCoord.xy, camera.frameCount + rayDepth + 1));
         if (uv.x + uv.y > 1.0f) {
