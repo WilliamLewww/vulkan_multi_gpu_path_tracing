@@ -4,6 +4,7 @@
 layout(location = 0) in vec3 inPosition;
 
 layout(location = 0) out vec3 interpolatedPosition;
+layout(location = 1) out uint instanceIndex;
 
 layout(binding = 0, set = 0) uniform Camera {
   vec4 position;
@@ -43,5 +44,6 @@ void main() {
 
   gl_Position = projectionMatrix * viewMatrix * instanceTransformMatrix.transformMatrix[gl_InstanceIndex] * vec4(inPosition, 1.0);
 
-  interpolatedPosition = inPosition;
+  interpolatedPosition = (instanceTransformMatrix.transformMatrix[gl_InstanceIndex] * vec4(inPosition, 1.0)).xyz;
+  instanceIndex = gl_InstanceIndex;
 }
