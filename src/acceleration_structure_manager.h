@@ -9,6 +9,8 @@
 
 #include "buffer.h"
 #include "device.h"
+#include "model.h"
+#include "instance_manager.h"
 
 class AccelerationStructureManager {
 private:
@@ -32,8 +34,8 @@ public:
   VkAccelerationStructureKHR* getTopLevelAccelerationStructurePointer(Device* device);
 
   void initializeContainerOnDevice(Device* device);
-  void createBottomLevelAccelerationStructure(Device* device, uint32_t primitiveCount, uint32_t vertexCount, VkBuffer vertexBuffer, VkBuffer indexBuffer);
-  void addBottomLevelAccelerationStructureInstance(Device* device, uint32_t bottomLevelAccelerationStructureIndex, uint32_t instanceIndex, VkTransformMatrixKHR transformMatrix);
+  void createBottomLevelAccelerationStructure(Device* device, Model* model);
+  void addBottomLevelAccelerationStructureInstance(Device* device, ModelInstance modelInstance);
   
   void createTopLevelAccelerationStructure(Device* device);
 };

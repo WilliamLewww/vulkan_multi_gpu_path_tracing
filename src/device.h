@@ -11,7 +11,11 @@
 
 #include "camera.h"
 #include "transformation.h"
-#include "model_instance.h"
+
+struct InstanceDescriptionContainer {
+  uint32_t instanceCount; int padA[3];
+  float transformMatrix[16];
+};
 
 class Device {
 protected:

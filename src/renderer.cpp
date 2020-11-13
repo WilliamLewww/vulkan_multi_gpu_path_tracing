@@ -36,29 +36,26 @@ Renderer::Renderer(std::vector<Model*> modelList, Camera* camera) {
   std::vector<Transformation> transformationList;
   transformationList.push_back(Transformation());
 
-  displayDevice->createTextures();
-  displayDevice->createUniformBuffers(transformationList);
-
   modelList[0]->createVertexBuffer(displayDevice);
   modelList[0]->createIndexBuffer(displayDevice);
   modelList[0]->createMaterialBuffers(displayDevice);
 
+  this->instanceManager = new InstanceManager();
+  this->instanceManager->addInstance(displayDevice, modelList[0], 0, 0);
+
+  displayDevice->createTextures();
+  displayDevice->createUniformBuffers(transformationList);
+
   this->accelerationStructureManager = new AccelerationStructureManager();
-  
   this->accelerationStructureManager->initializeContainerOnDevice(displayDevice);
 
-  this->accelerationStructureManager->createBottomLevelAccelerationStructure(displayDevice, 
-                                                                             modelList[0]->getPrimitiveCount(), 
-                                                                             modelList[0]->getVertexCount(), 
-                                                                             modelList[0]->getVertexBuffer(displayDevice), 
-                                                                             modelList[0]->getIndexBuffer(displayDevice));
+  this->accelerationStructureManager->createBottomLevelAccelerationStructure(displayDevice, modelList[0]);
 
-  this->accelerationStructureManager->addBottomLevelAccelerationStructureInstance(displayDevice, 0, 0, transformationList[0].getVulkanTransformMatrix());
+  this->accelerationStructureManager->addBottomLevelAccelerationStructureInstance(displayDevice, this->instanceManager->getInstance(displayDevice, 0));
 
   this->accelerationStructureManager->createTopLevelAccelerationStructure(displayDevice);
 
   this->descriptorManager = new DescriptorManager();
-
   this->descriptorManager->initializeContainerOnDevice(displayDevice, 2);
 
   VkDescriptorBufferInfo cameraUniformBufferInfo = {
@@ -201,8 +198,8 @@ Renderer::Renderer(std::vector<Model*> modelList, Camera* camera) {
   this->graphicsPipeline = new GraphicsPipeline();
   this->graphicsPipeline->setVertexFile("bin/basic.vert.spv");
   this->graphicsPipeline->setFragmentFile("bin/basic.frag.spv");
-
   this->graphicsPipeline->initializeContainerOnDevice(displayDevice);
+
   this->graphicsPipeline->createPipelineLayout(displayDevice, descriptorManager->getDescriptorSetLayoutList(displayDevice));
 
   std::vector<VkVertexInputBindingDescription> vertexBindingDescriptionList(1);
@@ -246,6 +243,7 @@ Renderer::~Renderer() {
   delete this->graphicsPipeline;
   delete this->descriptorManager;
   delete this->accelerationStructureManager;
+  delete this->instanceManager;
   delete this->deviceManager;
   delete this->vulkanInstance;
   delete this->window;

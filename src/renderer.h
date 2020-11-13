@@ -12,12 +12,14 @@
 #include "descriptor_manager.h"
 #include "acceleration_structure_manager.h"
 #include "model.h"
+#include "instance_manager.h"
 
 class Renderer {
 private:
   Window* window;
   VulkanInstance* vulkanInstance;
   DeviceManager* deviceManager;
+  InstanceManager* instanceManager;
   AccelerationStructureManager* accelerationStructureManager;
   DescriptorManager* descriptorManager;
   GraphicsPipeline* graphicsPipeline;

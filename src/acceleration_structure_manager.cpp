@@ -16,7 +16,7 @@ void AccelerationStructureManager::initializeContainerOnDevice(Device* device) {
   this->deviceMap.insert(std::pair<Device*, DeviceContainer>(device, DeviceContainer()));
 }
 
-void AccelerationStructureManager::createBottomLevelAccelerationStructure(Device* device, uint32_t primitiveCount, uint32_t vertexCount, VkBuffer vertexBuffer, VkBuffer indexBuffer) {
+void AccelerationStructureManager::createBottomLevelAccelerationStructure(Device* device, Model* model) {
   PFN_vkCreateAccelerationStructureKHR pvkCreateAccelerationStructureKHR = (PFN_vkCreateAccelerationStructureKHR)vkGetDeviceProcAddr(device->getLogicalDevice(), "vkCreateAccelerationStructureKHR");
   PFN_vkGetAccelerationStructureMemoryRequirementsKHR pvkGetAccelerationStructureMemoryRequirementsKHR = (PFN_vkGetAccelerationStructureMemoryRequirementsKHR)vkGetDeviceProcAddr(device->getLogicalDevice(), "vkGetAccelerationStructureMemoryRequirementsKHR");
   PFN_vkBindAccelerationStructureMemoryKHR pvkBindAccelerationStructureMemoryKHR = (PFN_vkBindAccelerationStructureMemoryKHR)vkGetDeviceProcAddr(device->getLogicalDevice(), "vkBindAccelerationStructureMemoryKHR");
@@ -26,9 +26,9 @@ void AccelerationStructureManager::createBottomLevelAccelerationStructure(Device
   VkAccelerationStructureCreateGeometryTypeInfoKHR geometryInfos = {};
   geometryInfos.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_CREATE_GEOMETRY_TYPE_INFO_KHR;
   geometryInfos.geometryType = VK_GEOMETRY_TYPE_TRIANGLES_KHR;
-  geometryInfos.maxPrimitiveCount = primitiveCount;
+  geometryInfos.maxPrimitiveCount = model->getPrimitiveCount();
   geometryInfos.indexType = VK_INDEX_TYPE_UINT32;
-  geometryInfos.maxVertexCount = vertexCount;
+  geometryInfos.maxVertexCount = model->getVertexCount();
   geometryInfos.vertexFormat = VK_FORMAT_R32G32B32_SFLOAT;
   geometryInfos.allowsTransforms = VK_FALSE;
 
@@ -78,7 +78,7 @@ void AccelerationStructureManager::createBottomLevelAccelerationStructure(Device
 
   VkBufferDeviceAddressInfo vertexBufferDeviceAddressInfo = {};
   vertexBufferDeviceAddressInfo.sType = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO;
-  vertexBufferDeviceAddressInfo.buffer = vertexBuffer;
+  vertexBufferDeviceAddressInfo.buffer = model->getVertexBuffer(device);
 
   VkDeviceAddress vertexBufferAddress = pvkGetBufferDeviceAddressKHR(device->getLogicalDevice(), &vertexBufferDeviceAddressInfo);
 
@@ -87,7 +87,7 @@ void AccelerationStructureManager::createBottomLevelAccelerationStructure(Device
 
   VkBufferDeviceAddressInfo indexBufferDeviceAddressInfo = {};
   indexBufferDeviceAddressInfo.sType = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO;
-  indexBufferDeviceAddressInfo.buffer = indexBuffer;
+  indexBufferDeviceAddressInfo.buffer = model->getIndexBuffer(device);
 
   VkDeviceAddress indexBufferAddress = pvkGetBufferDeviceAddressKHR(device->getLogicalDevice(), &indexBufferDeviceAddressInfo);
 
@@ -145,7 +145,7 @@ void AccelerationStructureManager::createBottomLevelAccelerationStructure(Device
   };
 
   VkAccelerationStructureBuildOffsetInfoKHR buildOffsetInfo = {
-    .primitiveCount = primitiveCount,
+    .primitiveCount = model->getPrimitiveCount(),
     .primitiveOffset = 0,
     .firstVertex = 0,
     .transformOffset = 0  
@@ -183,22 +183,22 @@ void AccelerationStructureManager::createBottomLevelAccelerationStructure(Device
   vkFreeMemory(device->getLogicalDevice(), scratchBufferMemory, NULL);
 }
 
-void AccelerationStructureManager::addBottomLevelAccelerationStructureInstance(Device* device, uint32_t bottomLevelAccelerationStructureIndex, uint32_t instanceIndex, VkTransformMatrixKHR transformMatrix) {
+void AccelerationStructureManager::addBottomLevelAccelerationStructureInstance(Device* device, ModelInstance modelInstance) {
   PFN_vkGetAccelerationStructureDeviceAddressKHR pvkGetAccelerationStructureDeviceAddressKHR = (PFN_vkGetAccelerationStructureDeviceAddressKHR)vkGetDeviceProcAddr(device->getLogicalDevice(), "vkGetAccelerationStructureDeviceAddressKHR");
 
   VkAccelerationStructureDeviceAddressInfoKHR accelerationStructureDeviceAddressInfo = {
     .sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_DEVICE_ADDRESS_INFO_KHR,
     .pNext = NULL,
-    .accelerationStructure = this->deviceMap[device].bottomLevelAccelerationStructureList[bottomLevelAccelerationStructureIndex]
+    .accelerationStructure = this->deviceMap[device].bottomLevelAccelerationStructureList[modelInstance.modelIndex]
   };
 
   VkDeviceAddress accelerationStructureDeviceAddress = pvkGetAccelerationStructureDeviceAddressKHR(device->getLogicalDevice(), &accelerationStructureDeviceAddressInfo);
 
-  this->deviceMap[device].instanceTransformMatrixList.push_back(transformMatrix);
+  this->deviceMap[device].instanceTransformMatrixList.push_back(modelInstance.transformation.getVulkanTransformMatrix());
 
   VkAccelerationStructureInstanceKHR geometryInstance = {
     .transform = this->deviceMap[device].instanceTransformMatrixList.back(),
-    .instanceCustomIndex = instanceIndex,
+    .instanceCustomIndex = modelInstance.instanceIndex,
     .mask = 0xFF,
     .instanceShaderBindingTableRecordOffset = 0,
     .flags = VK_GEOMETRY_INSTANCE_TRIANGLE_FACING_CULL_DISABLE_BIT_KHR,
