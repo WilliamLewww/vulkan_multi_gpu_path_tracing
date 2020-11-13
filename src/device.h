@@ -96,7 +96,7 @@ public:
   void createFramebuffers();
 
   void createTextures();
-  void createUniformBuffers(std::vector<Transformation> transformationList);
+  void createUniformBuffers(uint32_t instanceCount, std::vector<float> totalTransformBuffer);
 
   void createCommandBuffers(std::vector<VkBuffer> vertexBufferList, 
                             std::vector<VkBuffer> indexBufferList, 

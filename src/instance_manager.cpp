@@ -12,6 +12,21 @@ ModelInstance InstanceManager::getInstance(Device* device, uint32_t index) {
   return this->modelInstanceMap[device][index];
 }
 
+std::vector<float> InstanceManager::getTotalTransformBuffer(Device* device) {
+  std::vector<ModelInstance>& modelInstanceList = this->modelInstanceMap[device];
+
+  std::vector<float> transformBuffer(modelInstanceList.size() * 16);
+  for (int x = 0; x < modelInstanceList.size(); x++) {
+    memcpy((16 * x) + transformBuffer.data(), modelInstanceList[x].transformation.getTransformMatrix(), sizeof(float) * 16);
+  }
+
+  return transformBuffer;
+}
+
+uint32_t InstanceManager::getInstanceCount(Device* device) {
+  return this->modelInstanceMap[device].size();
+}
+
 void InstanceManager::initializeContainerOnDevice(Device* device) {
   this->modelInstanceMap.insert(std::pair<Device*, std::vector<ModelInstance>>(device, std::vector<ModelInstance>()));
 }

@@ -27,6 +27,8 @@ public:
   ~InstanceManager();
 
   ModelInstance getInstance(Device* device, uint32_t index);
+  std::vector<float> getTotalTransformBuffer(Device* device);
+  uint32_t getInstanceCount(Device* device);
 
   void initializeContainerOnDevice(Device* device);
 

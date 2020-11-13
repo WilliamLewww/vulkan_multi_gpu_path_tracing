@@ -39,7 +39,7 @@ Renderer::Renderer(std::vector<Model*> modelList, Camera* camera) {
   this->instanceManager = new InstanceManager();
   this->instanceManager->addInstance(displayDevice, modelList[0], 0, 0);
 
-  displayDevice->createUniformBuffers(std::vector<Transformation>());
+  displayDevice->createUniformBuffers(this->instanceManager->getInstanceCount(displayDevice), this->instanceManager->getTotalTransformBuffer(displayDevice));
 
   this->accelerationStructureManager = new AccelerationStructureManager();
   this->accelerationStructureManager->initializeContainerOnDevice(displayDevice);
