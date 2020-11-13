@@ -32,19 +32,14 @@ Renderer::Renderer(std::vector<Model*> modelList, Camera* camera) {
   displayDevice->createCommandPool();
   displayDevice->createDepthResource();
   displayDevice->createFramebuffers();
+  displayDevice->createTextures();
 
-  std::vector<Transformation> transformationList;
-  transformationList.push_back(Transformation());
-
-  modelList[0]->createVertexBuffer(displayDevice);
-  modelList[0]->createIndexBuffer(displayDevice);
-  modelList[0]->createMaterialBuffers(displayDevice);
+  modelList[0]->initializeOnDevice(displayDevice);
 
   this->instanceManager = new InstanceManager();
   this->instanceManager->addInstance(displayDevice, modelList[0], 0, 0);
 
-  displayDevice->createTextures();
-  displayDevice->createUniformBuffers(transformationList);
+  displayDevice->createUniformBuffers(std::vector<Transformation>());
 
   this->accelerationStructureManager = new AccelerationStructureManager();
   this->accelerationStructureManager->initializeContainerOnDevice(displayDevice);
@@ -219,16 +214,16 @@ Renderer::Renderer(std::vector<Model*> modelList, Camera* camera) {
                                          displayDevice->getSwapchainExtent(),
                                          displayDevice->getRenderPass());
 
-std::vector<VkBuffer> vertexBufferList = {modelList[0]->getVertexBuffer(displayDevice)};
-std::vector<VkBuffer> indexBufferList = {modelList[0]->getIndexBuffer(displayDevice)};
-std::vector<uint32_t> primitiveCountList = {modelList[0]->getPrimitiveCount()};
+  std::vector<VkBuffer> vertexBufferList = {modelList[0]->getVertexBuffer(displayDevice)};
+  std::vector<VkBuffer> indexBufferList = {modelList[0]->getIndexBuffer(displayDevice)};
+  std::vector<uint32_t> primitiveCountList = {modelList[0]->getPrimitiveCount()};
 
-displayDevice->createCommandBuffers(vertexBufferList,
-                                    indexBufferList,
-                                    primitiveCountList,
-                                    this->graphicsPipeline->getPipeline(displayDevice), 
-                                    this->graphicsPipeline->getPipelineLayout(displayDevice), 
-                                    this->descriptorManager->getDescriptorSetListReference(displayDevice));
+  displayDevice->createCommandBuffers(vertexBufferList,
+                                      indexBufferList,
+                                      primitiveCountList,
+                                      this->graphicsPipeline->getPipeline(displayDevice), 
+                                      this->graphicsPipeline->getPipelineLayout(displayDevice), 
+                                      this->descriptorManager->getDescriptorSetListReference(displayDevice));
 
   displayDevice->createSynchronizationObjects();
 

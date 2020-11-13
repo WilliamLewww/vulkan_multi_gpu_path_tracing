@@ -236,3 +236,9 @@ VkDeviceSize indexBufferSize = sizeof(uint32_t) * this->getTotalMaterialIndexCou
   vkDestroyBuffer(device->getLogicalDevice(), materialLightStagingBuffer, NULL);
   vkFreeMemory(device->getLogicalDevice(), materialLightStagingBufferMemory, NULL);
 }
+
+void Model::initializeOnDevice(Device* device) {
+  this->createVertexBuffer(device);
+  this->createIndexBuffer(device);
+  this->createMaterialBuffers(device);
+}

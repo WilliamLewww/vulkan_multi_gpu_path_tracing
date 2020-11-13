@@ -49,6 +49,10 @@ private:
     VkDeviceMemory materialLightBufferMemory;
   };
   std::map<Device*, DeviceContainer> deviceMap;
+
+  void createVertexBuffer(Device* device);
+  void createIndexBuffer(Device* device);
+  void createMaterialBuffers(Device* device);
 public:
   Model(std::string fileName);
   ~Model();
@@ -75,7 +79,5 @@ public:
   VkBuffer getMaterialBuffer(Device* device);
   VkBuffer getMaterialLightBuffer(Device* device);
 
-  void createVertexBuffer(Device* device);
-  void createIndexBuffer(Device* device);
-  void createMaterialBuffers(Device* device);
+  void initializeOnDevice(Device* device);
 };
