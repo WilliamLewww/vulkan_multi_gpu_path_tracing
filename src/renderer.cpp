@@ -190,6 +190,8 @@ Renderer::Renderer(std::vector<Model*> modelList, Camera* camera) {
 
   this->descriptorManager->concludeDescriptors(displayDevice);
 
+  this->descriptorManager->print();
+
   this->graphicsPipeline = new GraphicsPipeline();
   this->graphicsPipeline->setVertexFile("bin/basic.vert.spv");
   this->graphicsPipeline->setFragmentFile("bin/basic.frag.spv");

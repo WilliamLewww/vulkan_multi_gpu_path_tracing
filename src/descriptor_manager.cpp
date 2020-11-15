@@ -116,5 +116,35 @@ void DescriptorManager::concludeDescriptors(Device* device) {
 }
 
 void DescriptorManager::print() {
+  printf("==========Descriptor Manager==========\n");
+  for (std::pair<Device*, DeviceContainer> pair : this->deviceMap) {
+    printf("  Device: %p\n", pair.first);
 
+    DeviceContainer deviceContainer = pair.second;
+    for (int x = 0; x < deviceContainer.descriptorSetList.size(); x++) {
+      printf("    Descriptor Set: %d\n", x);
+      for (int y = 0; y < deviceContainer.writeDescriptorSetList[x].size(); y++) {
+        VkWriteDescriptorSet writeDescriptorSet = deviceContainer.writeDescriptorSetList[x][y];
+
+        std::string typeString;
+        // use static map
+        if (writeDescriptorSet.descriptorType == VK_DESCRIPTOR_TYPE_SAMPLER) { typeString = "VK_DESCRIPTOR_TYPE_SAMPLER"; }
+        if (writeDescriptorSet.descriptorType == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER) { typeString = "VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER"; }
+        if (writeDescriptorSet.descriptorType == VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE) { typeString = "VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE"; }
+        if (writeDescriptorSet.descriptorType == VK_DESCRIPTOR_TYPE_STORAGE_IMAGE) { typeString = "VK_DESCRIPTOR_TYPE_STORAGE_IMAGE"; }
+        if (writeDescriptorSet.descriptorType == VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER) { typeString = "VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER"; }
+        if (writeDescriptorSet.descriptorType == VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER) { typeString = "VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER"; }
+        if (writeDescriptorSet.descriptorType == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER) { typeString = "VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER"; }
+        if (writeDescriptorSet.descriptorType == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER) { typeString = "VK_DESCRIPTOR_TYPE_STORAGE_BUFFER"; }
+        if (writeDescriptorSet.descriptorType == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC) { typeString = "VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC"; }
+        if (writeDescriptorSet.descriptorType == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC) { typeString = "VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC"; }
+        if (writeDescriptorSet.descriptorType == VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT) { typeString = "VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT"; }
+        if (writeDescriptorSet.descriptorType == VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK_EXT) { typeString = "VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK_EXT"; }
+        if (writeDescriptorSet.descriptorType == VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR) { typeString = "VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR"; }
+        if (writeDescriptorSet.descriptorType == VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_NV) { typeString = "VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_NV"; }
+
+        printf("      Descriptor Binding: %d (%s)\n", writeDescriptorSet.dstBinding, typeString.c_str());
+      }
+    }
+  }
 }
