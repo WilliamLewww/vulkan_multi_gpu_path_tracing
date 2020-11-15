@@ -65,8 +65,8 @@ void Device::createImage(uint32_t width, uint32_t height, VkFormat format, VkIma
   imageCreateInfo.samples = VK_SAMPLE_COUNT_1_BIT;
   imageCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-  if (vkCreateImage(this->logicalDevice, &imageCreateInfo, NULL, image) == VK_SUCCESS) {
-    printf("created image\n");
+  if (vkCreateImage(this->logicalDevice, &imageCreateInfo, NULL, image) != VK_SUCCESS) {
+    printf("failed to create image\n");
   }
 
   VkMemoryRequirements memoryRequirements;
@@ -86,7 +86,7 @@ void Device::createImage(uint32_t width, uint32_t height, VkFormat format, VkIma
   memoryAllocateInfo.memoryTypeIndex = memoryTypeIndex;
 
   if (vkAllocateMemory(this->logicalDevice, &memoryAllocateInfo, NULL, imageMemory) != VK_SUCCESS) {
-    printf("allocated image memory\n");
+    printf("failed to allocate image memory\n");
   }
 
   vkBindImageMemory(this->logicalDevice, *image, *imageMemory, 0);
@@ -99,8 +99,8 @@ void Device::createBuffer(VkDeviceSize size, VkBufferUsageFlags usageFlags, VkMe
   bufferCreateInfo.usage = usageFlags;
   bufferCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-  if (vkCreateBuffer(this->logicalDevice, &bufferCreateInfo, NULL, buffer) == VK_SUCCESS) {
-    printf("created buffer\n");
+  if (vkCreateBuffer(this->logicalDevice, &bufferCreateInfo, NULL, buffer) != VK_SUCCESS) {
+    printf("failed to create buffer\n");
   }
 
   VkMemoryRequirements memoryRequirements;
@@ -119,8 +119,8 @@ void Device::createBuffer(VkDeviceSize size, VkBufferUsageFlags usageFlags, VkMe
   }
   memoryAllocateInfo.memoryTypeIndex = memoryTypeIndex;
 
-  if (vkAllocateMemory(this->logicalDevice, &memoryAllocateInfo, NULL, bufferMemory) == VK_SUCCESS) {
-    printf("allocated buffer memory\n");
+  if (vkAllocateMemory(this->logicalDevice, &memoryAllocateInfo, NULL, bufferMemory) != VK_SUCCESS) {
+    printf("failed to allocate buffer memory\n");
   }
 
   vkBindBufferMemory(this->logicalDevice, *buffer, *bufferMemory, 0);
@@ -242,8 +242,8 @@ void Device::createLogicalDevice(std::vector<const char*> extensions) {
   deviceCreateInfo.ppEnabledExtensionNames = &extensions[0];
   deviceCreateInfo.pEnabledFeatures = &deviceFeatures;
 
-  if (vkCreateDevice(this->physicalDevice, &deviceCreateInfo, NULL, &this->logicalDevice) == VK_SUCCESS) {
-    printf("created logical connection to device\n");
+  if (vkCreateDevice(this->physicalDevice, &deviceCreateInfo, NULL, &this->logicalDevice) != VK_SUCCESS) {
+    printf("failed to created logical connection to device\n");
   }
 
   vkGetDeviceQueue(this->logicalDevice, this->graphicsQueueIndex, 0, &this->graphicsQueue);
@@ -256,8 +256,8 @@ void Device::createCommandPool() {
   commandPoolCreateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
   commandPoolCreateInfo.queueFamilyIndex = this->graphicsQueueIndex;
 
-  if (vkCreateCommandPool(this->logicalDevice, &commandPoolCreateInfo, NULL, &this->commandPool) == VK_SUCCESS) {
-    printf("created command pool\n");
+  if (vkCreateCommandPool(this->logicalDevice, &commandPoolCreateInfo, NULL, &this->commandPool) != VK_SUCCESS) {
+    printf("failed to create command pool\n");
   }
 }
 
@@ -311,8 +311,8 @@ void Device::createSwapchain(VkSurfaceKHR surface) {
   swapchainCreateInfo.clipped = VK_TRUE;
   swapchainCreateInfo.oldSwapchain = VK_NULL_HANDLE;
 
-  if (vkCreateSwapchainKHR(this->logicalDevice, &swapchainCreateInfo, NULL, &this->swapchain) == VK_SUCCESS) {
-    printf("created swapchain\n");
+  if (vkCreateSwapchainKHR(this->logicalDevice, &swapchainCreateInfo, NULL, &this->swapchain) != VK_SUCCESS) {
+    printf("failed to create swapchain\n");
   }
 
   vkGetSwapchainImagesKHR(this->logicalDevice, this->swapchain, &this->swapchainImageCount, NULL);
@@ -340,8 +340,8 @@ void Device::createSwapchain(VkSurfaceKHR surface) {
     imageViewCreateInfo.subresourceRange.baseArrayLayer = 0;
     imageViewCreateInfo.subresourceRange.layerCount = 1;
 
-    if (vkCreateImageView(this->logicalDevice, &imageViewCreateInfo, NULL, &this->swapchainImageViewList[x]) == VK_SUCCESS) {
-      printf("created image view #%d\n", x);
+    if (vkCreateImageView(this->logicalDevice, &imageViewCreateInfo, NULL, &this->swapchainImageViewList[x]) != VK_SUCCESS) {
+      printf("failed to create image view #%d\n", x);
     }
   }
 }
@@ -400,8 +400,8 @@ void Device::createRenderPass() {
   renderPassInfo.dependencyCount = 1;
   renderPassInfo.pDependencies = &dependency;
 
-  if (vkCreateRenderPass(this->logicalDevice, &renderPassInfo, NULL, &this->renderPass) == VK_SUCCESS) {
-    printf("created render pass\n");
+  if (vkCreateRenderPass(this->logicalDevice, &renderPassInfo, NULL, &this->renderPass) != VK_SUCCESS) {
+    printf("failed to create render pass\n");
   }
 }
 
@@ -421,8 +421,8 @@ void Device::createDepthResource() {
   viewInfo.subresourceRange.baseArrayLayer = 0;
   viewInfo.subresourceRange.layerCount = 1;
 
-  if (vkCreateImageView(this->logicalDevice, &viewInfo, NULL, &this->depthImageView) == VK_SUCCESS) {
-    printf("created texture image view\n");
+  if (vkCreateImageView(this->logicalDevice, &viewInfo, NULL, &this->depthImageView) != VK_SUCCESS) {
+    printf("failed to create texture image view\n");
   }
 }
 
@@ -444,8 +444,8 @@ void Device::createFramebuffers() {
     framebufferCreateInfo.height = this->swapchainExtent.height;
     framebufferCreateInfo.layers = 1;
 
-    if (vkCreateFramebuffer(this->logicalDevice, &framebufferCreateInfo, NULL, &this->framebufferList[x]) == VK_SUCCESS) {
-      printf("created swapchain framebuffer #%d\n", x);
+    if (vkCreateFramebuffer(this->logicalDevice, &framebufferCreateInfo, NULL, &this->framebufferList[x]) != VK_SUCCESS) {
+      printf("failed to create swapchain framebuffer #%d\n", x);
     }
   }
 }
@@ -468,8 +468,8 @@ void Device::createTextures() {
   imageViewCreateInfo.subresourceRange = subresourceRange;
   imageViewCreateInfo.image = this->rayTraceImage;
 
-  if (vkCreateImageView(this->logicalDevice, &imageViewCreateInfo, NULL, &this->rayTraceImageView) == VK_SUCCESS) {
-    printf("created image view\n");
+  if (vkCreateImageView(this->logicalDevice, &imageViewCreateInfo, NULL, &this->rayTraceImageView) != VK_SUCCESS) {
+    printf("failed to create image view\n");
   }
 
   VkImageMemoryBarrier imageMemoryBarrier = {};
@@ -550,8 +550,8 @@ void Device::createCommandBuffers(std::vector<VkBuffer> vertexBufferList,
   commandBufferAllocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
   commandBufferAllocateInfo.commandBufferCount = this->swapchainImageCount;
 
-  if (vkAllocateCommandBuffers(this->logicalDevice, &commandBufferAllocateInfo, this->commandBufferList.data()) == VK_SUCCESS) {
-    printf("allocated command buffers\n");
+  if (vkAllocateCommandBuffers(this->logicalDevice, &commandBufferAllocateInfo, this->commandBufferList.data()) != VK_SUCCESS) {
+    printf("failed to allocate command buffers\n");
   }
 
   for (int x = 0; x < this->swapchainImageCount; x++) {
@@ -583,8 +583,8 @@ void Device::createCommandBuffers(std::vector<VkBuffer> vertexBufferList,
     subresourceRange.baseArrayLayer = 0;
     subresourceRange.layerCount = 1;
 
-    if (vkBeginCommandBuffer(this->commandBufferList[x], &commandBufferBeginCreateInfo) == VK_SUCCESS) {
-      printf("begin recording command buffer for image #%d\n", x);
+    if (vkBeginCommandBuffer(this->commandBufferList[x], &commandBufferBeginCreateInfo) != VK_SUCCESS) {
+      printf("failed to begin recording command buffer for image #%d\n", x);
     }
 
     vkCmdBeginRenderPass(this->commandBufferList[x], &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
@@ -694,8 +694,8 @@ void Device::createCommandBuffers(std::vector<VkBuffer> vertexBufferList,
       vkCmdPipelineBarrier(this->commandBufferList[x], VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0, NULL, 0, NULL, 1, &imageMemoryBarrier);
     }
 
-    if (vkEndCommandBuffer(this->commandBufferList[x]) == VK_SUCCESS) {
-      printf("end recording command buffer for image #%d\n", x);
+    if (vkEndCommandBuffer(this->commandBufferList[x]) != VK_SUCCESS) {
+      printf("failed to end recording command buffer for image #%d\n", x);
     }
   }
 }
@@ -719,8 +719,8 @@ void Device::createSynchronizationObjects() {
   for (int x = 0; x < this->framesInFlight; x++) {
     if (vkCreateSemaphore(this->logicalDevice, &semaphoreCreateInfo, NULL, &this->imageAvailableSemaphoreList[x]) == VK_SUCCESS &&
         vkCreateSemaphore(this->logicalDevice, &semaphoreCreateInfo, NULL, &this->renderFinishedSemaphoreList[x]) == VK_SUCCESS &&
-        vkCreateFence(this->logicalDevice, &fenceCreateInfo, NULL, &this->inFlightFenceList[x]) == VK_SUCCESS) {
-      printf("created synchronization objects for frame #%d\n", x);
+        vkCreateFence(this->logicalDevice, &fenceCreateInfo, NULL, &this->inFlightFenceList[x]) != VK_SUCCESS) {
+      printf("failed to create synchronization objects for frame #%d\n", x);
     }
   }
 }

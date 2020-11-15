@@ -22,8 +22,8 @@ void Window::setCursorPositionCallback(void (*cursorPositionCallback)(GLFWwindow
 }
 
 void Window::createWindowSurface(VkInstance vulkanInstance) {
-  if (glfwCreateWindowSurface(vulkanInstance, this->window, NULL, &this->surface) == VK_SUCCESS) {
-    printf("created window surface\n");
+  if (glfwCreateWindowSurface(vulkanInstance, this->window, NULL, &this->surface) != VK_SUCCESS) {
+    printf("failed to create window surface\n");
   }
 }
 

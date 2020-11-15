@@ -40,8 +40,8 @@ void AccelerationStructureManager::createBottomLevelAccelerationStructure(Device
   accelerationStructureCreateInfo.pGeometryInfos = &geometryInfos;
 
   this->deviceMap[device].bottomLevelAccelerationStructureList.push_back(VkAccelerationStructureKHR());
-  if (pvkCreateAccelerationStructureKHR(device->getLogicalDevice(), &accelerationStructureCreateInfo, NULL, &this->deviceMap[device].bottomLevelAccelerationStructureList.back()) == VK_SUCCESS) {
-    printf("%s\n", "created acceleration structure");
+  if (pvkCreateAccelerationStructureKHR(device->getLogicalDevice(), &accelerationStructureCreateInfo, NULL, &this->deviceMap[device].bottomLevelAccelerationStructureList.back()) != VK_SUCCESS) {
+    printf("%s\n", "failed to create acceleration structure");
   }
 
   // ==============================================================================================================
@@ -238,8 +238,8 @@ void AccelerationStructureManager::createTopLevelAccelerationStructure(Device* d
     .deviceAddress = VK_NULL_HANDLE
   };
 
-  if (pvkCreateAccelerationStructureKHR(device->getLogicalDevice(), &accelerationStructureCreateInfo, NULL, &this->deviceMap[device].topLevelAccelerationStructure) == VK_SUCCESS) {
-    printf("%s\n", "created acceleration structure");
+  if (pvkCreateAccelerationStructureKHR(device->getLogicalDevice(), &accelerationStructureCreateInfo, NULL, &this->deviceMap[device].topLevelAccelerationStructure) != VK_SUCCESS) {
+    printf("%s\n", "failed to create acceleration structure");
   }
 
   // ==============================================================================================================

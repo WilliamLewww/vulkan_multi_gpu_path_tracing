@@ -83,8 +83,8 @@ void DescriptorManager::concludeDescriptors(Device* device) {
   descriptorPoolCreateInfo.pPoolSizes = this->deviceMap[device].descriptorPoolSizeList.data();
   descriptorPoolCreateInfo.maxSets = this->deviceMap[device].descriptorSetList.size();
 
-  if (vkCreateDescriptorPool(device->getLogicalDevice(), &descriptorPoolCreateInfo, NULL, &this->deviceMap[device].descriptorPool) == VK_SUCCESS) {
-    printf("%s\n", "created descriptor pool");
+  if (vkCreateDescriptorPool(device->getLogicalDevice(), &descriptorPoolCreateInfo, NULL, &this->deviceMap[device].descriptorPool) != VK_SUCCESS) {
+    printf("%s\n", "failed to create descriptor pool");
   }
 
   for (int x = 0; x < this->deviceMap[device].descriptorSetList.size(); x++) {
@@ -93,8 +93,8 @@ void DescriptorManager::concludeDescriptors(Device* device) {
     descriptorSetLayoutCreateInfo.bindingCount = this->deviceMap[device].descriptorSetLayoutBindingList[x].size();
     descriptorSetLayoutCreateInfo.pBindings = this->deviceMap[device].descriptorSetLayoutBindingList[x].data();
     
-    if (vkCreateDescriptorSetLayout(device->getLogicalDevice(), &descriptorSetLayoutCreateInfo, NULL, &this->deviceMap[device].descriptorSetLayoutList[x]) == VK_SUCCESS) {
-      printf("%s\n", "created descriptor set layout");
+    if (vkCreateDescriptorSetLayout(device->getLogicalDevice(), &descriptorSetLayoutCreateInfo, NULL, &this->deviceMap[device].descriptorSetLayoutList[x]) != VK_SUCCESS) {
+      printf("%s\n", "failed to create descriptor set layout");
     }
 
     VkDescriptorSetAllocateInfo descriptorSetAllocateInfo = {};
@@ -103,8 +103,8 @@ void DescriptorManager::concludeDescriptors(Device* device) {
     descriptorSetAllocateInfo.descriptorSetCount = 1;
     descriptorSetAllocateInfo.pSetLayouts = &this->deviceMap[device].descriptorSetLayoutList[x];
 
-    if (vkAllocateDescriptorSets(device->getLogicalDevice(), &descriptorSetAllocateInfo, &this->deviceMap[device].descriptorSetList[x]) == VK_SUCCESS) {
-      printf("%s\n", "allocated descriptor sets");
+    if (vkAllocateDescriptorSets(device->getLogicalDevice(), &descriptorSetAllocateInfo, &this->deviceMap[device].descriptorSetList[x]) != VK_SUCCESS) {
+      printf("%s\n", "failed to allocate descriptor sets");
     }
 
     for (int y = 0; y < this->deviceMap[device].writeDescriptorSetList[x].size(); y++) {
@@ -113,4 +113,8 @@ void DescriptorManager::concludeDescriptors(Device* device) {
 
     vkUpdateDescriptorSets(device->getLogicalDevice(), this->deviceMap[device].descriptorSetLayoutBindingList[x].size(), this->deviceMap[device].writeDescriptorSetList[x].data(), 0, NULL);
   }
+}
+
+void DescriptorManager::print() {
+
 }

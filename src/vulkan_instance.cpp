@@ -43,20 +43,20 @@ VulkanInstance::VulkanInstance(const char* applicationName, std::vector<const ch
     instanceCreateInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT*)&messengerCreateInfo;
     instanceCreateInfo.ppEnabledLayerNames = &layerList[0];
 
-    if (vkCreateInstance(&instanceCreateInfo, NULL, &this->instance) == VK_SUCCESS) {
-      printf("created Vulkan instance\n");
+    if (vkCreateInstance(&instanceCreateInfo, NULL, &this->instance) != VK_SUCCESS) {
+      printf("failed to create Vulkan instance\n");
     }
 
     PFN_vkCreateDebugUtilsMessengerEXT pvkCreateDebugUtilsMessengerEXT = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(this->instance, "vkCreateDebugUtilsMessengerEXT");
-    if (pvkCreateDebugUtilsMessengerEXT(this->instance, &messengerCreateInfo, NULL, &this->debugMessenger) == VK_SUCCESS) {
-      printf("created debug messenger\n");
+    if (pvkCreateDebugUtilsMessengerEXT(this->instance, &messengerCreateInfo, NULL, &this->debugMessenger) != VK_SUCCESS) {
+      printf("failed to create debug messenger\n");
     }
   }
   else {
     instanceCreateInfo.pNext = NULL;
 
-    if (vkCreateInstance(&instanceCreateInfo, NULL, &this->instance) == VK_SUCCESS) {
-      printf("created Vulkan instance\n");
+    if (vkCreateInstance(&instanceCreateInfo, NULL, &this->instance) != VK_SUCCESS) {
+      printf("failed to create Vulkan instance\n");
     }
   }
 }

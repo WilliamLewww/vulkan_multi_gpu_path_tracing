@@ -7,8 +7,8 @@ void Buffer::createBuffer(Device* device, VkDeviceSize size, VkBufferUsageFlags 
   bufferCreateInfo.usage = usageFlags;
   bufferCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-  if (vkCreateBuffer(device->getLogicalDevice(), &bufferCreateInfo, NULL, buffer) == VK_SUCCESS) {
-    printf("created buffer\n");
+  if (vkCreateBuffer(device->getLogicalDevice(), &bufferCreateInfo, NULL, buffer) != VK_SUCCESS) {
+    printf("failed to create buffer\n");
   }
 
   VkMemoryRequirements memoryRequirements;
@@ -27,8 +27,8 @@ void Buffer::createBuffer(Device* device, VkDeviceSize size, VkBufferUsageFlags 
   }
   memoryAllocateInfo.memoryTypeIndex = memoryTypeIndex;
 
-  if (vkAllocateMemory(device->getLogicalDevice(), &memoryAllocateInfo, NULL, bufferMemory) == VK_SUCCESS) {
-    printf("allocated buffer memory\n");
+  if (vkAllocateMemory(device->getLogicalDevice(), &memoryAllocateInfo, NULL, bufferMemory) != VK_SUCCESS) {
+    printf("failed to allocate buffer memory\n");
   }
 
   vkBindBufferMemory(device->getLogicalDevice(), *buffer, *bufferMemory, 0);

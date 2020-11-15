@@ -40,4 +40,6 @@ public:
                      void* pNext = NULL);
 
   void concludeDescriptors(Device* device);
+
+  void print();
 };
