@@ -516,18 +516,15 @@ void Device::createUniformBuffers(uint32_t instanceCount, std::vector<float> tot
 
   struct InstanceDescriptionContainer {
     uint32_t instanceCount; int padA[3];
-    float transformMatrix[16];
+    float transformMatrix[256];
   };
 
   InstanceDescriptionContainer instanceDescriptionContainer = {
-    .instanceCount = 1,
-    .transformMatrix = {
-      1.0, 0.0, 0.0, 0.0,
-      0.0, 1.0, 0.0, 0.0,
-      0.0, 0.0, 1.0, 0.0,
-      0.0, 0.0, 0.0, 1.0
-    }
+    .instanceCount = instanceCount,
+    .transformMatrix = {}
   };
+
+  memcpy(instanceDescriptionContainer.transformMatrix, totalTransformBuffer.data(), sizeof(float) * 256);
 
   VkDeviceSize transformBufferSize = sizeof(InstanceDescriptionContainer);
   createBuffer(transformBufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &this->transformUniformBuffer, &this->transformUniformBufferMemory);
