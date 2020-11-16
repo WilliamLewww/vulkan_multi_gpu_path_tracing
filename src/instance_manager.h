@@ -1,6 +1,7 @@
 #pragma once
 
 #include <map>
+#include <string>
 #include <vulkan/vulkan.h>
 #include <stdint.h>
 
@@ -34,4 +35,6 @@ public:
   void initializeContainerOnDevice(Device* device);
 
   void addInstance(Device* device, Model* model, uint32_t modelIndex, uint32_t instanceIndex, float* transformationMatrix = NULL);
+
+  void print();
 };
