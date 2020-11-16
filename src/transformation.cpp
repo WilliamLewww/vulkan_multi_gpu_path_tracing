@@ -12,6 +12,10 @@ Transformation::Transformation() {
   memcpy(this->transformMatrix, identityMatrix, sizeof(float) * 16);
 }
 
+Transformation::Transformation(float matrix[16]) {
+  memcpy(this->transformMatrix, matrix, sizeof(float) * 16);
+}
+
 Transformation::~Transformation() {
 
 }

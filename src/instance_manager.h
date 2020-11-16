@@ -33,5 +33,5 @@ public:
 
   void initializeContainerOnDevice(Device* device);
 
-  void addInstance(Device* device, Model* model, uint32_t modelIndex, uint32_t instanceIndex);
+  void addInstance(Device* device, Model* model, uint32_t modelIndex, uint32_t instanceIndex, float* transformationMatrix = NULL);
 };

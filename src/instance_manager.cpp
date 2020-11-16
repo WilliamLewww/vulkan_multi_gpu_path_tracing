@@ -35,11 +35,20 @@ void InstanceManager::initializeContainerOnDevice(Device* device) {
   this->modelInstanceMap.insert(std::pair<Device*, std::vector<ModelInstance>>(device, std::vector<ModelInstance>()));
 }
 
-void InstanceManager::addInstance(Device* device, Model* model, uint32_t modelIndex, uint32_t instanceIndex) {
+void InstanceManager::addInstance(Device* device, Model* model, uint32_t modelIndex, uint32_t instanceIndex, float* transformationMatrix) {
+  Transformation transformation;
+
+  if (transformationMatrix == NULL) {
+    transformation = Transformation();
+  }
+  else {
+    transformation = Transformation(transformationMatrix);
+  }
+
   ModelInstance modelInstance = {
     .modelIndex = modelIndex,
     .instanceIndex = instanceIndex,
-    .transformation = Transformation(),
+    .transformation = transformation,
 
     .vertexBuffer = model->getVertexBuffer(device),
     .indexBuffer = model->getIndexBuffer(device),
