@@ -39,7 +39,7 @@ Renderer::Renderer(std::vector<Model*> modelList, Camera* camera) {
 
   this->instanceManager = new InstanceManager();
   this->instanceManager->initializeContainerOnDevice(displayDevice);
-  
+
   this->instanceManager->addInstance(displayDevice, modelList[0], 0, 0);
 
   displayDevice->createUniformBuffers(this->instanceManager->getInstanceCount(displayDevice), this->instanceManager->getTotalTransformBuffer(displayDevice));
@@ -49,7 +49,6 @@ Renderer::Renderer(std::vector<Model*> modelList, Camera* camera) {
 
   this->accelerationStructureManager->createBottomLevelAccelerationStructures(displayDevice, modelList);
   this->accelerationStructureManager->addBottomLevelAccelerationStructureInstances(displayDevice, this->instanceManager->getInstanceList(displayDevice));
-
   this->accelerationStructureManager->createTopLevelAccelerationStructure(displayDevice);
 
   this->descriptorManager = new DescriptorManager();
@@ -191,7 +190,6 @@ Renderer::Renderer(std::vector<Model*> modelList, Camera* camera) {
                                          NULL);
 
   this->descriptorManager->concludeDescriptors(displayDevice);
-
   this->descriptorManager->print();
 
   this->graphicsPipeline = new GraphicsPipeline();
