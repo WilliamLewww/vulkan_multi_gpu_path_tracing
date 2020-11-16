@@ -125,25 +125,44 @@ void DescriptorManager::print() {
       printf("    Descriptor Set: %d\n", x);
       for (int y = 0; y < deviceContainer.writeDescriptorSetList[x].size(); y++) {
         VkWriteDescriptorSet writeDescriptorSet = deviceContainer.writeDescriptorSetList[x][y];
+        VkDescriptorSetLayoutBinding descriptorSetLayoutBinding = deviceContainer.descriptorSetLayoutBindingList[x][y];
 
         std::string typeString;
+        std::string stagesString;
+        const void* address;
+        
         // use static map
-        if (writeDescriptorSet.descriptorType == VK_DESCRIPTOR_TYPE_SAMPLER) { typeString = "VK_DESCRIPTOR_TYPE_SAMPLER"; }
-        if (writeDescriptorSet.descriptorType == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER) { typeString = "VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER"; }
-        if (writeDescriptorSet.descriptorType == VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE) { typeString = "VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE"; }
-        if (writeDescriptorSet.descriptorType == VK_DESCRIPTOR_TYPE_STORAGE_IMAGE) { typeString = "VK_DESCRIPTOR_TYPE_STORAGE_IMAGE"; }
-        if (writeDescriptorSet.descriptorType == VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER) { typeString = "VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER"; }
-        if (writeDescriptorSet.descriptorType == VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER) { typeString = "VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER"; }
-        if (writeDescriptorSet.descriptorType == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER) { typeString = "VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER"; }
-        if (writeDescriptorSet.descriptorType == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER) { typeString = "VK_DESCRIPTOR_TYPE_STORAGE_BUFFER"; }
-        if (writeDescriptorSet.descriptorType == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC) { typeString = "VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC"; }
-        if (writeDescriptorSet.descriptorType == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC) { typeString = "VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC"; }
-        if (writeDescriptorSet.descriptorType == VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT) { typeString = "VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT"; }
-        if (writeDescriptorSet.descriptorType == VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK_EXT) { typeString = "VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK_EXT"; }
-        if (writeDescriptorSet.descriptorType == VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR) { typeString = "VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR"; }
-        if (writeDescriptorSet.descriptorType == VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_NV) { typeString = "VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_NV"; }
+        if (writeDescriptorSet.descriptorType == VK_DESCRIPTOR_TYPE_SAMPLER) { typeString = "sampler"; }
+        if (writeDescriptorSet.descriptorType == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER) { typeString = "combined image sampler"; }
+        if (writeDescriptorSet.descriptorType == VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE) { typeString = "sampled image"; }
+        if (writeDescriptorSet.descriptorType == VK_DESCRIPTOR_TYPE_STORAGE_IMAGE) { typeString = "storage image"; }
+        if (writeDescriptorSet.descriptorType == VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER) { typeString = "uniform texel buffer"; }
+        if (writeDescriptorSet.descriptorType == VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER) { typeString = "storage texel buffer"; }
+        if (writeDescriptorSet.descriptorType == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER) { typeString = "uniform buffer"; }
+        if (writeDescriptorSet.descriptorType == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER) { typeString = "storage buffer"; }
+        if (writeDescriptorSet.descriptorType == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC) { typeString = "uniform buffer dynamic"; }
+        if (writeDescriptorSet.descriptorType == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC) { typeString = "storage buffer dynamic"; }
+        if (writeDescriptorSet.descriptorType == VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT) { typeString = "input attachment"; }
+        if (writeDescriptorSet.descriptorType == VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK_EXT) { typeString = "inline uniform block (EXT)"; }
+        if (writeDescriptorSet.descriptorType == VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR) { typeString = "acceleration structure (KHR)"; }
+        if (writeDescriptorSet.descriptorType == VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_NV) { typeString = "acceleration structure (NV)"; }
 
-        printf("      Descriptor Binding: %d (%s)\n", writeDescriptorSet.dstBinding, typeString.c_str());
+        if (descriptorSetLayoutBinding.stageFlags & VK_SHADER_STAGE_VERTEX_BIT) { stagesString += "vertex | "; }
+        if (descriptorSetLayoutBinding.stageFlags & VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT) { stagesString += "tessellation control | "; }
+        if (descriptorSetLayoutBinding.stageFlags & VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT) { stagesString += "tessellation evaluation | "; }
+        if (descriptorSetLayoutBinding.stageFlags & VK_SHADER_STAGE_GEOMETRY_BIT) { stagesString += "geometry | "; }
+        if (descriptorSetLayoutBinding.stageFlags & VK_SHADER_STAGE_FRAGMENT_BIT) { stagesString += "fragment | "; }
+        if (descriptorSetLayoutBinding.stageFlags & VK_SHADER_STAGE_COMPUTE_BIT) { stagesString += "compute | "; }
+
+        if (writeDescriptorSet.pImageInfo != NULL) { address = writeDescriptorSet.pImageInfo; }
+        if (writeDescriptorSet.pBufferInfo != NULL) { address = writeDescriptorSet.pBufferInfo; }
+        if (writeDescriptorSet.pTexelBufferView != NULL) { address = writeDescriptorSet.pTexelBufferView; }
+        if (writeDescriptorSet.pNext != NULL) { address = writeDescriptorSet.pNext; }
+
+        printf("      Binding: %d\n", writeDescriptorSet.dstBinding);
+        printf("        Type: %s\n", typeString.c_str());
+        printf("        Stages: %s\n", stagesString.c_str());
+        printf("        Buffer: %p\n", address);
       }
     }
   }
