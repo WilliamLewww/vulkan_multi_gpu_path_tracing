@@ -183,6 +183,12 @@ void AccelerationStructureManager::createBottomLevelAccelerationStructure(Device
   vkFreeMemory(device->getLogicalDevice(), scratchBufferMemory, NULL);
 }
 
+void AccelerationStructureManager::createBottomLevelAccelerationStructures(Device* device, std::vector<Model*> modelList) {
+  for (int x = 0; x < modelList.size(); x++) {
+    this->createBottomLevelAccelerationStructure(device, modelList[x]);
+  }
+}
+
 void AccelerationStructureManager::addBottomLevelAccelerationStructureInstance(Device* device, ModelInstance modelInstance) {
   PFN_vkGetAccelerationStructureDeviceAddressKHR pvkGetAccelerationStructureDeviceAddressKHR = (PFN_vkGetAccelerationStructureDeviceAddressKHR)vkGetDeviceProcAddr(device->getLogicalDevice(), "vkGetAccelerationStructureDeviceAddressKHR");
 
@@ -206,6 +212,12 @@ void AccelerationStructureManager::addBottomLevelAccelerationStructureInstance(D
   };
 
   this->deviceMap[device].bottomLevelAccelerationStructureInstanceList.push_back(geometryInstance);
+}
+
+void AccelerationStructureManager::addBottomLevelAccelerationStructureInstances(Device* device, std::vector<ModelInstance> modelInstanceList) {
+  for (int x = 0; x < modelInstanceList.size(); x++) {
+    this->addBottomLevelAccelerationStructureInstance(device, modelInstanceList[x]);
+  }
 }
 
 void AccelerationStructureManager::createTopLevelAccelerationStructure(Device* device) {

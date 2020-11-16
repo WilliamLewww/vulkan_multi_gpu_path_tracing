@@ -35,7 +35,9 @@ public:
 
   void initializeContainerOnDevice(Device* device);
   void createBottomLevelAccelerationStructure(Device* device, Model* model);
+  void createBottomLevelAccelerationStructures(Device* device, std::vector<Model*> modelList);
   void addBottomLevelAccelerationStructureInstance(Device* device, ModelInstance modelInstance);
+  void addBottomLevelAccelerationStructureInstances(Device* device, std::vector<ModelInstance> modelInstanceList);
   
   void createTopLevelAccelerationStructure(Device* device);
 };

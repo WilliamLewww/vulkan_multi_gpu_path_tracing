@@ -35,8 +35,11 @@ Renderer::Renderer(std::vector<Model*> modelList, Camera* camera) {
   displayDevice->createTextures();
 
   modelList[0]->initializeOnDevice(displayDevice);
+  modelList[1]->initializeOnDevice(displayDevice);
 
   this->instanceManager = new InstanceManager();
+  this->instanceManager->initializeContainerOnDevice(displayDevice);
+  
   this->instanceManager->addInstance(displayDevice, modelList[0], 0, 0);
 
   displayDevice->createUniformBuffers(this->instanceManager->getInstanceCount(displayDevice), this->instanceManager->getTotalTransformBuffer(displayDevice));
@@ -44,9 +47,8 @@ Renderer::Renderer(std::vector<Model*> modelList, Camera* camera) {
   this->accelerationStructureManager = new AccelerationStructureManager();
   this->accelerationStructureManager->initializeContainerOnDevice(displayDevice);
 
-  this->accelerationStructureManager->createBottomLevelAccelerationStructure(displayDevice, modelList[0]);
-
-  this->accelerationStructureManager->addBottomLevelAccelerationStructureInstance(displayDevice, this->instanceManager->getInstance(displayDevice, 0));
+  this->accelerationStructureManager->createBottomLevelAccelerationStructures(displayDevice, modelList);
+  this->accelerationStructureManager->addBottomLevelAccelerationStructureInstances(displayDevice, this->instanceManager->getInstanceList(displayDevice));
 
   this->accelerationStructureManager->createTopLevelAccelerationStructure(displayDevice);
 
