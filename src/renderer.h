@@ -13,6 +13,7 @@
 #include "acceleration_structure_manager.h"
 #include "model.h"
 #include "instance_manager.h"
+#include "command_buffer_manager.h"
 
 class Renderer {
 private:
@@ -23,6 +24,7 @@ private:
   AccelerationStructureManager* accelerationStructureManager;
   DescriptorManager* descriptorManager;
   GraphicsPipeline* graphicsPipeline;
+  CommandBufferManager* commandBufferManager;
 public:
   Renderer(std::vector<Model*> modelList, Camera* camera);
   ~Renderer();

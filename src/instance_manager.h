@@ -27,6 +27,7 @@ public:
   ~InstanceManager();
 
   ModelInstance getInstance(Device* device, uint32_t index);
+  std::vector<ModelInstance> getInstanceList(Device* device);
   std::vector<float> getTotalTransformBuffer(Device* device);
   uint32_t getInstanceCount(Device* device);
 

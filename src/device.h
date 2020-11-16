@@ -56,7 +56,6 @@ protected:
   VkBuffer transformUniformBuffer;
   VkDeviceMemory transformUniformBufferMemory;
 
-  std::vector<VkCommandBuffer> commandBufferList;
   std::vector<VkSemaphore> imageAvailableSemaphoreList;
   std::vector<VkSemaphore> renderFinishedSemaphoreList;
   std::vector<VkFence> inFlightFenceList;
@@ -70,11 +69,15 @@ public:
   VkExtent2D getSwapchainExtent();
   VkRenderPass getRenderPass();
   VkPhysicalDeviceMemoryProperties getPhysicalMemoryProperties();
+  uint32_t getSwapchainImageCount();
+  std::vector<VkImage> getSwapchainImageList();
 
   VkBuffer getCameraUniformBuffer();
   VkBuffer getTransformUniformBuffer();
   VkCommandPool getCommandPool();
   VkQueue getComputeQueue();
+  std::vector<VkFramebuffer> getFramebufferList();
+  VkImage getRayTraceImage();
 
   VkImageView getRayTraceImageView();
 
@@ -93,15 +96,8 @@ public:
   void createTextures();
   void createUniformBuffers(uint32_t instanceCount, std::vector<float> totalTransformBuffer);
 
-  void createCommandBuffers(std::vector<VkBuffer> vertexBufferList, 
-                            std::vector<VkBuffer> indexBufferList, 
-                            std::vector<uint32_t> primitiveCountList, 
-                            VkPipeline pipeline, 
-                            VkPipelineLayout pipelineLayout, 
-                            std::vector<VkDescriptorSet>& descriptorSetList);
-
   void createSynchronizationObjects();
 
   void updateCameraUniformBuffer(CameraUniform camera);
-  void drawFrame(CameraUniform camera);
+  void drawFrame(CameraUniform camera, std::vector<VkCommandBuffer> commandBufferList);
 };

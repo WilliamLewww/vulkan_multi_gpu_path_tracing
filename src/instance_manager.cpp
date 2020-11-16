@@ -12,6 +12,10 @@ ModelInstance InstanceManager::getInstance(Device* device, uint32_t index) {
   return this->modelInstanceMap[device][index];
 }
 
+std::vector<ModelInstance> InstanceManager::getInstanceList(Device* device) {
+  return this->modelInstanceMap[device];
+}
+
 std::vector<float> InstanceManager::getTotalTransformBuffer(Device* device) {
   std::vector<ModelInstance>& modelInstanceList = this->modelInstanceMap[device];
 

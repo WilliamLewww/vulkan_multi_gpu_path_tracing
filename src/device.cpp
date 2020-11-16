@@ -29,6 +29,14 @@ VkPhysicalDeviceMemoryProperties Device::getPhysicalMemoryProperties() {
   return this->physicalDeviceMemoryProperties;
 }
 
+uint32_t Device::getSwapchainImageCount() {
+  return this->swapchainImageCount;
+}
+
+std::vector<VkImage> Device::getSwapchainImageList() {
+  return this->swapchainImageList;
+}
+
 VkBuffer Device::getCameraUniformBuffer() {
   return this->cameraUniformBuffer;
 }
@@ -45,8 +53,16 @@ VkQueue Device::getComputeQueue() {
   return this->computeQueue;
 }
 
+std::vector<VkFramebuffer> Device::getFramebufferList() {
+  return this->framebufferList;
+}
+
 VkImageView Device::getRayTraceImageView() {
   return this->rayTraceImageView;
+}
+
+VkImage Device::getRayTraceImage() {
+  return this->rayTraceImage;
 }
 
 void Device::createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usageFlags, VkMemoryPropertyFlags propertyFlags, VkImage* image, VkDeviceMemory* imageMemory) {
@@ -535,171 +551,6 @@ void Device::createUniformBuffers(uint32_t instanceCount, std::vector<float> tot
   vkUnmapMemory(this->logicalDevice, this->transformUniformBufferMemory);
 }
 
-void Device::createCommandBuffers(std::vector<VkBuffer> vertexBufferList, 
-                                  std::vector<VkBuffer> indexBufferList, 
-                                  std::vector<uint32_t> primitiveCountList, 
-                                  VkPipeline pipeline, 
-                                  VkPipelineLayout pipelineLayout, 
-                                  std::vector<VkDescriptorSet>& descriptorSetList) {
-
-  this->commandBufferList.resize(this->swapchainImageCount);
-  
-  VkCommandBufferAllocateInfo commandBufferAllocateInfo = {};
-  commandBufferAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-  commandBufferAllocateInfo.commandPool = this->commandPool;
-  commandBufferAllocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-  commandBufferAllocateInfo.commandBufferCount = this->swapchainImageCount;
-
-  if (vkAllocateCommandBuffers(this->logicalDevice, &commandBufferAllocateInfo, this->commandBufferList.data()) != VK_SUCCESS) {
-    printf("failed to allocate command buffers\n");
-  }
-
-  for (int x = 0; x < this->swapchainImageCount; x++) {
-    VkCommandBufferBeginInfo commandBufferBeginCreateInfo = {};
-    commandBufferBeginCreateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-
-    VkRenderPassBeginInfo renderPassBeginInfo = {};
-    renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-    renderPassBeginInfo.renderPass = this->renderPass;
-    renderPassBeginInfo.framebuffer = this->framebufferList[x];
-    VkOffset2D renderAreaOffset = {0, 0};
-    renderPassBeginInfo.renderArea.offset = renderAreaOffset;
-    renderPassBeginInfo.renderArea.extent = this->swapchainExtent;
-
-    VkClearValue clearValues[2] = {
-      {.color = {0.0f, 0.0f, 0.0f, 1.0f}},
-      {.depthStencil = {1.0f, 0}}
-    };
-
-    renderPassBeginInfo.clearValueCount = 2;
-    renderPassBeginInfo.pClearValues = clearValues;
-
-    std::vector<VkDeviceSize> offsetList(vertexBufferList.size());
-
-    VkImageSubresourceRange subresourceRange = {};
-    subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-    subresourceRange.baseMipLevel = 0;
-    subresourceRange.levelCount = 1;
-    subresourceRange.baseArrayLayer = 0;
-    subresourceRange.layerCount = 1;
-
-    if (vkBeginCommandBuffer(this->commandBufferList[x], &commandBufferBeginCreateInfo) != VK_SUCCESS) {
-      printf("failed to begin recording command buffer for image #%d\n", x);
-    }
-
-    vkCmdBeginRenderPass(this->commandBufferList[x], &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
-    vkCmdBindPipeline(this->commandBufferList[x], VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
-
-    vkCmdBindVertexBuffers(this->commandBufferList[x], 0, vertexBufferList.size(), vertexBufferList.data(), offsetList.data());
-    vkCmdBindIndexBuffer(this->commandBufferList[x], indexBufferList[0], 0, VK_INDEX_TYPE_UINT32);
-    vkCmdBindDescriptorSets(this->commandBufferList[x], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 2, descriptorSetList.data(), 0, 0);
-    vkCmdDrawIndexed(this->commandBufferList[x], primitiveCountList[0] * 3, 1, 0, 0, 0);
-    
-    vkCmdEndRenderPass(this->commandBufferList[x]);
-
-    { 
-      VkImageMemoryBarrier imageMemoryBarrier = {};
-      imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-      imageMemoryBarrier.pNext = NULL;
-      imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-      imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-      imageMemoryBarrier.image = this->swapchainImageList[x];
-      imageMemoryBarrier.subresourceRange = subresourceRange;
-      imageMemoryBarrier.srcAccessMask = 0;
-      imageMemoryBarrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
-
-      vkCmdPipelineBarrier(this->commandBufferList[x], VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0, NULL, 0, NULL, 1, &imageMemoryBarrier);
-    }
-
-    { 
-      VkImageMemoryBarrier imageMemoryBarrier = {};
-      imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-      imageMemoryBarrier.pNext = NULL;
-      imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_GENERAL;
-      imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-      imageMemoryBarrier.image = this->rayTraceImage;
-      imageMemoryBarrier.subresourceRange = subresourceRange;
-      imageMemoryBarrier.srcAccessMask = 0;
-      imageMemoryBarrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-
-      vkCmdPipelineBarrier(this->commandBufferList[x], VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0, NULL, 0, NULL, 1, &imageMemoryBarrier);
-    }
-
-    {
-      VkImageSubresourceLayers subresourceLayers = {};
-      subresourceLayers.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-      subresourceLayers.mipLevel = 0;
-      subresourceLayers.baseArrayLayer = 0;
-      subresourceLayers.layerCount = 1;
-
-      VkOffset3D offset = {};
-      offset.x = 0;
-      offset.y = 0;
-      offset.z = 0;
-
-      VkExtent3D extent = {};
-      extent.width = 800;
-      extent.height = 600;
-      extent.depth = 1;
-
-      VkImageCopy imageCopy = {};
-      imageCopy.srcSubresource = subresourceLayers;
-      imageCopy.srcOffset = offset;
-      imageCopy.dstSubresource = subresourceLayers;
-      imageCopy.dstOffset = offset;
-      imageCopy.extent = extent;
-  
-      vkCmdCopyImage(this->commandBufferList[x], this->swapchainImageList[x], VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, this->rayTraceImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &imageCopy);
-    }
-
-    { 
-      VkImageSubresourceRange subresourceRange = {};
-      subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-      subresourceRange.baseMipLevel = 0;
-      subresourceRange.levelCount = 1;
-      subresourceRange.baseArrayLayer = 0;
-      subresourceRange.layerCount = 1;
-
-      VkImageMemoryBarrier imageMemoryBarrier = {};
-      imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-      imageMemoryBarrier.pNext = NULL;
-      imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-      imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-      imageMemoryBarrier.image = this->swapchainImageList[x];
-      imageMemoryBarrier.subresourceRange = subresourceRange;
-      imageMemoryBarrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
-      imageMemoryBarrier.dstAccessMask = 0;
-
-      vkCmdPipelineBarrier(this->commandBufferList[x], VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0, NULL, 0, NULL, 1, &imageMemoryBarrier);
-    }
-
-    { 
-      VkImageSubresourceRange subresourceRange = {};
-      subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-      subresourceRange.baseMipLevel = 0;
-      subresourceRange.levelCount = 1;
-      subresourceRange.baseArrayLayer = 0;
-      subresourceRange.layerCount = 1;
-
-      VkImageMemoryBarrier imageMemoryBarrier = {};
-      imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-      imageMemoryBarrier.pNext = NULL;
-      imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-      imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_GENERAL;
-      imageMemoryBarrier.image = this->rayTraceImage;
-      imageMemoryBarrier.subresourceRange = subresourceRange;
-      imageMemoryBarrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-      imageMemoryBarrier.dstAccessMask = 0;
-
-      vkCmdPipelineBarrier(this->commandBufferList[x], VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0, NULL, 0, NULL, 1, &imageMemoryBarrier);
-    }
-
-    if (vkEndCommandBuffer(this->commandBufferList[x]) != VK_SUCCESS) {
-      printf("failed to end recording command buffer for image #%d\n", x);
-    }
-  }
-}
-
 void Device::createSynchronizationObjects() {
   this->imageAvailableSemaphoreList.resize(this->framesInFlight);
   this->renderFinishedSemaphoreList.resize(this->framesInFlight);
@@ -732,7 +583,7 @@ void Device::updateCameraUniformBuffer(CameraUniform camera) {
   vkUnmapMemory(this->logicalDevice, this->cameraUniformBufferMemory);
 }
 
-void Device::drawFrame(CameraUniform camera) {
+void Device::drawFrame(CameraUniform camera, std::vector<VkCommandBuffer> commandBufferList) {
   vkWaitForFences(this->logicalDevice, 1, &this->inFlightFenceList[this->currentFrame], VK_TRUE, UINT64_MAX);
     
   uint32_t imageIndex;
@@ -755,7 +606,7 @@ void Device::drawFrame(CameraUniform camera) {
   submitInfo.pWaitDstStageMask = waitStages;
 
   submitInfo.commandBufferCount = 1;
-  submitInfo.pCommandBuffers = &this->commandBufferList[imageIndex];
+  submitInfo.pCommandBuffers = &commandBufferList[imageIndex];
 
   VkSemaphore signalSemaphores[1] = {this->renderFinishedSemaphoreList[this->currentFrame]};
   submitInfo.signalSemaphoreCount = 1;

@@ -216,27 +216,26 @@ Renderer::Renderer(std::vector<Model*> modelList, Camera* camera) {
                                          displayDevice->getSwapchainExtent(),
                                          displayDevice->getRenderPass());
 
-  std::vector<VkBuffer> vertexBufferList = {modelList[0]->getVertexBuffer(displayDevice)};
-  std::vector<VkBuffer> indexBufferList = {modelList[0]->getIndexBuffer(displayDevice)};
-  std::vector<uint32_t> primitiveCountList = {modelList[0]->getPrimitiveCount()};
+  this->commandBufferManager = new CommandBufferManager();
+  this->commandBufferManager->initializeContainerOnDevice(displayDevice);
 
-  displayDevice->createCommandBuffers(vertexBufferList,
-                                      indexBufferList,
-                                      primitiveCountList,
-                                      this->graphicsPipeline->getPipeline(displayDevice), 
-                                      this->graphicsPipeline->getPipelineLayout(displayDevice), 
-                                      this->descriptorManager->getDescriptorSetListReference(displayDevice));
+  this->commandBufferManager->createCommandBuffers(displayDevice, 
+                                                   instanceManager->getInstanceList(displayDevice), 
+                                                   this->graphicsPipeline->getPipeline(displayDevice), 
+                                                   this->graphicsPipeline->getPipelineLayout(displayDevice), 
+                                                   this->descriptorManager->getDescriptorSetListReference(displayDevice));
 
   displayDevice->createSynchronizationObjects();
 
   while (!glfwWindowShouldClose(this->window->getWindow())) {
     glfwPollEvents();
-    displayDevice->drawFrame(camera->getUniform());
+    displayDevice->drawFrame(camera->getUniform(), this->commandBufferManager->getCommandBufferList(displayDevice));
     camera->update();
   }
 }
 
 Renderer::~Renderer() {
+  delete this->commandBufferManager;
   delete this->graphicsPipeline;
   delete this->descriptorManager;
   delete this->accelerationStructureManager;
