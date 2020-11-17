@@ -531,8 +531,8 @@ void Device::createUniformBuffers(uint32_t instanceCount, std::vector<float> tot
   createBuffer(cameraBufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &this->cameraUniformBuffer, &this->cameraUniformBufferMemory);
 
   struct InstanceDescriptionContainer {
-    uint32_t instanceCount; int padA[3];
-    float transformMatrix[256];
+    alignas(4)  uint32_t instanceCount; 
+    alignas(16) float transformMatrix[256];
   };
 
   InstanceDescriptionContainer instanceDescriptionContainer = {

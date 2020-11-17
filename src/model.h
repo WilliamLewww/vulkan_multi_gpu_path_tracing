@@ -10,10 +10,10 @@
 #include "buffer.h"
 
 struct Material {
-  float ambient[3]; int padA;
-  float diffuse[3]; int padB;
-  float specular[3]; int padC;
-  float emission[3]; int padD;
+  alignas(16) float ambient[3];
+  alignas(16) float diffuse[3];
+  alignas(16) float specular[3];
+  alignas(16) float emission[3];
 };
 
 struct LightContainer {
