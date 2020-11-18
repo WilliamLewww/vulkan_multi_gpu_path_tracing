@@ -530,24 +530,16 @@ void Device::createUniformBuffers(uint32_t instanceCount, std::vector<float> tot
   VkDeviceSize cameraBufferSize = sizeof(CameraUniform);
   createBuffer(cameraBufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &this->cameraUniformBuffer, &this->cameraUniformBufferMemory);
 
-  struct InstanceDescriptionContainer {
-    alignas(4)  uint32_t instanceCount; 
-    alignas(16) float transformMatrix[256];
-  };
+  float* test = (float*)malloc(256);
+  memcpy(test, &instanceCount, sizeof(uint32_t));
+  memcpy(20 + test, totalTransformBuffer.data(), sizeof(float) * 16);
 
-  InstanceDescriptionContainer instanceDescriptionContainer = {
-    .instanceCount = instanceCount,
-    .transformMatrix = {}
-  };
-
-  memcpy(instanceDescriptionContainer.transformMatrix, totalTransformBuffer.data(), sizeof(float) * 256);
-
-  VkDeviceSize transformBufferSize = sizeof(InstanceDescriptionContainer);
+  VkDeviceSize transformBufferSize = 256;
   createBuffer(transformBufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &this->transformUniformBuffer, &this->transformUniformBufferMemory);
 
   void* data;
   vkMapMemory(this->logicalDevice, this->transformUniformBufferMemory, 0, transformBufferSize, 0, &data);
-  memcpy(data, &instanceDescriptionContainer, transformBufferSize);
+  memcpy(data, test, transformBufferSize);
   vkUnmapMemory(this->logicalDevice, this->transformUniformBufferMemory);
 }
 

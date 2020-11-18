@@ -17,7 +17,8 @@ layout(binding = 0, set = 0) uniform Camera {
 
 layout(binding = 1, set = 0) uniform InstanceDescriptionContainer {
   uint instanceCount;
-  mat4 transformMatrix[1];
+  float test[4];
+  mat4 transformMatrix[16];
 } instanceDescriptionContainer;
 
 void main() {
