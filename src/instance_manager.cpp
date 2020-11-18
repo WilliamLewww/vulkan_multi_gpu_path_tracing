@@ -32,15 +32,28 @@ uint32_t InstanceManager::getInstanceCount(Device* device) {
 }
 
 std::vector<uint32_t> InstanceManager::getVertexOffsetList(Device* device) {
-  return this->deviceMap[device].vertexOffsetList;
+  std::vector<uint32_t> vertexOffsetList;
+
+  for (int x = 0; x < this->deviceMap[device].modelInstanceList.size(); x++) {
+    vertexOffsetList.push_back(this->deviceMap[device].vertexOffsetList[this->deviceMap[device].modelInstanceList[x].modelIndex]);
+  }
+
+  return vertexOffsetList;
 }
 
 std::vector<uint32_t> InstanceManager::getIndexOffsetList(Device* device) {
-  return this->deviceMap[device].indexOffsetList;
+  std::vector<uint32_t> indexOffsetList;
+
+  for (int x = 0; x < this->deviceMap[device].modelInstanceList.size(); x++) {
+    indexOffsetList.push_back(this->deviceMap[device].indexOffsetList[this->deviceMap[device].modelInstanceList[x].modelIndex]);
+  }
+
+  return indexOffsetList;
 }
 
 void InstanceManager::initializeContainerOnDevice(Device* device, std::vector<Model*> modelList) {
   this->deviceMap.insert(std::pair<Device*, DeviceContainer>(device, DeviceContainer()));
+  this->deviceMap[device].modelList = modelList;
 
   for (int x = 0; x < modelList.size(); x++) {
     if (x == 0) {
@@ -54,7 +67,7 @@ void InstanceManager::initializeContainerOnDevice(Device* device, std::vector<Mo
   }
 }
 
-void InstanceManager::addInstance(Device* device, Model* model, uint32_t modelIndex, uint32_t instanceIndex, float* transformationMatrix) {
+void InstanceManager::addInstance(Device* device, uint32_t modelIndex, uint32_t instanceIndex, float* transformationMatrix) {
   Transformation transformation;
 
   if (transformationMatrix == NULL) {
@@ -69,11 +82,11 @@ void InstanceManager::addInstance(Device* device, Model* model, uint32_t modelIn
     .instanceIndex = instanceIndex,
     .transformation = transformation,
 
-    .vertexBuffer = model->getVertexBuffer(device),
-    .indexBuffer = model->getIndexBuffer(device),
+    .vertexBuffer = this->deviceMap[device].modelList[modelIndex]->getVertexBuffer(device),
+    .indexBuffer = this->deviceMap[device].modelList[modelIndex]->getIndexBuffer(device),
 
-    .primitiveCount = model->getPrimitiveCount(),
-    .vertexCount = model->getVertexCount()
+    .primitiveCount = this->deviceMap[device].modelList[modelIndex]->getPrimitiveCount(),
+    .vertexCount = this->deviceMap[device].modelList[modelIndex]->getVertexCount()
   };
 
   this->deviceMap[device].modelInstanceList.push_back(modelInstance);
@@ -83,6 +96,8 @@ void InstanceManager::print() {
   printf("==========Instance Manager==========\n");
   for (std::pair<Device*, DeviceContainer> pair : this->deviceMap) {
     printf("  Device: %p\n", pair.first);
+    std::vector<uint32_t> vertexOffsetList = this->getVertexOffsetList(pair.first);
+    std::vector<uint32_t> indexOffsetList = this->getIndexOffsetList(pair.first);
     for (int x = 0; x < pair.second.modelInstanceList.size(); x++) {
       float* transformationMatrix = pair.second.modelInstanceList[x].transformation.getTransformMatrix();
 
@@ -103,8 +118,10 @@ void InstanceManager::print() {
 
       printf("    Instance Index: %d\n", pair.second.modelInstanceList[x].instanceIndex);
       printf("      Model Index: %d\n", pair.second.modelInstanceList[x].modelIndex);
-      printf("      Primitive Count: %d\n", pair.second.modelInstanceList[x].primitiveCount);
-      printf("      Transformation:\n");
+      printf("      Primitive Count: %ld\n", pair.second.modelInstanceList[x].primitiveCount);
+      printf("      Vertex Offset: %ld\n", vertexOffsetList[x]);
+      printf("      Index Offset: %ld\n", indexOffsetList[x]);
+      printf("      Transformation: \n");
       printf("%s", transformationString.c_str());
     }
   }

@@ -40,7 +40,7 @@ Renderer::Renderer(std::vector<Model*> modelList, Camera* camera) {
   this->instanceManager = new InstanceManager();
   this->instanceManager->initializeContainerOnDevice(displayDevice, modelList);
 
-  this->instanceManager->addInstance(displayDevice, modelList[0], 0, 0);
+  this->instanceManager->addInstance(displayDevice, 0, 0);
 
   this->instanceManager->print();
 

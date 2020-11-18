@@ -26,6 +26,7 @@ private:
     std::vector<ModelInstance> modelInstanceList;
     std::vector<uint32_t> vertexOffsetList;
     std::vector<uint32_t> indexOffsetList;
+    std::vector<Model*> modelList;
   };
   std::map<Device*, DeviceContainer> deviceMap;
 public:
@@ -42,7 +43,7 @@ public:
 
   void initializeContainerOnDevice(Device* device, std::vector<Model*> modelList);
 
-  void addInstance(Device* device, Model* model, uint32_t modelIndex, uint32_t instanceIndex, float* transformationMatrix = NULL);
+  void addInstance(Device* device, uint32_t modelIndex, uint32_t instanceIndex, float* transformationMatrix = NULL);
 
   void print();
 };
