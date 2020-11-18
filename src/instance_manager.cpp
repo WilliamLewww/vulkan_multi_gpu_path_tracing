@@ -31,6 +31,14 @@ uint32_t InstanceManager::getInstanceCount(Device* device) {
   return this->deviceMap[device].modelInstanceList.size();
 }
 
+std::vector<uint32_t> InstanceManager::getVertexOffsetList(Device* device) {
+  return this->deviceMap[device].vertexOffsetList;
+}
+
+std::vector<uint32_t> InstanceManager::getIndexOffsetList(Device* device) {
+  return this->deviceMap[device].indexOffsetList;
+}
+
 void InstanceManager::initializeContainerOnDevice(Device* device, std::vector<Model*> modelList) {
   this->deviceMap.insert(std::pair<Device*, DeviceContainer>(device, DeviceContainer()));
 

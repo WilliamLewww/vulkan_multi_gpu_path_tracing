@@ -37,6 +37,9 @@ public:
   std::vector<float> getTotalTransformBuffer(Device* device);
   uint32_t getInstanceCount(Device* device);
 
+  std::vector<uint32_t> getVertexOffsetList(Device* device);
+  std::vector<uint32_t> getIndexOffsetList(Device* device);
+
   void initializeContainerOnDevice(Device* device, std::vector<Model*> modelList);
 
   void addInstance(Device* device, Model* model, uint32_t modelIndex, uint32_t instanceIndex, float* transformationMatrix = NULL);
