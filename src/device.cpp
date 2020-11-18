@@ -530,11 +530,11 @@ void Device::createUniformBuffers(uint32_t instanceCount, std::vector<float> tot
   VkDeviceSize cameraBufferSize = sizeof(CameraUniform);
   createBuffer(cameraBufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &this->cameraUniformBuffer, &this->cameraUniformBufferMemory);
 
-  float* test = (float*)malloc(256);
+  float* test = (float*)malloc(512);
   memcpy(test, &instanceCount, sizeof(uint32_t));
-  memcpy(20 + test, totalTransformBuffer.data(), sizeof(float) * 16);
+  memcpy(68 + test, totalTransformBuffer.data(), sizeof(float) * 16);
 
-  VkDeviceSize transformBufferSize = 256;
+  VkDeviceSize transformBufferSize = 512;
   createBuffer(transformBufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &this->transformUniformBuffer, &this->transformUniformBufferMemory);
 
   void* data;

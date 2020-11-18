@@ -28,8 +28,9 @@ layout(binding = 0, set = 0) uniform Camera {
 
 layout(binding = 1, set = 0) uniform InstanceDescriptionContainer {
   uint instanceCount;
-  float test[4];
-  mat4 transformMatrix[16];
+  float vertexOffsets[8];
+  float indexOffsets[8];
+  mat4 transformMatrix[8];
 } instanceDescriptionContainer;
 
 layout(binding = 2, set = 0) uniform accelerationStructureEXT topLevelAS;
