@@ -94,7 +94,7 @@ public:
   void createFramebuffers();
 
   void createTextures();
-  void createUniformBuffers(uint32_t instanceCount, std::vector<float> totalTransformBuffer);
+  void createUniformBuffers(uint32_t instanceCount, std::vector<uint32_t> vertexOffsetList, std::vector<uint32_t> indexOffsetList, std::vector<float> totalTransformList);
 
   void createSynchronizationObjects();
 

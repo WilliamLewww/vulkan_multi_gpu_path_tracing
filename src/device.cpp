@@ -526,13 +526,15 @@ void Device::createTextures() {
   vkFreeCommandBuffers(this->logicalDevice, this->commandPool, 1, &commandBuffer);
 }
 
-void Device::createUniformBuffers(uint32_t instanceCount, std::vector<float> totalTransformBuffer) {
+void Device::createUniformBuffers(uint32_t instanceCount, std::vector<uint32_t> vertexOffsetList, std::vector<uint32_t> indexOffsetList, std::vector<float> totalTransformList) {
   VkDeviceSize cameraBufferSize = sizeof(CameraUniform);
   createBuffer(cameraBufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &this->cameraUniformBuffer, &this->cameraUniformBufferMemory);
 
   float* test = (float*)malloc(512);
   memcpy(test, &instanceCount, sizeof(uint32_t));
-  memcpy(68 + test, totalTransformBuffer.data(), sizeof(float) * 16);
+  memcpy(4 + test, vertexOffsetList.data(), sizeof(uint32_t) * 8);
+  memcpy(36 + test, indexOffsetList.data(), sizeof(uint32_t) * 8);
+  memcpy(68 + test, totalTransformList.data(), sizeof(float) * 16);
 
   VkDeviceSize transformBufferSize = 512;
   createBuffer(transformBufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &this->transformUniformBuffer, &this->transformUniformBufferMemory);

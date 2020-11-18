@@ -44,7 +44,10 @@ Renderer::Renderer(std::vector<Model*> modelList, Camera* camera) {
 
   this->instanceManager->print();
 
-  displayDevice->createUniformBuffers(this->instanceManager->getInstanceCount(displayDevice), this->instanceManager->getTotalTransformBuffer(displayDevice));
+  displayDevice->createUniformBuffers(this->instanceManager->getInstanceCount(displayDevice), 
+                                      this->instanceManager->getVertexOffsetList(displayDevice),
+                                      this->instanceManager->getIndexOffsetList(displayDevice),
+                                      this->instanceManager->getTotalTransformBuffer(displayDevice));
 
   this->accelerationStructureManager = new AccelerationStructureManager();
   this->accelerationStructureManager->initializeContainerOnDevice(displayDevice);
