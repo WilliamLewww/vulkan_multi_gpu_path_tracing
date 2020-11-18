@@ -24,6 +24,8 @@ class InstanceManager {
 private:
   struct DeviceContainer {
     std::vector<ModelInstance> modelInstanceList;
+    std::vector<uint32_t> vertexOffsetList;
+    std::vector<uint32_t> indexOffsetList;
   };
   std::map<Device*, DeviceContainer> deviceMap;
 public:
@@ -35,7 +37,7 @@ public:
   std::vector<float> getTotalTransformBuffer(Device* device);
   uint32_t getInstanceCount(Device* device);
 
-  void initializeContainerOnDevice(Device* device);
+  void initializeContainerOnDevice(Device* device, std::vector<Model*> modelList);
 
   void addInstance(Device* device, Model* model, uint32_t modelIndex, uint32_t instanceIndex, float* transformationMatrix = NULL);
 

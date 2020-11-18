@@ -38,7 +38,7 @@ Renderer::Renderer(std::vector<Model*> modelList, Camera* camera) {
   modelList[1]->initializeOnDevice(displayDevice);
 
   this->instanceManager = new InstanceManager();
-  this->instanceManager->initializeContainerOnDevice(displayDevice);
+  this->instanceManager->initializeContainerOnDevice(displayDevice, modelList);
 
   this->instanceManager->addInstance(displayDevice, modelList[0], 0, 0);
 

@@ -31,8 +31,19 @@ uint32_t InstanceManager::getInstanceCount(Device* device) {
   return this->deviceMap[device].modelInstanceList.size();
 }
 
-void InstanceManager::initializeContainerOnDevice(Device* device) {
+void InstanceManager::initializeContainerOnDevice(Device* device, std::vector<Model*> modelList) {
   this->deviceMap.insert(std::pair<Device*, DeviceContainer>(device, DeviceContainer()));
+
+  for (int x = 0; x < modelList.size(); x++) {
+    if (x == 0) {
+      this->deviceMap[device].vertexOffsetList.push_back(0);
+      this->deviceMap[device].indexOffsetList.push_back(0);
+    }
+    else {
+      this->deviceMap[device].vertexOffsetList.push_back(modelList[x - 1]->getVertexCount());
+      this->deviceMap[device].indexOffsetList.push_back(modelList[x - 1]->getTotalIndexCount());
+    }
+  }
 }
 
 void InstanceManager::addInstance(Device* device, Model* model, uint32_t modelIndex, uint32_t instanceIndex, float* transformationMatrix) {
