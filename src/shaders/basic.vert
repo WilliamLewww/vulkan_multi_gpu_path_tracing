@@ -19,7 +19,7 @@ layout(binding = 1, set = 0) uniform InstanceDescriptionContainer {
   uint instanceCount;
   uint vertexOffsets[8];
   uint indexOffsets[8];
-  mat4 transformMatrix[16];
+  mat4 transformMatrix[8];
 } instanceDescriptionContainer;
 
 void main() {
