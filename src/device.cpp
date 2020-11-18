@@ -532,9 +532,9 @@ void Device::createUniformBuffers(uint32_t instanceCount, std::vector<uint32_t> 
 
   float* test = (float*)malloc(512);
   memcpy(test, &instanceCount, sizeof(uint32_t));
-  memcpy(4 + test, vertexOffsetList.data(), sizeof(uint32_t) * 8);
-  memcpy(36 + test, indexOffsetList.data(), sizeof(uint32_t) * 8);
-  memcpy(68 + test, totalTransformList.data(), sizeof(float) * 16);
+  memcpy(4 + test, vertexOffsetList.data(), sizeof(uint32_t) * vertexOffsetList.size());
+  memcpy(36 + test, indexOffsetList.data(), sizeof(uint32_t) * indexOffsetList.size());
+  memcpy(68 + test, totalTransformList.data(), sizeof(float) * totalTransformList.size());
 
   VkDeviceSize transformBufferSize = 512;
   createBuffer(transformBufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &this->transformUniformBuffer, &this->transformUniformBufferMemory);
