@@ -8,11 +8,6 @@
 #include "transformation.h"
 #include "model.h"
 
-struct InstanceDescriptionContainer {
-  alignas(4)  uint32_t instanceCount; 
-  alignas(16) float transformMatrix[256];
-};
-
 struct ModelInstance {
   uint32_t modelIndex;
   uint32_t instanceIndex;
@@ -30,7 +25,7 @@ private:
   struct DeviceContainer {
     std::vector<ModelInstance> modelInstanceList;
   };
-  std::map<Device*, std::vector<ModelInstance>> modelInstanceMap;
+  std::map<Device*, DeviceContainer> deviceMap;
 public:
   InstanceManager();
   ~InstanceManager();

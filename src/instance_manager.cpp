@@ -9,15 +9,15 @@ InstanceManager::~InstanceManager() {
 }
 
 ModelInstance InstanceManager::getInstance(Device* device, uint32_t index) {
-  return this->modelInstanceMap[device][index];
+  return this->deviceMap[device].modelInstanceList[index];
 }
 
 std::vector<ModelInstance> InstanceManager::getInstanceList(Device* device) {
-  return this->modelInstanceMap[device];
+  return this->deviceMap[device].modelInstanceList;
 }
 
 std::vector<float> InstanceManager::getTotalTransformBuffer(Device* device) {
-  std::vector<ModelInstance>& modelInstanceList = this->modelInstanceMap[device];
+  std::vector<ModelInstance>& modelInstanceList = this->deviceMap[device].modelInstanceList;
 
   std::vector<float> transformBuffer(modelInstanceList.size() * 16);
   for (int x = 0; x < modelInstanceList.size(); x++) {
@@ -28,11 +28,11 @@ std::vector<float> InstanceManager::getTotalTransformBuffer(Device* device) {
 }
 
 uint32_t InstanceManager::getInstanceCount(Device* device) {
-  return this->modelInstanceMap[device].size();
+  return this->deviceMap[device].modelInstanceList.size();
 }
 
 void InstanceManager::initializeContainerOnDevice(Device* device) {
-  this->modelInstanceMap.insert(std::pair<Device*, std::vector<ModelInstance>>(device, std::vector<ModelInstance>()));
+  this->deviceMap.insert(std::pair<Device*, DeviceContainer>(device, DeviceContainer()));
 }
 
 void InstanceManager::addInstance(Device* device, Model* model, uint32_t modelIndex, uint32_t instanceIndex, float* transformationMatrix) {
@@ -57,15 +57,15 @@ void InstanceManager::addInstance(Device* device, Model* model, uint32_t modelIn
     .vertexCount = model->getVertexCount()
   };
 
-  this->modelInstanceMap[device].push_back(modelInstance);
+  this->deviceMap[device].modelInstanceList.push_back(modelInstance);
 }
 
 void InstanceManager::print() {
   printf("==========Instance Manager==========\n");
-  for (std::pair<Device*, std::vector<ModelInstance>> pair : this->modelInstanceMap) {
+  for (std::pair<Device*, DeviceContainer> pair : this->deviceMap) {
     printf("  Device: %p\n", pair.first);
-    for (int x = 0; x < pair.second.size(); x++) {
-      float* transformationMatrix = pair.second[x].transformation.getTransformMatrix();
+    for (int x = 0; x < pair.second.modelInstanceList.size(); x++) {
+      float* transformationMatrix = pair.second.modelInstanceList[x].transformation.getTransformMatrix();
 
       std::string transformationString = "        [";
       for (int x = 0; x < 16; x++) {
@@ -82,9 +82,9 @@ void InstanceManager::print() {
       }
       transformationString += "\n";
 
-      printf("    Instance Index: %d\n", pair.second[x].instanceIndex);
-      printf("      Model Index: %d\n", pair.second[x].modelIndex);
-      printf("      Primitive Count: %d\n", pair.second[x].primitiveCount);
+      printf("    Instance Index: %d\n", pair.second.modelInstanceList[x].instanceIndex);
+      printf("      Model Index: %d\n", pair.second.modelInstanceList[x].modelIndex);
+      printf("      Primitive Count: %d\n", pair.second.modelInstanceList[x].primitiveCount);
       printf("      Transformation:\n");
       printf("%s", transformationString.c_str());
     }
