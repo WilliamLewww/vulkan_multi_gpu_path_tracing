@@ -17,8 +17,8 @@ struct Material {
 };
 
 struct LightContainer {
-  int count;
-  int indices[64];
+  alignas(4) int count;
+  alignas(4) int indices[64];
 };
 
 class Model {
