@@ -15,14 +15,17 @@ DeviceFramebuffers::DeviceFramebuffers(VkDevice logicalDevice,
       depthImageView
     };
 
-    VkFramebufferCreateInfo framebufferCreateInfo = {};
-    framebufferCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-    framebufferCreateInfo.renderPass = renderPass;
-    framebufferCreateInfo.attachmentCount = 2;
-    framebufferCreateInfo.pAttachments = attachments;
-    framebufferCreateInfo.width = swapchainExtent.width;
-    framebufferCreateInfo.height = swapchainExtent.height;
-    framebufferCreateInfo.layers = 1;
+    VkFramebufferCreateInfo framebufferCreateInfo = {
+      .sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,
+      .pNext = NULL,
+      .flags = 0,
+      .renderPass = renderPass,
+      .attachmentCount = 2,
+      .pAttachments = attachments,
+      .width = swapchainExtent.width,
+      .height = swapchainExtent.height,
+      .layers = 1
+    };
 
     if (vkCreateFramebuffer(logicalDevice, &framebufferCreateInfo, NULL, &this->framebufferList[x]) != VK_SUCCESS) {
       printf("failed to create swapchain framebuffer #%d\n", x);
