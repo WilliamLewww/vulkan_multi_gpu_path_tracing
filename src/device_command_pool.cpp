@@ -16,3 +16,7 @@ DeviceCommandPool::DeviceCommandPool(VkDevice logicalDevice, uint32_t queueIndex
 DeviceCommandPool::~DeviceCommandPool() {
 
 }
+
+VkCommandPool DeviceCommandPool::getCommandPool() {
+  return this->commandPool;
+}

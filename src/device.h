@@ -11,6 +11,7 @@
 #include "device_render_pass.h"
 #include "device_depth_resource.h"
 #include "device_framebuffers.h"
+#include "device_textures.h"
 
 class Device {
 private:
@@ -27,6 +28,7 @@ private:
   DeviceRenderPass* deviceRenderPass;
   DeviceDepthResource* deviceDepthResource;
   DeviceFramebuffers* deviceFramebuffers;
+  DeviceTextures* deviceTextures;
 public:
   Device(VkPhysicalDevice physicalDevice);
   ~Device();
@@ -38,4 +40,5 @@ public:
   void createRenderPass();
   void createDepthResource();
   void createFramebuffers();
+  void createTextures();
 };

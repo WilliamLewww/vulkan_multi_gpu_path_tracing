@@ -9,4 +9,6 @@ private:
 public:
   DeviceCommandPool(VkDevice logicalDevice, uint32_t queueIndex);
   ~DeviceCommandPool();
+
+  VkCommandPool getCommandPool();
 };

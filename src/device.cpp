@@ -109,3 +109,11 @@ void Device::createFramebuffers() {
                                                     this->deviceRenderPass->getRenderPass(),
                                                     this->deviceDepthResource->getDepthImageView());
 }
+
+void Device::createTextures() {
+  this->deviceTextures = new DeviceTextures(this->logicalDevice, 
+                                            this->physicalDeviceMemoryProperties, 
+                                            this->deviceSwapchain->getSwapchainImageFormat(), 
+                                            this->deviceCommandPool->getCommandPool(), 
+                                            this->deviceQueue->getGraphicsQueue());
+}

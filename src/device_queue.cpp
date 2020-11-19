@@ -52,6 +52,18 @@ uint32_t DeviceQueue::getComputeQueueIndex() {
   return this->computeQueueIndex;
 }
 
+VkQueue DeviceQueue::getGraphicsQueue() {
+  return this->graphicsQueue;
+}
+
+VkQueue DeviceQueue::getPresentQueue() {
+  return this->presentQueue;
+}
+
+VkQueue DeviceQueue::getComputeQueue() {
+  return this->computeQueue;
+}
+
 std::map<uint32_t, uint32_t> DeviceQueue::getQueueFrequencyMap() {
   return this->queueFrequencyMap;
 }

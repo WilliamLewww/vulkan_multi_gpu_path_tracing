@@ -23,6 +23,7 @@ Renderer::Renderer(VkInstance vulkanInstance, VkSurfaceKHR surface) {
   displayDevice->createRenderPass();
   displayDevice->createDepthResource();
   displayDevice->createFramebuffers();
+  displayDevice->createTextures();
 }
 
 Renderer::~Renderer() {

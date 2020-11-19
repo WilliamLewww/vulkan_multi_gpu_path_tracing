@@ -25,6 +25,10 @@ public:
   uint32_t getPresentQueueIndex();
   uint32_t getComputeQueueIndex();
 
+  VkQueue getGraphicsQueue();
+  VkQueue getPresentQueue();
+  VkQueue getComputeQueue();
+
   std::map<uint32_t, uint32_t> getQueueFrequencyMap();
 
   void setQueueHandles(VkDevice logicalDevice);
