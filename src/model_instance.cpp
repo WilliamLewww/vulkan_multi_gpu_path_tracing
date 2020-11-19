@@ -5,6 +5,8 @@ ModelInstance::ModelInstance(Model* model, uint32_t modelIndex, uint32_t instanc
   
   this->modelIndex = modelIndex;
   this->instanceIndex = instanceIndex;
+
+  this->transformation = Transformation();
 }
 
 ModelInstance::~ModelInstance() {

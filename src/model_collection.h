@@ -11,4 +11,6 @@ private:
 public:
   ModelCollection(std::vector<std::string> fileNameList);
   ~ModelCollection();
+
+  Model* getModel(int index);
 };

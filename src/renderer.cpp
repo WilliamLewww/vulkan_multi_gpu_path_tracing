@@ -1,6 +1,6 @@
 #include "renderer.h"
 
-Renderer::Renderer(VkInstance vulkanInstance, VkSurfaceKHR surface) {
+Renderer::Renderer(VkInstance vulkanInstance, VkSurfaceKHR surface, ModelCollection* modelCollection) {
   this->deviceCollection = new DeviceCollection(vulkanInstance);
 
   Device* displayDevice = this->deviceCollection->getDevice(0);
@@ -24,6 +24,11 @@ Renderer::Renderer(VkInstance vulkanInstance, VkSurfaceKHR surface) {
   displayDevice->createDepthResource();
   displayDevice->createFramebuffers();
   displayDevice->createTextures();
+
+  std::map<Model*, uint32_t> modelFrequencyMap = {
+    {modelCollection->getModel(0), 2},
+    {modelCollection->getModel(1), 1}
+  };
 }
 
 Renderer::~Renderer() {

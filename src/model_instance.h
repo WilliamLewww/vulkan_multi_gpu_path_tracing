@@ -1,6 +1,7 @@
 #pragma once
 
 #include "model.h"
+#include "transformation.h"
 
 class ModelInstance {
 private:
@@ -8,7 +9,7 @@ private:
 
   uint32_t modelIndex;
   uint32_t instanceIndex;
-  // Transformation transformation;
+  Transformation transformation;
 public:
   ModelInstance(Model* model, uint32_t modelIndex, uint32_t instanceIndex);
   ~ModelInstance();

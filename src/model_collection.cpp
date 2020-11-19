@@ -11,3 +11,7 @@ ModelCollection::~ModelCollection() {
     delete this->modelList[x];
   }
 }
+
+Model* ModelCollection::getModel(int index) {
+  return this->modelList[index];
+}
