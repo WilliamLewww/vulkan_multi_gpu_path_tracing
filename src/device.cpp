@@ -68,3 +68,11 @@ void Device::createLogicalDevice(std::vector<const char*> extensions) {
 
   this->deviceQueue->setQueueHandles(this->logicalDevice);
 }
+
+void Device::createDeviceCommandPool() {
+  this->deviceCommandPool = new DeviceCommandPool(this->logicalDevice, this->deviceQueue->getGraphicsQueueIndex());
+}
+
+void Device::createDeviceSwapchain(VkSurfaceKHR surface) {
+  this->deviceSwapchain = new DeviceSwapchain(this->logicalDevice, this->physicalDevice, surface, this->deviceQueue->getGraphicsQueueIndex(), this->deviceQueue->getPresentQueueIndex());
+}
