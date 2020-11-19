@@ -13,9 +13,12 @@ Engine::Engine() {
   this->vulkanInstance = new VulkanInstance("Vulkan Multi-GPU Ray Tracing", instanceExtensionList, instanceLayerList, true);
 
   this->surface = new Surface(this->vulkanInstance->getVulkanInstance(), this->window->getWindow());
+
+  this->renderer = new Renderer(this->vulkanInstance->getVulkanInstance());
 }
 
 Engine::~Engine() {
+  delete this->renderer;
   delete this->surface;
   delete this->vulkanInstance;
   delete this->window;
