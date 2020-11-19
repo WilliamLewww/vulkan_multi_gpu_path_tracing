@@ -18,9 +18,10 @@ Renderer::Renderer(VkInstance vulkanInstance, VkSurfaceKHR surface) {
     "VK_KHR_maintenance1"
   };
   displayDevice->createLogicalDevice(deviceExtensionList);
-  displayDevice->createDeviceCommandPool();
-  displayDevice->createDeviceSwapchain(surface);
-  displayDevice->createDeviceRenderPass();
+  displayDevice->createCommandPool();
+  displayDevice->createSwapchain(surface);
+  displayDevice->createRenderPass();
+  displayDevice->createDepthResource();
 }
 
 Renderer::~Renderer() {

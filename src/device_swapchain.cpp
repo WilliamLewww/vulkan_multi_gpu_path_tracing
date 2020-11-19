@@ -104,3 +104,7 @@ DeviceSwapchain::~DeviceSwapchain() {
 VkFormat DeviceSwapchain::getSwapchainImageFormat() {
   return this->swapchainImageFormat;
 }
+
+VkExtent2D DeviceSwapchain::getSwapchainExtent() {
+  return this->swapchainExtent;
+}

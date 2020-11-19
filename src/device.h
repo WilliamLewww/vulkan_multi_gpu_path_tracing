@@ -9,6 +9,7 @@
 #include "device_command_pool.h"
 #include "device_swapchain.h"
 #include "device_render_pass.h"
+#include "device_depth_resource.h"
 
 class Device {
 private:
@@ -23,13 +24,15 @@ private:
   DeviceCommandPool* deviceCommandPool;
   DeviceSwapchain* deviceSwapchain;
   DeviceRenderPass* deviceRenderPass;
+  DeviceDepthResource* deviceDepthResource;
 public:
   Device(VkPhysicalDevice physicalDevice);
   ~Device();
 
   void initializeDeviceQueue(VkSurfaceKHR surface);
   void createLogicalDevice(std::vector<const char*> extensions);
-  void createDeviceCommandPool();
-  void createDeviceSwapchain(VkSurfaceKHR surface);
-  void createDeviceRenderPass();
+  void createCommandPool();
+  void createSwapchain(VkSurfaceKHR surface);
+  void createRenderPass();
+  void createDepthResource();
 };

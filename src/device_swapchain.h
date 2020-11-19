@@ -17,4 +17,5 @@ public:
   ~DeviceSwapchain();
 
   VkFormat getSwapchainImageFormat();
+  VkExtent2D getSwapchainExtent();
 };

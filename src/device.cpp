@@ -85,14 +85,18 @@ void Device::createLogicalDevice(std::vector<const char*> extensions) {
   this->deviceQueue->setQueueHandles(this->logicalDevice);
 }
 
-void Device::createDeviceCommandPool() {
+void Device::createCommandPool() {
   this->deviceCommandPool = new DeviceCommandPool(this->logicalDevice, this->deviceQueue->getGraphicsQueueIndex());
 }
 
-void Device::createDeviceSwapchain(VkSurfaceKHR surface) {
+void Device::createSwapchain(VkSurfaceKHR surface) {
   this->deviceSwapchain = new DeviceSwapchain(this->logicalDevice, this->physicalDevice, surface, this->deviceQueue->getGraphicsQueueIndex(), this->deviceQueue->getPresentQueueIndex());
 }
 
-void Device::createDeviceRenderPass() {
+void Device::createRenderPass() {
   this->deviceRenderPass = new DeviceRenderPass(this->logicalDevice, this->deviceSwapchain->getSwapchainImageFormat());
+}
+
+void Device::createDepthResource() {
+  this->deviceDepthResource = new DeviceDepthResource(this->logicalDevice, this->physicalDeviceMemoryProperties, this->deviceSwapchain->getSwapchainExtent());
 }
