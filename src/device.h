@@ -8,6 +8,7 @@
 #include "device_queue.h"
 #include "device_command_pool.h"
 #include "device_swapchain.h"
+#include "device_render_pass.h"
 
 class Device {
 private:
@@ -21,6 +22,7 @@ private:
   DeviceQueue* deviceQueue;
   DeviceCommandPool* deviceCommandPool;
   DeviceSwapchain* deviceSwapchain;
+  DeviceRenderPass* deviceRenderPass;
 public:
   Device(VkPhysicalDevice physicalDevice);
   ~Device();
@@ -29,4 +31,5 @@ public:
   void createLogicalDevice(std::vector<const char*> extensions);
   void createDeviceCommandPool();
   void createDeviceSwapchain(VkSurfaceKHR surface);
+  void createDeviceRenderPass();
 };

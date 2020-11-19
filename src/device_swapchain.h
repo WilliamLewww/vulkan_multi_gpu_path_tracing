@@ -15,4 +15,6 @@ private:
 public:
   DeviceSwapchain(VkDevice logicalDevice, VkPhysicalDevice physicalDevice, VkSurfaceKHR surface, uint32_t graphicsQueueIndex, uint32_t presentQueueIndex);
   ~DeviceSwapchain();
+
+  VkFormat getSwapchainImageFormat();
 };

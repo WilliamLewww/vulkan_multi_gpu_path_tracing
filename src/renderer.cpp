@@ -20,6 +20,7 @@ Renderer::Renderer(VkInstance vulkanInstance, VkSurfaceKHR surface) {
   displayDevice->createLogicalDevice(deviceExtensionList);
   displayDevice->createDeviceCommandPool();
   displayDevice->createDeviceSwapchain(surface);
+  displayDevice->createDeviceRenderPass();
 }
 
 Renderer::~Renderer() {

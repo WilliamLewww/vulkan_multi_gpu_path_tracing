@@ -76,3 +76,7 @@ void Device::createDeviceCommandPool() {
 void Device::createDeviceSwapchain(VkSurfaceKHR surface) {
   this->deviceSwapchain = new DeviceSwapchain(this->logicalDevice, this->physicalDevice, surface, this->deviceQueue->getGraphicsQueueIndex(), this->deviceQueue->getPresentQueueIndex());
 }
+
+void Device::createDeviceRenderPass() {
+  this->deviceRenderPass = new DeviceRenderPass(this->logicalDevice, this->deviceSwapchain->getSwapchainImageFormat());
+}

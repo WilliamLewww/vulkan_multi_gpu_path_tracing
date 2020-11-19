@@ -88,3 +88,7 @@ DeviceSwapchain::DeviceSwapchain(VkDevice logicalDevice, VkPhysicalDevice physic
 DeviceSwapchain::~DeviceSwapchain() {
 
 }
+
+VkFormat DeviceSwapchain::getSwapchainImageFormat() {
+  return this->swapchainImageFormat;
+}
