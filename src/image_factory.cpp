@@ -11,20 +11,27 @@ void ImageFactory::createImage(VkDevice logicalDevice,
                                VkImage* image, 
                                VkDeviceMemory* imageMemory) {
 
-  VkImageCreateInfo imageCreateInfo = {};
-  imageCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-  imageCreateInfo.imageType = VK_IMAGE_TYPE_2D;
-  imageCreateInfo.extent.width = width;
-  imageCreateInfo.extent.height = height;
-  imageCreateInfo.extent.depth = 1;
-  imageCreateInfo.mipLevels = 1;
-  imageCreateInfo.arrayLayers = 1;
-  imageCreateInfo.format = format;
-  imageCreateInfo.tiling = tiling;
-  imageCreateInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-  imageCreateInfo.usage = usageFlags;
-  imageCreateInfo.samples = VK_SAMPLE_COUNT_1_BIT;
-  imageCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+  VkImageCreateInfo imageCreateInfo = {
+    .sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
+    .pNext = NULL,
+    .flags = 0,
+    .imageType = VK_IMAGE_TYPE_2D,
+    .format = format,
+    .extent = {
+      .width = width,
+      .height = height,
+      .depth = 1
+    },
+    .mipLevels = 1,
+    .arrayLayers = 1,
+    .samples = VK_SAMPLE_COUNT_1_BIT,
+    .tiling = tiling,
+    .usage = usageFlags,
+    .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
+    .queueFamilyIndexCount = 0,
+    .pQueueFamilyIndices = NULL,
+    .initialLayout = VK_IMAGE_LAYOUT_UNDEFINED
+  };
 
   if (vkCreateImage(logicalDevice, &imageCreateInfo, NULL, image) != VK_SUCCESS) {
     printf("failed to create image\n");
@@ -33,9 +40,12 @@ void ImageFactory::createImage(VkDevice logicalDevice,
   VkMemoryRequirements memoryRequirements;
   vkGetImageMemoryRequirements(logicalDevice, *image, &memoryRequirements);
 
-  VkMemoryAllocateInfo memoryAllocateInfo = {};
-  memoryAllocateInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-  memoryAllocateInfo.allocationSize = memoryRequirements.size;
+  VkMemoryAllocateInfo memoryAllocateInfo = {
+    .sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
+    .pNext = NULL,
+    .allocationSize = memoryRequirements.size,
+    .memoryTypeIndex = 0
+  };
   
   uint32_t memoryTypeIndex = -1;
   for (int x = 0; x < physicalDeviceMemoryProperties.memoryTypeCount; x++) {
