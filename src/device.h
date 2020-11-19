@@ -2,6 +2,7 @@
 #define VK_ENABLE_BETA_EXTENSIONS
 
 #include <vulkan/vulkan.h>
+#include <map>
 #include <stdio.h>
 
 #include "device_queue.h"

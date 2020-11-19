@@ -14,17 +14,20 @@ DeviceQueue::DeviceQueue(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface) 
   for (int x = 0; x < queueFamilyCount; x++) {
     if (this->graphicsQueueIndex == -1 && queueFamilyPropertiesList[x].queueFlags & VK_QUEUE_GRAPHICS_BIT) {
       this->graphicsQueueIndex = x;
+      this->queueFrequencyMap[x] += 1;
     }
 
-    if (this->computeQueueIndex == -1 && this->graphicsQueueIndex != x && queueFamilyPropertiesList[x].queueFlags & VK_QUEUE_COMPUTE_BIT) {
+    if (this->computeQueueIndex == -1 && queueFamilyPropertiesList[x].queueFlags & VK_QUEUE_COMPUTE_BIT) {
       this->computeQueueIndex = x;
+      this->queueFrequencyMap[x] += 1;
     }
 
     VkBool32 isPresentSupported = 0;
     vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, x, surface, &isPresentSupported);
     
-    if (this->presentQueueIndex == -1 && this->graphicsQueueIndex != x && this->computeQueueIndex != x && isPresentSupported) {
+    if (this->presentQueueIndex == -1 && this->computeQueueIndex != x && isPresentSupported) {
       this->presentQueueIndex = x;
+      this->queueFrequencyMap[x] += 1;
     }
   
     if (this->graphicsQueueIndex != -1 && this->presentQueueIndex != -1 && this->computeQueueIndex != -1) {
@@ -47,6 +50,10 @@ uint32_t DeviceQueue::getPresentQueueIndex() {
 
 uint32_t DeviceQueue::getComputeQueueIndex() {
   return this->computeQueueIndex;
+}
+
+std::map<uint32_t, uint32_t> DeviceQueue::getQueueFrequencyMap() {
+  return this->queueFrequencyMap;
 }
 
 void DeviceQueue::setQueueHandles(VkDevice logicalDevice) {

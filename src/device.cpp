@@ -17,31 +17,25 @@ void Device::initializeDeviceQueue(VkSurfaceKHR surface) {
 }
 
 void Device::createLogicalDevice(std::vector<const char*> extensions) {
+  std::map<uint32_t, uint32_t> queueFrequencyMap = this->deviceQueue->getQueueFrequencyMap();
+
   float queuePriority = 1.0f;
-  uint32_t deviceQueueCreateInfoCount = 3;
+  uint32_t deviceQueueCreateInfoCount = queueFrequencyMap.size();
 
-  std::vector<VkDeviceQueueCreateInfo> deviceQueueCreateInfoList(deviceQueueCreateInfoCount);
+  std::vector<VkDeviceQueueCreateInfo> deviceQueueCreateInfoList;
 
-  deviceQueueCreateInfoList[0].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-  deviceQueueCreateInfoList[0].pNext = NULL;
-  deviceQueueCreateInfoList[0].flags = 0;
-  deviceQueueCreateInfoList[0].queueFamilyIndex = this->deviceQueue->getGraphicsQueueIndex();
-  deviceQueueCreateInfoList[0].queueCount = 1;
-  deviceQueueCreateInfoList[0].pQueuePriorities = &queuePriority;
- 
-  deviceQueueCreateInfoList[1].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-  deviceQueueCreateInfoList[1].pNext = NULL;
-  deviceQueueCreateInfoList[1].flags = 0;
-  deviceQueueCreateInfoList[1].queueFamilyIndex = this->deviceQueue->getPresentQueueIndex();
-  deviceQueueCreateInfoList[1].queueCount = 1;
-  deviceQueueCreateInfoList[1].pQueuePriorities = &queuePriority;
+  for (std::pair<uint32_t, uint32_t> pair : queueFrequencyMap) {
+    VkDeviceQueueCreateInfo deviceQueueCreateInfo = {
+      .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
+      .pNext = NULL,
+      .flags = 0,
+      .queueFamilyIndex = pair.first,
+      .queueCount = pair.second,
+      .pQueuePriorities = &queuePriority
+    };
 
-  deviceQueueCreateInfoList[2].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-  deviceQueueCreateInfoList[2].pNext = NULL;
-  deviceQueueCreateInfoList[2].flags = 0;
-  deviceQueueCreateInfoList[2].queueFamilyIndex = this->deviceQueue->getComputeQueueIndex();
-  deviceQueueCreateInfoList[2].queueCount = 1;
-  deviceQueueCreateInfoList[2].pQueuePriorities = &queuePriority;
+    deviceQueueCreateInfoList.push_back(deviceQueueCreateInfo);
+  }
 
   VkPhysicalDeviceBufferDeviceAddressFeaturesEXT bufferDeviceAddressFeatures = {};
   bufferDeviceAddressFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES_EXT;  

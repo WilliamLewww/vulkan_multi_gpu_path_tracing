@@ -2,6 +2,8 @@
 
 #include <vulkan/vulkan.h>
 #include <vector>
+#include <map>
+#include <stdio.h>
 
 class DeviceQueue {
 private:
@@ -13,6 +15,8 @@ private:
   VkQueue graphicsQueue;
   VkQueue presentQueue;
   VkQueue computeQueue;
+
+  std::map<uint32_t, uint32_t> queueFrequencyMap;
 public:
   DeviceQueue(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface);
   ~DeviceQueue();
@@ -20,6 +24,8 @@ public:
   uint32_t getGraphicsQueueIndex();
   uint32_t getPresentQueueIndex();
   uint32_t getComputeQueueIndex();
+
+  std::map<uint32_t, uint32_t> getQueueFrequencyMap();
 
   void setQueueHandles(VkDevice logicalDevice);
 };
