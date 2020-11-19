@@ -15,3 +15,7 @@ DeviceCollection::DeviceCollection(VkInstance vulkanInstance) {
 DeviceCollection::~DeviceCollection() {
 
 }
+
+Device* DeviceCollection::getDevice(int index) {
+  return this->deviceList[index];
+}

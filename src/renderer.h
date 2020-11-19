@@ -5,6 +5,6 @@ class Renderer {
 private:
   DeviceCollection* deviceCollection;
 public:
-  Renderer(VkInstance vulkanInstance);
+  Renderer(VkInstance vulkanInstance, VkSurfaceKHR surface);
   ~Renderer();
 };

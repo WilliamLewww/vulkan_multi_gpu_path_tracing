@@ -11,4 +11,6 @@ private:
 public:
   DeviceCollection(VkInstance vulkanInstance);
   ~DeviceCollection();
+
+  Device* getDevice(int index);
 };
