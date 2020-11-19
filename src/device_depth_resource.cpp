@@ -33,3 +33,7 @@ DeviceDepthResource::DeviceDepthResource(VkDevice logicalDevice, VkPhysicalDevic
 DeviceDepthResource::~DeviceDepthResource() {
 
 }
+
+VkImageView DeviceDepthResource::getDepthImageView() {
+  return this->depthImageView;
+}

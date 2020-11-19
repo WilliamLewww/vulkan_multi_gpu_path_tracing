@@ -13,4 +13,6 @@ private:
 public:
   DeviceDepthResource(VkDevice logicalDevice, VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties, VkExtent2D swapchainExtent);
   ~DeviceDepthResource();
+
+  VkImageView getDepthImageView();
 };

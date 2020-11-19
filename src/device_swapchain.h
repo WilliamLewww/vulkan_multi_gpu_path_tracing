@@ -16,6 +16,9 @@ public:
   DeviceSwapchain(VkDevice logicalDevice, VkPhysicalDevice physicalDevice, VkSurfaceKHR surface, uint32_t graphicsQueueIndex, uint32_t presentQueueIndex);
   ~DeviceSwapchain();
 
+  uint32_t getSwapchainImageCount();
   VkFormat getSwapchainImageFormat();
   VkExtent2D getSwapchainExtent();
+
+  std::vector<VkImageView> getSwapchainImageViewList();
 };

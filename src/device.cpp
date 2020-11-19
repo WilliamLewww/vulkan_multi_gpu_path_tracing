@@ -100,3 +100,12 @@ void Device::createRenderPass() {
 void Device::createDepthResource() {
   this->deviceDepthResource = new DeviceDepthResource(this->logicalDevice, this->physicalDeviceMemoryProperties, this->deviceSwapchain->getSwapchainExtent());
 }
+
+void Device::createFramebuffers() {
+  this->deviceFramebuffers = new DeviceFramebuffers(this->logicalDevice, 
+                                                    this->deviceSwapchain->getSwapchainImageCount(), 
+                                                    this->deviceSwapchain->getSwapchainExtent(),
+                                                    this->deviceSwapchain->getSwapchainImageViewList(),
+                                                    this->deviceRenderPass->getRenderPass(),
+                                                    this->deviceDepthResource->getDepthImageView());
+}

@@ -80,3 +80,7 @@ DeviceRenderPass::DeviceRenderPass(VkDevice logicalDevice, VkFormat swapchainIma
 DeviceRenderPass::~DeviceRenderPass() {
 
 }
+
+VkRenderPass DeviceRenderPass::getRenderPass() {
+  return this->renderPass;
+}

@@ -10,6 +10,7 @@
 #include "device_swapchain.h"
 #include "device_render_pass.h"
 #include "device_depth_resource.h"
+#include "device_framebuffers.h"
 
 class Device {
 private:
@@ -25,6 +26,7 @@ private:
   DeviceSwapchain* deviceSwapchain;
   DeviceRenderPass* deviceRenderPass;
   DeviceDepthResource* deviceDepthResource;
+  DeviceFramebuffers* deviceFramebuffers;
 public:
   Device(VkPhysicalDevice physicalDevice);
   ~Device();
@@ -35,4 +37,5 @@ public:
   void createSwapchain(VkSurfaceKHR surface);
   void createRenderPass();
   void createDepthResource();
+  void createFramebuffers();
 };

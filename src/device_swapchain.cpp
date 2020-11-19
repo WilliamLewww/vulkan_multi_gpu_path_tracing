@@ -101,10 +101,18 @@ DeviceSwapchain::~DeviceSwapchain() {
 
 }
 
+uint32_t DeviceSwapchain::getSwapchainImageCount() {
+  return this->swapchainImageCount;
+}
+
 VkFormat DeviceSwapchain::getSwapchainImageFormat() {
   return this->swapchainImageFormat;
 }
 
 VkExtent2D DeviceSwapchain::getSwapchainExtent() {
   return this->swapchainExtent;
+}
+
+std::vector<VkImageView> DeviceSwapchain::getSwapchainImageViewList() {
+  return this->swapchainImageViewList;
 }

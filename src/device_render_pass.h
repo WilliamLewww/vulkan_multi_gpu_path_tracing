@@ -9,4 +9,6 @@ private:
 public:
   DeviceRenderPass(VkDevice logicalDevice, VkFormat swapchainImageFormat);
   ~DeviceRenderPass();
+
+  VkRenderPass getRenderPass();
 };

@@ -22,6 +22,7 @@ Renderer::Renderer(VkInstance vulkanInstance, VkSurfaceKHR surface) {
   displayDevice->createSwapchain(surface);
   displayDevice->createRenderPass();
   displayDevice->createDepthResource();
+  displayDevice->createFramebuffers();
 }
 
 Renderer::~Renderer() {
