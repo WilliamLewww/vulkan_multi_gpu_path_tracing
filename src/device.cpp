@@ -37,30 +37,46 @@ void Device::createLogicalDevice(std::vector<const char*> extensions) {
     deviceQueueCreateInfoList.push_back(deviceQueueCreateInfo);
   }
 
-  VkPhysicalDeviceBufferDeviceAddressFeaturesEXT bufferDeviceAddressFeatures = {};
-  bufferDeviceAddressFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES_EXT;  
-  bufferDeviceAddressFeatures.bufferDeviceAddress = VK_TRUE;
+  VkPhysicalDeviceBufferDeviceAddressFeaturesEXT bufferDeviceAddressFeatures = {
+    .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES_EXT,
+    .pNext = NULL,
+    .bufferDeviceAddress = VK_TRUE,
+    .bufferDeviceAddressCaptureReplay = VK_FALSE,
+    .bufferDeviceAddressMultiDevice = VK_FALSE
+  };
 
-  VkPhysicalDeviceRayTracingFeaturesKHR rayTracingFeatures = {};
-  rayTracingFeatures.pNext = &bufferDeviceAddressFeatures;
-  rayTracingFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_FEATURES_KHR;
-  rayTracingFeatures.rayTracing = VK_TRUE;
-  rayTracingFeatures.rayQuery = VK_TRUE;
+  VkPhysicalDeviceRayTracingFeaturesKHR rayTracingFeatures = {
+    .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_FEATURES_KHR,
+    .pNext = &bufferDeviceAddressFeatures,
+    .rayTracing = VK_TRUE,
+    .rayTracingShaderGroupHandleCaptureReplay = VK_FALSE,
+    .rayTracingShaderGroupHandleCaptureReplayMixed = VK_FALSE,
+    .rayTracingAccelerationStructureCaptureReplay = VK_FALSE,
+    .rayTracingIndirectTraceRays = VK_FALSE,
+    .rayTracingIndirectAccelerationStructureBuild = VK_FALSE,
+    .rayTracingHostAccelerationStructureCommands = VK_FALSE,
+    .rayQuery = VK_TRUE,
+    .rayTracingPrimitiveCulling = VK_FALSE
+  };
 
-  VkPhysicalDeviceFeatures deviceFeatures = {};
-  deviceFeatures.geometryShader = VK_TRUE;
-  deviceFeatures.fragmentStoresAndAtomics = VK_TRUE;
+  // incomplete listing due to large amount of data members
+  VkPhysicalDeviceFeatures deviceFeatures = {
+    .geometryShader = VK_TRUE,
+    .fragmentStoresAndAtomics = VK_TRUE
+  };
 
-  VkDeviceCreateInfo deviceCreateInfo = {};
-  deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-  deviceCreateInfo.pNext = &rayTracingFeatures;
-  deviceCreateInfo.flags = 0;
-  deviceCreateInfo.queueCreateInfoCount = deviceQueueCreateInfoCount;
-  deviceCreateInfo.pQueueCreateInfos = &deviceQueueCreateInfoList[0];
-  deviceCreateInfo.enabledLayerCount = 0;
-  deviceCreateInfo.enabledExtensionCount = extensions.size();
-  deviceCreateInfo.ppEnabledExtensionNames = &extensions[0];
-  deviceCreateInfo.pEnabledFeatures = &deviceFeatures;
+  VkDeviceCreateInfo deviceCreateInfo = {
+    .sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
+    .pNext = &rayTracingFeatures,
+    .flags = 0,
+    .queueCreateInfoCount = deviceQueueCreateInfoCount,
+    .pQueueCreateInfos = deviceQueueCreateInfoList.data(),
+    .enabledLayerCount = 0,
+    .ppEnabledLayerNames = NULL,
+    .enabledExtensionCount = (uint32_t)extensions.size(),
+    .ppEnabledExtensionNames = extensions.data(),
+    .pEnabledFeatures = &deviceFeatures
+  };
 
   if (vkCreateDevice(this->physicalDevice, &deviceCreateInfo, NULL, &this->logicalDevice) != VK_SUCCESS) {
     printf("failed to created logical connection to device\n");
