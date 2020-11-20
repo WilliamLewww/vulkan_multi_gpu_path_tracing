@@ -13,7 +13,9 @@ DeviceCollection::DeviceCollection(VkInstance vulkanInstance) {
 }
 
 DeviceCollection::~DeviceCollection() {
-
+  for (int x = 0; x < this->deviceList.size(); x++) {
+    delete this->deviceList[x];
+  }
 }
 
 Device* DeviceCollection::getDevice(int index) {
