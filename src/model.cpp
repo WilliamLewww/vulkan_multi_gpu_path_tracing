@@ -30,3 +30,11 @@ bool Model::checkError() {
 
   return this->success;
 }
+
+uint32_t Model::getVertexCount() {
+  return this->attrib.vertices.size();
+}
+
+std::vector<float> Model::getVertices() {
+  return this->attrib.vertices;
+}

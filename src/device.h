@@ -12,6 +12,7 @@
 #include "device_depth_resource.h"
 #include "device_framebuffers.h"
 #include "device_textures.h"
+#include "model_instance_collection.h"
 
 class Device {
 private:
@@ -29,6 +30,7 @@ private:
   DeviceDepthResource* deviceDepthResource;
   DeviceFramebuffers* deviceFramebuffers;
   DeviceTextures* deviceTextures;
+  ModelInstanceCollection* modelInstanceCollection;
 public:
   Device(VkPhysicalDevice physicalDevice);
   ~Device();
@@ -41,4 +43,5 @@ public:
   void createDepthResource();
   void createFramebuffers();
   void createTextures();
+  void createModelInstances(std::map<Model*, uint32_t> modelFrequencyMap);
 };

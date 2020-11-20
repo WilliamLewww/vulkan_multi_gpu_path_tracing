@@ -19,4 +19,7 @@ public:
   ~Model();
 
   bool checkError();
+
+  uint32_t getVertexCount();
+  std::vector<float> getVertices();
 };

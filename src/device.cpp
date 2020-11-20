@@ -117,3 +117,11 @@ void Device::createTextures() {
                                             this->deviceCommandPool->getCommandPool(), 
                                             this->deviceQueue->getGraphicsQueue());
 }
+
+void Device::createModelInstances(std::map<Model*, uint32_t> modelFrequencyMap) {
+  this->modelInstanceCollection = new ModelInstanceCollection(modelFrequencyMap,
+                                                              this->logicalDevice, 
+                                                              this->physicalDeviceMemoryProperties, 
+                                                              this->deviceCommandPool->getCommandPool(),
+                                                              this->deviceQueue->getGraphicsQueue());
+}

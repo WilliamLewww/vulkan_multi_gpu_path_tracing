@@ -29,6 +29,7 @@ Renderer::Renderer(VkInstance vulkanInstance, VkSurfaceKHR surface, ModelCollect
     {modelCollection->getModel(0), 2},
     {modelCollection->getModel(1), 1}
   };
+  displayDevice->createModelInstances(modelFrequencyMap);
 }
 
 Renderer::~Renderer() {
