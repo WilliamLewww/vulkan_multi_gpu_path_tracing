@@ -60,10 +60,18 @@ void ModelInstanceCollection::createVertexBuffer(Model* model,
   vkFreeMemory(logicalDevice, positionStagingBufferMemory, NULL);
 }
 
-void ModelInstanceCollection::createIndexBuffer(Model* model) {
+void ModelInstanceCollection::createIndexBuffer(Model* model,
+                                                VkDevice logicalDevice, 
+                                                VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties, 
+                                                VkCommandPool commandPool,
+                                                VkQueue queue) {
 
 }
 
-void ModelInstanceCollection::createMaterialBuffers(Model* model) {
+void ModelInstanceCollection::createMaterialBuffers(Model* model,
+                                                    VkDevice logicalDevice, 
+                                                    VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties, 
+                                                    VkCommandPool commandPool,
+                                                    VkQueue queue) {
 
 }

@@ -47,14 +47,22 @@ private:
                           VkCommandPool commandPool,
                           VkQueue queue);
 
-  void createIndexBuffer(Model* model);
-  void createMaterialBuffers(Model* model);
+  void createIndexBuffer(Model* model,
+    VkDevice logicalDevice, 
+                          VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties, 
+                          VkCommandPool commandPool,
+                          VkQueue queue);
+  void createMaterialBuffers(Model* model,
+    VkDevice logicalDevice, 
+                          VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties, 
+                          VkCommandPool commandPool,
+                          VkQueue queue);
 public:
   ModelInstanceCollection(std::map<Model*, uint32_t> modelFrequencyMap,
                           VkDevice logicalDevice, 
                           VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties, 
                           VkCommandPool commandPool,
                           VkQueue queue);
-  
+
   ~ModelInstanceCollection();
 };
