@@ -12,6 +12,8 @@ SHADER_OBJS := $(notdir $(SHADER_SRCS:%=%.spv))
 CFLAGS =-I$(VULKAN_SDK_PATH)/include -I$(GLFW_PATH)/include
 LDFLAGS =-L$(VULKAN_SDK_PATH)/lib -L$(GLFW_PATH)/build/src -lGL -lglfw3 -lX11 -lXrandr -lpthread -ldl -lm -lvulkan
 
+GLSLC := $(VULKAN_SDK_PATH)/bin/glslc
+
 $EXEC: $(OBJS) $(SHADER_OBJS)
 	g++ $(CFLAGS) -o bin/$(EXEC) build/*.o $(LDFLAGS)
 
@@ -21,4 +23,4 @@ shaders: $(SHADER_OBJS)
 	g++ $(CFLAGS) -c $^ -o build/$@
 
 %.spv: src/shaders/%
-	glslc --target-env=vulkan1.2 $^ -o bin/$@
+	$(GLSLC) --target-env=vulkan1.2 $^ -o bin/$@
