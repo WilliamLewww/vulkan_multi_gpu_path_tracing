@@ -25,4 +25,10 @@ public:
 
   uint32_t getTotalIndexCount();
   tinyobj::index_t getTotalIndex(uint32_t index);
+
+  uint32_t getTotalMaterialIndexCount();
+  int getTotalMaterialIndex(uint32_t index);
+
+  uint32_t getMaterialCount();
+  tinyobj::material_t getMaterial(uint32_t index);
 };

@@ -60,3 +60,33 @@ tinyobj::index_t Model::getTotalIndex(uint32_t index) {
 
   return {-1, -1, -1};
 }
+
+uint32_t Model::getTotalMaterialIndexCount() {
+  uint32_t indexCount = 0;
+  for (int x = 0; x < this->shapes.size(); x++) {
+    indexCount += this->shapes[x].mesh.material_ids.size();
+  }
+
+  return indexCount;
+}
+
+int Model::getTotalMaterialIndex(uint32_t index) {
+  for (int x = 0; x < this->shapes.size(); x++) {
+    if (index >= this->shapes[x].mesh.material_ids.size()) {
+      index -= this->shapes[x].mesh.material_ids.size();
+    }
+    else {
+      return this->shapes[x].mesh.material_ids[index];
+    }
+  }
+
+  return -1;
+}
+
+uint32_t Model::getMaterialCount() {
+  return this->materials.size();
+}
+
+tinyobj::material_t Model::getMaterial(uint32_t index) {
+  return this->materials[index];
+}
