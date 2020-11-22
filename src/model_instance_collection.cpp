@@ -5,12 +5,21 @@ ModelInstanceCollection::ModelInstanceCollection(std::map<Model*, uint32_t> mode
                                                  VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties, 
                                                  VkCommandPool commandPool,
                                                  VkQueue queue) {
+
   int modelIndex = 0;
   int instanceIndex = 0;
+  std::vector<float> totalVertexList;
+  std::vector<uint32_t> totalIndexList;
+  std::vector<uint32_t> totalMaterialIndexList;
+  std::vector<Material> totalMaterialList;
+  std::vector<LightContainer> totalMaterialLightList;
+
   for (std::pair<Model*, uint32_t> pair : modelFrequencyMap) {
-    this->createVertexBuffer(pair.first, logicalDevice, physicalDeviceMemoryProperties, commandPool, queue);
-    this->createIndexBuffer(pair.first, logicalDevice, physicalDeviceMemoryProperties, commandPool, queue);
-    this->createMaterialBuffers(pair.first, logicalDevice, physicalDeviceMemoryProperties, commandPool, queue);
+    this->createVertexBuffer(pair.first, logicalDevice, physicalDeviceMemoryProperties, commandPool, queue, &totalVertexList);
+    this->createIndexBuffer(pair.first, logicalDevice, physicalDeviceMemoryProperties, commandPool, queue, &totalIndexList);
+    this->createMaterialBuffers(pair.first, logicalDevice, physicalDeviceMemoryProperties, commandPool, queue, &totalMaterialIndexList, &totalMaterialList, &totalMaterialLightList);
+
+    printf("%ld %ld\n", totalMaterialList.size(), totalMaterialLightList.size());
 
     for (int x = 0; x < pair.second; x++) {
       this->modelInstanceList.push_back(new ModelInstance(pair.first, modelIndex, instanceIndex));
@@ -29,9 +38,13 @@ void ModelInstanceCollection::createVertexBuffer(Model* model,
                                                  VkDevice logicalDevice, 
                                                  VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties, 
                                                  VkCommandPool commandPool,
-                                                 VkQueue queue) {
+                                                 VkQueue queue,
+                                                 std::vector<float>* totalVertexList) {
 
   VkDeviceSize bufferSize = sizeof(float) * model->getVertexCount();
+
+  std::vector<float> vertexList = model->getVertices();
+  std::copy(vertexList.begin(), vertexList.end(), std::back_inserter(*totalVertexList));
   
   VkBuffer stagingBuffer;
   VkDeviceMemory stagingBufferMemory;
@@ -45,7 +58,7 @@ void ModelInstanceCollection::createVertexBuffer(Model* model,
 
   void* data;
   vkMapMemory(logicalDevice, stagingBufferMemory, 0, bufferSize, 0, &data);
-  memcpy(data, model->getVertices().data(), bufferSize);
+  memcpy(data, vertexList.data(), bufferSize);
   vkUnmapMemory(logicalDevice, stagingBufferMemory);
 
   BufferFactory::createBuffer(logicalDevice, 
@@ -66,13 +79,15 @@ void ModelInstanceCollection::createIndexBuffer(Model* model,
                                                 VkDevice logicalDevice, 
                                                 VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties, 
                                                 VkCommandPool commandPool,
-                                                VkQueue queue) {
+                                                VkQueue queue,
+                                                std::vector<uint32_t>* totalIndexList) {
 
   VkDeviceSize bufferSize = sizeof(uint32_t) * model->getTotalIndexCount();
 
   std::vector<uint32_t> positionIndexList(model->getTotalIndexCount());
   for (int x = 0; x < model->getTotalIndexCount(); x++) {
     positionIndexList[x] = model->getTotalIndex(x).vertex_index;
+    totalIndexList->push_back(positionIndexList[x]);
   }
   
   VkBuffer stagingBuffer;
@@ -108,13 +123,17 @@ void ModelInstanceCollection::createMaterialBuffers(Model* model,
                                                     VkDevice logicalDevice, 
                                                     VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties, 
                                                     VkCommandPool commandPool,
-                                                    VkQueue queue) {
+                                                    VkQueue queue,
+                                                    std::vector<uint32_t>* totalMaterialIndexList,
+                                                    std::vector<Material>* totalMaterialList,
+                                                    std::vector<LightContainer>* totalMaterialLightList) {
 
   VkDeviceSize indexBufferSize = sizeof(uint32_t) * model->getTotalMaterialIndexCount();
 
-  std::vector<int> materialIndexList(model->getTotalMaterialIndexCount());
+  std::vector<uint32_t> materialIndexList(model->getTotalMaterialIndexCount());
   for (int x = 0; x < model->getTotalMaterialIndexCount(); x++) {
     materialIndexList[x] = model->getTotalMaterialIndex(x);
+    totalMaterialIndexList->push_back(materialIndexList[x]);
   }
 
   VkBuffer indexStagingBuffer;
@@ -145,13 +164,6 @@ void ModelInstanceCollection::createMaterialBuffers(Model* model,
   vkDestroyBuffer(logicalDevice, indexStagingBuffer, NULL);
   vkFreeMemory(logicalDevice, indexStagingBufferMemory, NULL);
 
-  struct Material {
-    alignas(16) float ambient[3];
-    alignas(16) float diffuse[3];
-    alignas(16) float specular[3];
-    alignas(16) float emission[3];
-  };
-
   VkDeviceSize materialBufferSize = sizeof(struct Material) * model->getMaterialCount();
 
   std::vector<Material> materialList(model->getMaterialCount());
@@ -160,6 +172,8 @@ void ModelInstanceCollection::createMaterialBuffers(Model* model,
     memcpy(materialList[x].diffuse, model->getMaterial(x).diffuse, sizeof(float) * 3);
     memcpy(materialList[x].specular, model->getMaterial(x).specular, sizeof(float) * 3);
     memcpy(materialList[x].emission, model->getMaterial(x).emission, sizeof(float) * 3);
+
+    totalMaterialList->push_back(materialList[x]);
   }
 
   VkBuffer materialStagingBuffer;
@@ -190,15 +204,11 @@ void ModelInstanceCollection::createMaterialBuffers(Model* model,
   vkDestroyBuffer(logicalDevice, materialStagingBuffer, NULL);
   vkFreeMemory(logicalDevice, materialStagingBufferMemory, NULL);
 
-  struct LightContainer {
-    alignas(4) int count;
-    alignas(4) int indices[64];
-  };
-
   LightContainer lightContainer = {
     .count = 0,
     .indices = {}
   };
+
   for (int x = 0; x < model->getTotalMaterialIndexCount(); x++) {
     float* materialEmission = model->getMaterial(model->getTotalMaterialIndex(x)).emission;
     if (materialEmission[0] > 0 || materialEmission[1] > 0 || materialEmission[2] > 0) {
@@ -206,6 +216,7 @@ void ModelInstanceCollection::createMaterialBuffers(Model* model,
       lightContainer.count += 1;
     }
   }
+  totalMaterialLightList->push_back(lightContainer);
   
   VkBuffer materialLightStagingBuffer;
   VkDeviceMemory materialLightStagingBufferMemory;

@@ -9,6 +9,18 @@
 
 class ModelInstanceCollection {
 private:
+  struct Material {
+    alignas(16) float ambient[3];
+    alignas(16) float diffuse[3];
+    alignas(16) float specular[3];
+    alignas(16) float emission[3];
+  };
+
+  struct LightContainer {
+    alignas(4) int count;
+    alignas(4) int indices[64];
+  };
+
   std::vector<ModelInstance*> modelInstanceList;
 
   std::map<Model*, VkBuffer> vertexBufferMap;
@@ -45,19 +57,24 @@ private:
                           VkDevice logicalDevice, 
                           VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties, 
                           VkCommandPool commandPool,
-                          VkQueue queue);
+                          VkQueue queue,
+                          std::vector<float>* totalVertexList = NULL);
 
   void createIndexBuffer(Model* model,
                          VkDevice logicalDevice, 
                          VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties, 
                          VkCommandPool commandPool,
-                         VkQueue queue);
+                         VkQueue queue,
+                         std::vector<uint32_t>* totalIndexList = NULL);
 
   void createMaterialBuffers(Model* model,
                              VkDevice logicalDevice, 
                              VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties, 
                              VkCommandPool commandPool,
-                             VkQueue queue);
+                             VkQueue queue,
+                             std::vector<uint32_t>* totalMaterialIndexList = NULL,
+                             std::vector<Material>* totalMaterialList = NULL,
+                             std::vector<LightContainer>* totalMaterialLightList = NULL);
 public:
   ModelInstanceCollection(std::map<Model*, uint32_t> modelFrequencyMap,
                           VkDevice logicalDevice, 
