@@ -1,7 +1,7 @@
 #include "engine.h"
 
 Engine::Engine() {
-  std::vector<std::string> modelFileNameList {"cube_scene.obj", "bedroom.obj"};
+  std::vector<std::string> modelFileNameList {"cube_scene.obj", "sphere_scene.obj"};
   this->modelCollection = new ModelCollection(modelFileNameList);
 
   this->window = new Window(800, 600);
