@@ -19,6 +19,8 @@ AccelerationStructureCollection::AccelerationStructureCollection(std::map<Model*
       this->addBottomLevelAccelerationStructureInstance(this->bottomLevelAccelerationStructureList.back(), modelInstancePair.second[x], logicalDevice);
     }
   }
+
+  this->topLevelAccelerationStructure = new TopLevelAccelerationStructure(this->bottomLevelAccelerationStructureInstanceList, logicalDevice, physicalDeviceMemoryProperties, commandPool, queue);
 }
   
 AccelerationStructureCollection::~AccelerationStructureCollection() {
@@ -36,10 +38,8 @@ void AccelerationStructureCollection::addBottomLevelAccelerationStructureInstanc
 
   VkDeviceAddress accelerationStructureDeviceAddress = pvkGetAccelerationStructureDeviceAddressKHR(logicalDevice, &accelerationStructureDeviceAddressInfo);
 
-  this->bottomLevelAccelerationStructureInstanceTransformMatrixList.push_back(modelInstance->getTransformation().getVulkanTransformMatrix());
-
   VkAccelerationStructureInstanceKHR geometryInstance = {
-    .transform = this->bottomLevelAccelerationStructureInstanceTransformMatrixList.back(),
+    .transform = modelInstance->getTransformation().getVulkanTransformMatrix(),
     .instanceCustomIndex = modelInstance->getInstanceIndex(),
     .mask = 0xFF,
     .instanceShaderBindingTableRecordOffset = 0,
