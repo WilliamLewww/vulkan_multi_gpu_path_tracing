@@ -16,11 +16,36 @@ AccelerationStructureCollection::AccelerationStructureCollection(std::map<Model*
                                                                                               queue));
 
     for (int x = 0; x < modelInstancePair.second.size(); x++) {
-
+      this->addBottomLevelAccelerationStructureInstance(this->bottomLevelAccelerationStructureList.back(), modelInstancePair.second[x], logicalDevice);
     }
   }
 }
   
 AccelerationStructureCollection::~AccelerationStructureCollection() {
 
+}
+
+void AccelerationStructureCollection::addBottomLevelAccelerationStructureInstance(BottomLevelAccelerationStructure* bottomLevelAccelerationStructure, ModelInstance* modelInstance, VkDevice logicalDevice) {
+  PFN_vkGetAccelerationStructureDeviceAddressKHR pvkGetAccelerationStructureDeviceAddressKHR = (PFN_vkGetAccelerationStructureDeviceAddressKHR)vkGetDeviceProcAddr(logicalDevice, "vkGetAccelerationStructureDeviceAddressKHR");
+
+  VkAccelerationStructureDeviceAddressInfoKHR accelerationStructureDeviceAddressInfo = {
+    .sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_DEVICE_ADDRESS_INFO_KHR,
+    .pNext = NULL,
+    .accelerationStructure = bottomLevelAccelerationStructure->getAccelerationStructure()
+  };
+
+  VkDeviceAddress accelerationStructureDeviceAddress = pvkGetAccelerationStructureDeviceAddressKHR(logicalDevice, &accelerationStructureDeviceAddressInfo);
+
+  this->bottomLevelAccelerationStructureInstanceTransformMatrixList.push_back(modelInstance->getTransformation().getVulkanTransformMatrix());
+
+  VkAccelerationStructureInstanceKHR geometryInstance = {
+    .transform = this->bottomLevelAccelerationStructureInstanceTransformMatrixList.back(),
+    .instanceCustomIndex = modelInstance->getInstanceIndex(),
+    .mask = 0xFF,
+    .instanceShaderBindingTableRecordOffset = 0,
+    .flags = VK_GEOMETRY_INSTANCE_TRIANGLE_FACING_CULL_DISABLE_BIT_KHR,
+    .accelerationStructureReference = accelerationStructureDeviceAddress
+  };
+
+  this->bottomLevelAccelerationStructureInstanceList.push_back(geometryInstance);
 }

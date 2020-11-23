@@ -8,6 +8,8 @@ private:
   std::vector<BottomLevelAccelerationStructure*> bottomLevelAccelerationStructureList;
   std::vector<VkAccelerationStructureInstanceKHR> bottomLevelAccelerationStructureInstanceList;
   std::vector<VkTransformMatrixKHR> bottomLevelAccelerationStructureInstanceTransformMatrixList;
+
+  void addBottomLevelAccelerationStructureInstance(BottomLevelAccelerationStructure* bottomLevelAccelerationStructure, ModelInstance* modelInstance, VkDevice logicalDevice);
 public:
   AccelerationStructureCollection(std::map<Model*, std::vector<ModelInstance*>> modelInstanceMap, 
                                   VkDevice logicalDevice, 

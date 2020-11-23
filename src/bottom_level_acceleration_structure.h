@@ -21,4 +21,6 @@ public:
                                    VkQueue queue);
 
   ~BottomLevelAccelerationStructure();
+
+  VkAccelerationStructureKHR getAccelerationStructure();
 };

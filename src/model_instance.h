@@ -17,6 +17,8 @@ public:
   ModelInstance(Model* model, VkBuffer* vertexBuffer, VkBuffer* indexBuffer, uint32_t modelIndex, uint32_t instanceIndex);
   ~ModelInstance();
 
+  uint32_t getInstanceIndex();
+
   Transformation getTransformation();
 
   VkBuffer getVertexBuffer();

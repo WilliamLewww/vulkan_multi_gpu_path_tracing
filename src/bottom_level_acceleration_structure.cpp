@@ -186,3 +186,7 @@ BottomLevelAccelerationStructure::BottomLevelAccelerationStructure(Model* model,
 BottomLevelAccelerationStructure::~BottomLevelAccelerationStructure() {
 
 }
+
+VkAccelerationStructureKHR BottomLevelAccelerationStructure::getAccelerationStructure() {
+  return this->accelerationStructure;
+}
