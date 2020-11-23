@@ -13,6 +13,7 @@
 #include "device_framebuffers.h"
 #include "device_textures.h"
 #include "model_instance_collection.h"
+#include "device_uniform_buffer_collection.h"
 
 class Device {
 private:
@@ -31,6 +32,7 @@ private:
   DeviceFramebuffers* deviceFramebuffers;
   DeviceTextures* deviceTextures;
   ModelInstanceCollection* modelInstanceCollection;
+  DeviceUniformBufferCollection* deviceUniformBufferCollection;
 public:
   Device(VkPhysicalDevice physicalDevice);
   ~Device();
@@ -44,4 +46,5 @@ public:
   void createFramebuffers();
   void createTextures();
   void createModelInstances(std::map<Model*, uint32_t> modelFrequencyMap);
+  void createUniformBufferCollection(std::map<void*, uint32_t> bufferMap);
 };

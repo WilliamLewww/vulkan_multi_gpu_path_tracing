@@ -1,6 +1,6 @@
 #include "renderer.h"
 
-Renderer::Renderer(VkInstance vulkanInstance, VkSurfaceKHR surface, ModelCollection* modelCollection) {
+Renderer::Renderer(VkInstance vulkanInstance, VkSurfaceKHR surface, ModelCollection* modelCollection, Camera* camera) {
   this->deviceCollection = new DeviceCollection(vulkanInstance);
 
   Device* displayDevice = this->deviceCollection->getDevice(0);
@@ -30,6 +30,11 @@ Renderer::Renderer(VkInstance vulkanInstance, VkSurfaceKHR surface, ModelCollect
     {modelCollection->getModel(1), 1}
   };
   displayDevice->createModelInstances(modelFrequencyMap);
+
+  std::map<void*, uint32_t> bufferMap = {
+    {camera->getUniform(), camera->getUniformStructureSize()}
+  };
+  displayDevice->createUniformBufferCollection(bufferMap);
 }
 
 Renderer::~Renderer() {

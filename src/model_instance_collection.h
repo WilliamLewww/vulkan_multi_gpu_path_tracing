@@ -22,6 +22,8 @@ private:
   };
 
   std::vector<ModelInstance*> modelInstanceList;
+  std::vector<uint32_t> vertexOffsetList;
+  std::vector<uint32_t> indexOffsetList;
 
   std::map<Model*, VkBuffer> vertexBufferMap;
   std::map<Model*, VkDeviceMemory> vertexBufferMemoryMap;

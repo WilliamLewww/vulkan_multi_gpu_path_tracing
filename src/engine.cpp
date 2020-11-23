@@ -1,6 +1,8 @@
 #include "engine.h"
 
 Engine::Engine() {
+  this->camera = new Camera();
+
   std::vector<std::string> modelFileNameList {"cube_scene.obj", "sphere_scene.obj"};
   this->modelCollection = new ModelCollection(modelFileNameList);
 
@@ -14,7 +16,7 @@ Engine::Engine() {
 
   this->surface = new Surface(this->vulkanInstance->getVulkanInstance(), this->window->getWindow());
 
-  this->renderer = new Renderer(this->vulkanInstance->getVulkanInstance(), this->surface->getSurface(), this->modelCollection);
+  this->renderer = new Renderer(this->vulkanInstance->getVulkanInstance(), this->surface->getSurface(), this->modelCollection, this->camera);
 }
 
 Engine::~Engine() {
@@ -23,4 +25,5 @@ Engine::~Engine() {
   delete this->vulkanInstance;
   delete this->window;
   delete this->modelCollection;
+  delete this->camera;
 }

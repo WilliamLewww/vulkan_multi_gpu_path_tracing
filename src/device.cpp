@@ -125,3 +125,7 @@ void Device::createModelInstances(std::map<Model*, uint32_t> modelFrequencyMap) 
                                                               this->deviceCommandPool->getCommandPool(),
                                                               this->deviceQueue->getGraphicsQueue());
 }
+
+void Device::createUniformBufferCollection(std::map<void*, uint32_t> bufferMap) {
+  this->deviceUniformBufferCollection = new DeviceUniformBufferCollection(bufferMap, this->logicalDevice, this->physicalDeviceMemoryProperties);
+}
