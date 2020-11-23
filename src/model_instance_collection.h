@@ -95,4 +95,8 @@ public:
                           VkQueue queue);
 
   ~ModelInstanceCollection();
+
+  uint32_t getInstanceCount();
+  std::vector<uint32_t> getVertexOffsetList();
+  std::vector<uint32_t> getIndexOffsetList();
 };

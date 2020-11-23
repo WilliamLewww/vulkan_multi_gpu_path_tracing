@@ -14,6 +14,8 @@ ModelInstanceCollection::ModelInstanceCollection(std::map<Model*, uint32_t> mode
   std::vector<Material> totalMaterialList;
   std::vector<LightContainer> totalMaterialLightList;
 
+  std::pair<Model*, uint32_t> previousPair;
+
   for (std::pair<Model*, uint32_t> pair : modelFrequencyMap) {
     this->createVertexBuffer(pair.first, logicalDevice, physicalDeviceMemoryProperties, commandPool, queue, &totalVertexList);
     this->createIndexBuffer(pair.first, logicalDevice, physicalDeviceMemoryProperties, commandPool, queue, &totalIndexList);
@@ -21,7 +23,17 @@ ModelInstanceCollection::ModelInstanceCollection(std::map<Model*, uint32_t> mode
 
     for (int x = 0; x < pair.second; x++) {
       this->modelInstanceList.push_back(new ModelInstance(pair.first, modelIndex, instanceIndex));
+
+      if (modelIndex == 0) {
+        this->vertexOffsetList.push_back(0);
+        this->indexOffsetList.push_back(0);
+      }
+      else {
+        this->vertexOffsetList.push_back(previousPair.first->getVertexCount());
+        this->indexOffsetList.push_back(previousPair.first->getTotalIndexCount());
+      }
     }
+    previousPair = pair;
     modelIndex += 1;
   }
 
@@ -414,4 +426,16 @@ void ModelInstanceCollection::createTotalBuffers(std::vector<float> totalVertexL
 
   vkDestroyBuffer(logicalDevice, totalMaterialLightStagingBuffer, NULL);
   vkFreeMemory(logicalDevice, totalMaterialLightStagingBufferMemory, NULL);
+}
+
+uint32_t ModelInstanceCollection::getInstanceCount() {
+  return this->modelInstanceList.size();
+}
+
+std::vector<uint32_t> ModelInstanceCollection::getVertexOffsetList() {
+  return this->vertexOffsetList;
+}
+
+std::vector<uint32_t> ModelInstanceCollection::getIndexOffsetList() {
+  return this->indexOffsetList;
 }
