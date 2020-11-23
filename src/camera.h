@@ -25,7 +25,7 @@ public:
   Camera();
   ~Camera();
 
-  void* getUniform();
+  void* getUniformPointer();
   uint32_t getUniformStructureSize();
 
   void update();

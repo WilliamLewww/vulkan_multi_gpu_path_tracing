@@ -37,6 +37,8 @@ public:
   Device(VkPhysicalDevice physicalDevice);
   ~Device();
 
+  ModelInstanceCollection* getModelInstanceCollectionPointer();
+
   void initializeDeviceQueue(VkSurfaceKHR surface);
   void createLogicalDevice(std::vector<const char*> extensions);
   void createCommandPool();

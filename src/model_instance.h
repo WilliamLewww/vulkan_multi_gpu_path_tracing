@@ -13,4 +13,6 @@ private:
 public:
   ModelInstance(Model* model, uint32_t modelIndex, uint32_t instanceIndex);
   ~ModelInstance();
+
+  Transformation getTransformation();
 };

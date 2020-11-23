@@ -29,7 +29,7 @@ Camera::~Camera() {
 
 }
 
-void* Camera::getUniform() {
+void* Camera::getUniformPointer() {
   return &this->uniform;
 }
 

@@ -37,6 +37,15 @@ ModelInstanceCollection::ModelInstanceCollection(std::map<Model*, uint32_t> mode
     modelIndex += 1;
   }
 
+  uint32_t instanceCount = this->modelInstanceList.size();
+  std::vector<float> totalTransformList = this->getTotalTransformList();
+
+  this->uniformBuffer = (float*)malloc(512);
+  memcpy(this->uniformBuffer, &instanceCount, sizeof(uint32_t));
+  memcpy(4 + this->uniformBuffer, this->vertexOffsetList.data(), sizeof(uint32_t) * this->vertexOffsetList.size());
+  memcpy(36 + this->uniformBuffer, this->indexOffsetList.data(), sizeof(uint32_t) * this->indexOffsetList.size());
+  memcpy(68 + this->uniformBuffer, totalTransformList.data(), sizeof(float) * totalTransformList.size());
+
   createTotalBuffers(totalVertexList,
                      totalIndexList,
                      totalMaterialIndexList,
@@ -428,14 +437,19 @@ void ModelInstanceCollection::createTotalBuffers(std::vector<float> totalVertexL
   vkFreeMemory(logicalDevice, totalMaterialLightStagingBufferMemory, NULL);
 }
 
-uint32_t ModelInstanceCollection::getInstanceCount() {
-  return this->modelInstanceList.size();
+std::vector<float> ModelInstanceCollection::getTotalTransformList() {
+  std::vector<float> transformList(this->modelInstanceList.size() * 16);
+  for (int x = 0; x < this->modelInstanceList.size(); x++) {
+    memcpy((16 * x) + transformList.data(), this->modelInstanceList[x]->getTransformation().getTransformMatrix(), sizeof(float) * 16);
+  }
+
+  return transformList;
 }
 
-std::vector<uint32_t> ModelInstanceCollection::getVertexOffsetList() {
-  return this->vertexOffsetList;
+void* ModelInstanceCollection::getUniformBufferPointer() {
+  return this->uniformBuffer;
 }
 
-std::vector<uint32_t> ModelInstanceCollection::getIndexOffsetList() {
-  return this->indexOffsetList;
+uint32_t ModelInstanceCollection::getUniformBufferSize() {
+  return 512;
 }

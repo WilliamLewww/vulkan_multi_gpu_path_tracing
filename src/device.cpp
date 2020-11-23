@@ -12,6 +12,10 @@ Device::~Device() {
 
 }
 
+ModelInstanceCollection* Device::getModelInstanceCollectionPointer() {
+  return this->modelInstanceCollection;
+}
+
 void Device::initializeDeviceQueue(VkSurfaceKHR surface) {
   this->deviceQueue = new DeviceQueue(this->physicalDevice, surface);
 }

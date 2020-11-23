@@ -12,3 +12,7 @@ ModelInstance::ModelInstance(Model* model, uint32_t modelIndex, uint32_t instanc
 ModelInstance::~ModelInstance() {
 
 }
+
+Transformation ModelInstance::getTransformation() {
+  return this->transformation;
+}

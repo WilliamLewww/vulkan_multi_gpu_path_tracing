@@ -25,6 +25,8 @@ private:
   std::vector<uint32_t> vertexOffsetList;
   std::vector<uint32_t> indexOffsetList;
 
+  float* uniformBuffer;
+
   std::map<Model*, VkBuffer> vertexBufferMap;
   std::map<Model*, VkDeviceMemory> vertexBufferMemoryMap;
 
@@ -87,6 +89,8 @@ private:
                           VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties, 
                           VkCommandPool commandPool,
                           VkQueue queue);
+
+  std::vector<float> getTotalTransformList();
 public:
   ModelInstanceCollection(std::map<Model*, uint32_t> modelFrequencyMap,
                           VkDevice logicalDevice, 
@@ -96,7 +100,6 @@ public:
 
   ~ModelInstanceCollection();
 
-  uint32_t getInstanceCount();
-  std::vector<uint32_t> getVertexOffsetList();
-  std::vector<uint32_t> getIndexOffsetList();
+  void* getUniformBufferPointer();
+  uint32_t getUniformBufferSize();
 };

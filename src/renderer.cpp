@@ -32,7 +32,8 @@ Renderer::Renderer(VkInstance vulkanInstance, VkSurfaceKHR surface, ModelCollect
   displayDevice->createModelInstances(modelFrequencyMap);
 
   std::map<void*, uint32_t> bufferMap = {
-    {camera->getUniform(), camera->getUniformStructureSize()}
+    {camera->getUniformPointer(), camera->getUniformStructureSize()},
+    {displayDevice->getModelInstanceCollectionPointer()->getUniformBufferPointer(), displayDevice->getModelInstanceCollectionPointer()->getUniformBufferSize()}
   };
   displayDevice->createUniformBufferCollection(bufferMap);
 }
