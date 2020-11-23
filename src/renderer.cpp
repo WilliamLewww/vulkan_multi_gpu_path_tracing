@@ -36,6 +36,8 @@ Renderer::Renderer(VkInstance vulkanInstance, VkSurfaceKHR surface, ModelCollect
     {displayDevice->getModelInstanceCollectionPointer()->getUniformBufferPointer(), displayDevice->getModelInstanceCollectionPointer()->getUniformBufferSize()}
   };
   displayDevice->createUniformBufferCollection(bufferMap);
+
+  displayDevice->createAccelerationStructureCollection(displayDevice->getModelInstanceCollectionPointer()->getModelInstanceMap());
 }
 
 Renderer::~Renderer() {

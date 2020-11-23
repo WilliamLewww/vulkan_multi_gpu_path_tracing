@@ -22,7 +22,8 @@ ModelInstanceCollection::ModelInstanceCollection(std::map<Model*, uint32_t> mode
     this->createMaterialBuffers(pair.first, logicalDevice, physicalDeviceMemoryProperties, commandPool, queue, &totalMaterialIndexList, &totalMaterialList, &totalMaterialLightList);
 
     for (int x = 0; x < pair.second; x++) {
-      this->modelInstanceList.push_back(new ModelInstance(pair.first, modelIndex, instanceIndex));
+      this->modelInstanceList.push_back(new ModelInstance(pair.first, &this->vertexBufferMap[pair.first], &this->indexBufferMap[pair.first], modelIndex, instanceIndex));
+      this->modelInstanceMap[pair.first].push_back(this->modelInstanceList.back());
 
       if (modelIndex == 0) {
         this->vertexOffsetList.push_back(0);
@@ -452,4 +453,8 @@ void* ModelInstanceCollection::getUniformBufferPointer() {
 
 uint32_t ModelInstanceCollection::getUniformBufferSize() {
   return 512;
+}
+
+std::map<Model*, std::vector<ModelInstance*>> ModelInstanceCollection::getModelInstanceMap() {
+  return this->modelInstanceMap;
 }

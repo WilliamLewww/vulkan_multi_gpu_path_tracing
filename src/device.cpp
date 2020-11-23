@@ -133,3 +133,7 @@ void Device::createModelInstances(std::map<Model*, uint32_t> modelFrequencyMap) 
 void Device::createUniformBufferCollection(std::map<void*, uint32_t> bufferMap) {
   this->deviceUniformBufferCollection = new DeviceUniformBufferCollection(bufferMap, this->logicalDevice, this->physicalDeviceMemoryProperties);
 }
+
+void Device::createAccelerationStructureCollection(std::map<Model*, std::vector<ModelInstance*>> modelInstanceMap) {
+  this->accelerationStructureCollection = new AccelerationStructureCollection(modelInstanceMap, this->logicalDevice, this->physicalDeviceMemoryProperties, this->deviceCommandPool->getCommandPool(), this->deviceQueue->getComputeQueue());
+}

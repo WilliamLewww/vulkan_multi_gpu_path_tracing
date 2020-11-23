@@ -90,3 +90,12 @@ uint32_t Model::getMaterialCount() {
 tinyobj::material_t Model::getMaterial(uint32_t index) {
   return this->materials[index];
 }
+
+uint32_t Model::getPrimitiveCount() {
+  uint32_t primitiveCount = 0;
+  for (int x = 0; x < this->shapes.size(); x++) {
+    primitiveCount += this->shapes[x].mesh.num_face_vertices.size();
+  }
+
+  return primitiveCount;
+}

@@ -21,6 +21,8 @@ private:
     alignas(4) int indices[64];
   };
 
+  std::map<Model*, std::vector<ModelInstance*>> modelInstanceMap;
+
   std::vector<ModelInstance*> modelInstanceList;
   std::vector<uint32_t> vertexOffsetList;
   std::vector<uint32_t> indexOffsetList;
@@ -102,4 +104,6 @@ public:
 
   void* getUniformBufferPointer();
   uint32_t getUniformBufferSize();
+
+  std::map<Model*, std::vector<ModelInstance*>> getModelInstanceMap();
 };

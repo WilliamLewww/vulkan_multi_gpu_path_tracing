@@ -14,6 +14,7 @@
 #include "device_textures.h"
 #include "model_instance_collection.h"
 #include "device_uniform_buffer_collection.h"
+#include "acceleration_structure_collection.h"
 
 class Device {
 private:
@@ -33,6 +34,7 @@ private:
   DeviceTextures* deviceTextures;
   ModelInstanceCollection* modelInstanceCollection;
   DeviceUniformBufferCollection* deviceUniformBufferCollection;
+  AccelerationStructureCollection* accelerationStructureCollection;
 public:
   Device(VkPhysicalDevice physicalDevice);
   ~Device();
@@ -49,4 +51,5 @@ public:
   void createTextures();
   void createModelInstances(std::map<Model*, uint32_t> modelFrequencyMap);
   void createUniformBufferCollection(std::map<void*, uint32_t> bufferMap);
+  void createAccelerationStructureCollection(std::map<Model*, std::vector<ModelInstance*>> modelInstanceMap);
 };

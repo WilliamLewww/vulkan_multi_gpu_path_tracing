@@ -31,4 +31,6 @@ public:
 
   uint32_t getMaterialCount();
   tinyobj::material_t getMaterial(uint32_t index);
+
+  uint32_t getPrimitiveCount();
 };
