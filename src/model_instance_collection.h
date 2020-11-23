@@ -75,6 +75,16 @@ private:
                              std::vector<uint32_t>* totalMaterialIndexList = NULL,
                              std::vector<Material>* totalMaterialList = NULL,
                              std::vector<LightContainer>* totalMaterialLightList = NULL);
+
+  void createTotalBuffers(std::vector<float> totalVertexList,
+                          std::vector<uint32_t> totalIndexList,
+                          std::vector<uint32_t> totalMaterialIndexList,
+                          std::vector<Material> totalMaterialList,
+                          std::vector<LightContainer> totalMaterialLightList,
+                          VkDevice logicalDevice, 
+                          VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties, 
+                          VkCommandPool commandPool,
+                          VkQueue queue);
 public:
   ModelInstanceCollection(std::map<Model*, uint32_t> modelFrequencyMap,
                           VkDevice logicalDevice, 

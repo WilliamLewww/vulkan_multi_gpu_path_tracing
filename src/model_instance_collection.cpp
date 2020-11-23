@@ -19,13 +19,21 @@ ModelInstanceCollection::ModelInstanceCollection(std::map<Model*, uint32_t> mode
     this->createIndexBuffer(pair.first, logicalDevice, physicalDeviceMemoryProperties, commandPool, queue, &totalIndexList);
     this->createMaterialBuffers(pair.first, logicalDevice, physicalDeviceMemoryProperties, commandPool, queue, &totalMaterialIndexList, &totalMaterialList, &totalMaterialLightList);
 
-    printf("%ld %ld\n", totalMaterialList.size(), totalMaterialLightList.size());
-
     for (int x = 0; x < pair.second; x++) {
       this->modelInstanceList.push_back(new ModelInstance(pair.first, modelIndex, instanceIndex));
     }
     modelIndex += 1;
   }
+
+  createTotalBuffers(totalVertexList,
+                     totalIndexList,
+                     totalMaterialIndexList,
+                     totalMaterialList,
+                     totalMaterialLightList,
+                     logicalDevice, 
+                     physicalDeviceMemoryProperties, 
+                     commandPool,
+                     queue);
 }
 
 ModelInstanceCollection::~ModelInstanceCollection() {
@@ -245,4 +253,165 @@ void ModelInstanceCollection::createMaterialBuffers(Model* model,
   
   vkDestroyBuffer(logicalDevice, materialLightStagingBuffer, NULL);
   vkFreeMemory(logicalDevice, materialLightStagingBufferMemory, NULL);
+}
+
+void ModelInstanceCollection::createTotalBuffers(std::vector<float> totalVertexList,
+                                                 std::vector<uint32_t> totalIndexList,
+                                                 std::vector<uint32_t> totalMaterialIndexList,
+                                                 std::vector<Material> totalMaterialList,
+                                                 std::vector<LightContainer> totalMaterialLightList,
+                                                 VkDevice logicalDevice, 
+                                                 VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties, 
+                                                 VkCommandPool commandPool,
+                                                 VkQueue queue) {
+
+  VkDeviceSize totalVertexBufferSize = sizeof(float) * totalVertexList.size();
+  
+  VkBuffer totalVertexStagingBuffer;
+  VkDeviceMemory totalVertexStagingBufferMemory;
+  BufferFactory::createBuffer(logicalDevice,
+                              physicalDeviceMemoryProperties,
+                              totalVertexBufferSize, 
+                              VK_BUFFER_USAGE_TRANSFER_SRC_BIT, 
+                              VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, 
+                              &totalVertexStagingBuffer, 
+                              &totalVertexStagingBufferMemory);
+
+  void* totalVertexData;
+  vkMapMemory(logicalDevice, totalVertexStagingBufferMemory, 0, totalVertexBufferSize, 0, &totalVertexData);
+  memcpy(totalVertexData, totalVertexList.data(), totalVertexBufferSize);
+  vkUnmapMemory(logicalDevice, totalVertexStagingBufferMemory);
+
+  BufferFactory::createBuffer(logicalDevice, 
+                              physicalDeviceMemoryProperties,
+                              totalVertexBufferSize, 
+                              VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT, 
+                              VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 
+                              &this->totalVertexBuffer, 
+                              &this->totalVertexBufferMemory);  
+
+  BufferFactory::copyBuffer(logicalDevice, commandPool, queue, totalVertexStagingBuffer, this->totalVertexBuffer, totalVertexBufferSize);
+
+  vkDestroyBuffer(logicalDevice, totalVertexStagingBuffer, NULL);
+  vkFreeMemory(logicalDevice, totalVertexStagingBufferMemory, NULL);
+
+  VkDeviceSize totalIndexBufferSize = sizeof(uint32_t) * totalIndexList.size();
+  
+  VkBuffer totalIndexStagingBuffer;
+  VkDeviceMemory totalIndexStagingBufferMemory;
+  BufferFactory::createBuffer(logicalDevice,
+                              physicalDeviceMemoryProperties,
+                              totalIndexBufferSize, 
+                              VK_BUFFER_USAGE_TRANSFER_SRC_BIT, 
+                              VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, 
+                              &totalIndexStagingBuffer, 
+                              &totalIndexStagingBufferMemory);
+
+  void* totalIndexData;
+  vkMapMemory(logicalDevice, totalIndexStagingBufferMemory, 0, totalIndexBufferSize, 0, &totalIndexData);
+  memcpy(totalIndexData, totalIndexList.data(), totalIndexBufferSize);
+  vkUnmapMemory(logicalDevice, totalIndexStagingBufferMemory);
+
+  BufferFactory::createBuffer(logicalDevice, 
+                              physicalDeviceMemoryProperties,
+                              totalIndexBufferSize, 
+                              VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT, 
+                              VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 
+                              &this->totalIndexBuffer, 
+                              &this->totalIndexBufferMemory);  
+
+  BufferFactory::copyBuffer(logicalDevice, commandPool, queue, totalIndexStagingBuffer, this->totalIndexBuffer, totalIndexBufferSize);
+
+  vkDestroyBuffer(logicalDevice, totalIndexStagingBuffer, NULL);
+  vkFreeMemory(logicalDevice, totalIndexStagingBufferMemory, NULL);
+
+  VkDeviceSize totalMaterialIndexBufferSize = sizeof(uint32_t) * totalMaterialIndexList.size();
+  
+  VkBuffer totalMaterialIndexStagingBuffer;
+  VkDeviceMemory totalMaterialIndexStagingBufferMemory;
+  BufferFactory::createBuffer(logicalDevice,
+                              physicalDeviceMemoryProperties,
+                              totalMaterialIndexBufferSize, 
+                              VK_BUFFER_USAGE_TRANSFER_SRC_BIT, 
+                              VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, 
+                              &totalMaterialIndexStagingBuffer, 
+                              &totalMaterialIndexStagingBufferMemory);
+
+  void* totalMaterialIndexData;
+  vkMapMemory(logicalDevice, totalMaterialIndexStagingBufferMemory, 0, totalMaterialIndexBufferSize, 0, &totalMaterialIndexData);
+  memcpy(totalMaterialIndexData, totalMaterialIndexList.data(), totalMaterialIndexBufferSize);
+  vkUnmapMemory(logicalDevice, totalMaterialIndexStagingBufferMemory);
+
+  BufferFactory::createBuffer(logicalDevice, 
+                              physicalDeviceMemoryProperties,
+                              totalMaterialIndexBufferSize, 
+                              VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT, 
+                              VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 
+                              &this->totalMaterialIndexBuffer, 
+                              &this->totalMaterialIndexBufferMemory);  
+
+  BufferFactory::copyBuffer(logicalDevice, commandPool, queue, totalMaterialIndexStagingBuffer, this->totalMaterialIndexBuffer, totalMaterialIndexBufferSize);
+
+  vkDestroyBuffer(logicalDevice, totalMaterialIndexStagingBuffer, NULL);
+  vkFreeMemory(logicalDevice, totalMaterialIndexStagingBufferMemory, NULL);
+
+  VkDeviceSize totalMaterialBufferSize = sizeof(Material) * totalMaterialList.size();
+  
+  VkBuffer totalMaterialStagingBuffer;
+  VkDeviceMemory totalMaterialStagingBufferMemory;
+  BufferFactory::createBuffer(logicalDevice,
+                              physicalDeviceMemoryProperties,
+                              totalMaterialBufferSize, 
+                              VK_BUFFER_USAGE_TRANSFER_SRC_BIT, 
+                              VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, 
+                              &totalMaterialStagingBuffer, 
+                              &totalMaterialStagingBufferMemory);
+
+  void* totalMaterialData;
+  vkMapMemory(logicalDevice, totalMaterialStagingBufferMemory, 0, totalMaterialBufferSize, 0, &totalMaterialData);
+  memcpy(totalMaterialData, totalMaterialList.data(), totalMaterialBufferSize);
+  vkUnmapMemory(logicalDevice, totalMaterialStagingBufferMemory);
+
+  BufferFactory::createBuffer(logicalDevice, 
+                              physicalDeviceMemoryProperties,
+                              totalMaterialBufferSize, 
+                              VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT, 
+                              VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 
+                              &this->totalMaterialBuffer, 
+                              &this->totalMaterialBufferMemory);  
+
+  BufferFactory::copyBuffer(logicalDevice, commandPool, queue, totalMaterialStagingBuffer, this->totalMaterialBuffer, totalMaterialBufferSize);
+
+  vkDestroyBuffer(logicalDevice, totalMaterialStagingBuffer, NULL);
+  vkFreeMemory(logicalDevice, totalMaterialStagingBufferMemory, NULL);
+
+  VkDeviceSize totalMaterialLightBufferSize = sizeof(LightContainer) * totalMaterialLightList.size();
+  
+  VkBuffer totalMaterialLightStagingBuffer;
+  VkDeviceMemory totalMaterialLightStagingBufferMemory;
+  BufferFactory::createBuffer(logicalDevice,
+                              physicalDeviceMemoryProperties,
+                              totalMaterialLightBufferSize, 
+                              VK_BUFFER_USAGE_TRANSFER_SRC_BIT, 
+                              VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, 
+                              &totalMaterialLightStagingBuffer, 
+                              &totalMaterialLightStagingBufferMemory);
+
+  void* totalMaterialLightData;
+  vkMapMemory(logicalDevice, totalMaterialLightStagingBufferMemory, 0, totalMaterialLightBufferSize, 0, &totalMaterialLightData);
+  memcpy(totalMaterialLightData, totalMaterialLightList.data(), totalMaterialLightBufferSize);
+  vkUnmapMemory(logicalDevice, totalMaterialLightStagingBufferMemory);
+
+  BufferFactory::createBuffer(logicalDevice, 
+                              physicalDeviceMemoryProperties,
+                              totalMaterialLightBufferSize, 
+                              VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT, 
+                              VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 
+                              &this->totalMaterialLightBuffer, 
+                              &this->totalMaterialLightBufferMemory);  
+
+  BufferFactory::copyBuffer(logicalDevice, commandPool, queue, totalMaterialLightStagingBuffer, this->totalMaterialLightBuffer, totalMaterialLightBufferSize);
+
+  vkDestroyBuffer(logicalDevice, totalMaterialLightStagingBuffer, NULL);
+  vkFreeMemory(logicalDevice, totalMaterialLightStagingBufferMemory, NULL);
 }
