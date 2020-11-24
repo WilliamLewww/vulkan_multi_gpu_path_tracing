@@ -67,3 +67,13 @@ DeviceDescriptorSetCollection::DeviceDescriptorSetCollection(std::vector<std::ve
 DeviceDescriptorSetCollection::~DeviceDescriptorSetCollection() {
 
 }
+
+std::vector<VkDescriptorSetLayout> DeviceDescriptorSetCollection::getDescriptorSetLayoutList() {
+  std::vector<VkDescriptorSetLayout> descriptorSetLayoutList;
+
+  for (int x = 0; x < this->deviceDescriptorSetList.size(); x++) {
+    descriptorSetLayoutList.push_back(this->deviceDescriptorSetList[x]->getDescriptorSetLayout());
+  }
+
+  return descriptorSetLayoutList;
+}

@@ -8,7 +8,7 @@ Renderer::Renderer(VkInstance vulkanInstance, VkSurfaceKHR surface, ModelCollect
 
   std::vector<const char*> deviceExtensionList {
     VK_KHR_SWAPCHAIN_EXTENSION_NAME, 
-    "VK_KHR_ray_tracing", 
+    "VK_KHR_ray_tracing",
     "VK_KHR_get_memory_requirements2",
     "VK_EXT_descriptor_indexing",
     "VK_KHR_buffer_device_address",
@@ -55,6 +55,8 @@ Renderer::Renderer(VkInstance vulkanInstance, VkSurfaceKHR surface, ModelCollect
     }
   };
   displayDevice->createDescriptorSetCollection(separatedDeviceDescriptorList);
+
+  displayDevice->createGraphicsPipeline("bin/basic.vert.spv", "bin/basic.frag.spv");
 }
 
 Renderer::~Renderer() {

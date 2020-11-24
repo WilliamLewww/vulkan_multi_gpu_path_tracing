@@ -157,3 +157,7 @@ void Device::createAccelerationStructureCollection(std::map<Model*, std::vector<
 void Device::createDescriptorSetCollection(std::vector<std::vector<DeviceDescriptor*>> separatedDeviceDescriptorList) {
   this->deviceDescriptorSetCollection = new DeviceDescriptorSetCollection(separatedDeviceDescriptorList, this->logicalDevice);
 }
+
+void Device::createGraphicsPipeline(std::string vertexShaderFile, std::string fragmentShaderFile) {
+  this->graphicsPipeline = new GraphicsPipeline(vertexShaderFile, fragmentShaderFile, this->deviceDescriptorSetCollection->getDescriptorSetLayoutList(), this->logicalDevice, this->deviceSwapchain->getSwapchainExtent(), this->deviceRenderPass->getRenderPass());
+}

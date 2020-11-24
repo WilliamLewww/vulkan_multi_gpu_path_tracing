@@ -15,4 +15,6 @@ private:
 public:
   DeviceDescriptorSetCollection(std::vector<std::vector<DeviceDescriptor*>> separatedDeviceDescriptorList, VkDevice logicalDevice);
   ~DeviceDescriptorSetCollection();
+
+  std::vector<VkDescriptorSetLayout> getDescriptorSetLayoutList();
 };
