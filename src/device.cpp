@@ -1,6 +1,9 @@
 #include "device.h"
 
 Device::Device(VkPhysicalDevice physicalDevice) {
+  this->currentFrame = 0;
+  this->framesInFlight = 2;
+
   this->physicalDevice = physicalDevice;
 
   vkGetPhysicalDeviceProperties(physicalDevice, &this->physicalDeviceProperties);
@@ -178,28 +181,7 @@ void Device::createRenderCommandBuffers() {
 }
 
 void Device::createSynchronizationObjects() {
-  this->imageAvailableSemaphoreList.resize(2);
-  this->renderFinishedSemaphoreList.resize(2);
-  this->inFlightFenceList.resize(2);
-  this->imageInFlightList.resize(this->deviceSwapchain->getSwapchainImageCount());
-  for (int x = 0; x < this->deviceSwapchain->getSwapchainImageCount(); x++) {
-    this->imageInFlightList[x] = VK_NULL_HANDLE;
-  }
-
-  VkSemaphoreCreateInfo semaphoreCreateInfo = {};
-  semaphoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-
-  VkFenceCreateInfo fenceCreateInfo = {};
-  fenceCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-  fenceCreateInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
-
-  for (int x = 0; x < 2; x++) {
-    if (vkCreateSemaphore(this->logicalDevice, &semaphoreCreateInfo, NULL, &this->imageAvailableSemaphoreList[x]) == VK_SUCCESS &&
-        vkCreateSemaphore(this->logicalDevice, &semaphoreCreateInfo, NULL, &this->renderFinishedSemaphoreList[x]) == VK_SUCCESS &&
-        vkCreateFence(this->logicalDevice, &fenceCreateInfo, NULL, &this->inFlightFenceList[x]) != VK_SUCCESS) {
-      printf("failed to create synchronization objects for frame #%d\n", x);
-    }
-  }
+  this->synchronizationObjects = new SynchronizationObjects(this->logicalDevice, this->framesInFlight, this->deviceSwapchain->getSwapchainImageCount());
 }
 
 void Device::updateCameraUniformBuffer(VkDeviceMemory uniformBufferMemory, void* buffer, uint32_t bufferSize) {
@@ -210,22 +192,27 @@ void Device::updateCameraUniformBuffer(VkDeviceMemory uniformBufferMemory, void*
 }
 
 void Device::drawFrame(void* buffer, uint32_t bufferSize) {
-  vkWaitForFences(this->logicalDevice, 1, &this->inFlightFenceList[this->currentFrame], VK_TRUE, UINT64_MAX);
+  VkSemaphore imageAvailableSemaphore = synchronizationObjects->getImageAvailableSemaphore(this->currentFrame);
+  VkSemaphore renderFinishedSemaphore = synchronizationObjects->getRenderFinishedSemaphore(this->currentFrame);
+  VkFence inFlightFence = synchronizationObjects->getInFlightFence(this->currentFrame);
+  VkFence imageInFlight = synchronizationObjects->getImageInFlight(this->currentFrame);
+
+  vkWaitForFences(this->logicalDevice, 1, &inFlightFence, VK_TRUE, UINT64_MAX);
     
   uint32_t imageIndex;
-  vkAcquireNextImageKHR(this->logicalDevice, this->deviceSwapchain->getSwapchain(), UINT64_MAX, this->imageAvailableSemaphoreList[this->currentFrame], VK_NULL_HANDLE, &imageIndex);
+  vkAcquireNextImageKHR(this->logicalDevice, this->deviceSwapchain->getSwapchain(), UINT64_MAX, imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
     
-  if (this->imageInFlightList[imageIndex] != VK_NULL_HANDLE) {
-    vkWaitForFences(this->logicalDevice, 1, &this->imageInFlightList[imageIndex], VK_TRUE, UINT64_MAX);
+  if (imageInFlight != VK_NULL_HANDLE) {
+    vkWaitForFences(this->logicalDevice, 1, &imageInFlight, VK_TRUE, UINT64_MAX);
   }
-  this->imageInFlightList[imageIndex] = this->inFlightFenceList[this->currentFrame];
+  imageInFlight = inFlightFence;
  
   updateCameraUniformBuffer(this->deviceUniformBufferCollection->getDeviceMemory(0), buffer, bufferSize);
    
   VkSubmitInfo submitInfo = {};
   submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
     
-  VkSemaphore waitSemaphores[1] = {this->imageAvailableSemaphoreList[this->currentFrame]};
+  VkSemaphore waitSemaphores[1] = {imageAvailableSemaphore};
   VkPipelineStageFlags waitStages[1] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
   submitInfo.waitSemaphoreCount = 1;
   submitInfo.pWaitSemaphores = waitSemaphores;
@@ -234,13 +221,13 @@ void Device::drawFrame(void* buffer, uint32_t bufferSize) {
   submitInfo.commandBufferCount = 1;
   submitInfo.pCommandBuffers = &this->renderCommandBuffers->getCommandBufferList()[imageIndex];
 
-  VkSemaphore signalSemaphores[1] = {this->renderFinishedSemaphoreList[this->currentFrame]};
+  VkSemaphore signalSemaphores[1] = {renderFinishedSemaphore};
   submitInfo.signalSemaphoreCount = 1;
   submitInfo.pSignalSemaphores = signalSemaphores;
 
-  vkResetFences(this->logicalDevice, 1, &this->inFlightFenceList[this->currentFrame]);
+  vkResetFences(this->logicalDevice, 1, &inFlightFence);
 
-  if (vkQueueSubmit(this->deviceQueue->getGraphicsQueue(), 1, &submitInfo, this->inFlightFenceList[this->currentFrame]) != VK_SUCCESS) {
+  if (vkQueueSubmit(this->deviceQueue->getGraphicsQueue(), 1, &submitInfo, inFlightFence) != VK_SUCCESS) {
     printf("failed to submit draw command buffer\n");
   }
 

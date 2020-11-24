@@ -28,3 +28,19 @@ SynchronizationObjects::SynchronizationObjects(VkDevice logicalDevice, uint32_t 
 SynchronizationObjects::~SynchronizationObjects() {
 
 }
+
+VkSemaphore SynchronizationObjects::getImageAvailableSemaphore(int index) {
+  return this->imageAvailableSemaphoreList[index];
+}
+
+VkSemaphore SynchronizationObjects::getRenderFinishedSemaphore(int index) {
+  return this->renderFinishedSemaphoreList[index];
+}
+
+VkFence SynchronizationObjects::getInFlightFence(int index) {
+  return this->inFlightFenceList[index];
+}
+
+VkFence SynchronizationObjects::getImageInFlight(int index) {
+  return this->imageInFlightList[index];
+}

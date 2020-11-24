@@ -13,4 +13,9 @@ private:
 public:
   SynchronizationObjects(VkDevice logicalDevice, uint32_t framesInFlight, uint32_t swapchainImageCount);
   ~SynchronizationObjects();
+
+  VkSemaphore getImageAvailableSemaphore(int index);
+  VkSemaphore getRenderFinishedSemaphore(int index);
+  VkFence getInFlightFence(int index);
+  VkFence getImageInFlight(int index);
 };

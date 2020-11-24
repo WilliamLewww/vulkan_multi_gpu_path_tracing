@@ -22,6 +22,9 @@
 
 class Device {
 private:
+  uint32_t currentFrame;
+  uint32_t framesInFlight;
+
   VkPhysicalDevice physicalDevice;
   VkPhysicalDeviceProperties physicalDeviceProperties;
   VkPhysicalDeviceFeatures physicalDeviceFeatures;
@@ -43,12 +46,6 @@ private:
   GraphicsPipeline* graphicsPipeline;
   RenderCommandBuffers* renderCommandBuffers;
   SynchronizationObjects* synchronizationObjects;
-
-  std::vector<VkSemaphore> imageAvailableSemaphoreList;
-  std::vector<VkSemaphore> renderFinishedSemaphoreList;
-  std::vector<VkFence> inFlightFenceList;
-  std::vector<VkFence> imageInFlightList;
-  uint32_t currentFrame;
 
   void updateCameraUniformBuffer(VkDeviceMemory uniformBufferMemory, void* buffer, uint32_t bufferSize);
 public:
