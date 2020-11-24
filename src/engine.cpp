@@ -16,7 +16,7 @@ Engine::Engine() {
 
   this->surface = new Surface(this->vulkanInstance->getVulkanInstance(), this->window->getWindow());
 
-  this->renderer = new Renderer(this->vulkanInstance->getVulkanInstance(), this->surface->getSurface(), this->modelCollection, this->camera, this->window->getWindow());
+  this->renderer = new Renderer(this->vulkanInstance->getVulkanInstance(), this->surface->getSurface(), this->modelCollection, this->camera);
 }
 
 Engine::~Engine() {
@@ -26,4 +26,13 @@ Engine::~Engine() {
   delete this->window;
   delete this->modelCollection;
   delete this->camera;
+}
+
+void Engine::start() {
+  while (!glfwWindowShouldClose(this->window->getWindow())) {
+    glfwPollEvents();
+    this->camera->update();
+    this->renderer->updateUniformBuffers(camera);
+    this->renderer->render();
+  }
 }

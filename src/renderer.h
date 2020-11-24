@@ -10,6 +10,9 @@ class Renderer {
 private:
   DeviceCollection* deviceCollection;
 public:
-  Renderer(VkInstance vulkanInstance, VkSurfaceKHR surface, ModelCollection* modelCollection, Camera* camera, GLFWwindow* window);
+  Renderer(VkInstance vulkanInstance, VkSurfaceKHR surface, ModelCollection* modelCollection, Camera* camera);
   ~Renderer();
+
+  void render();
+  void updateUniformBuffers(Camera* camera);
 };

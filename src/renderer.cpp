@@ -1,6 +1,6 @@
 #include "renderer.h"
 
-Renderer::Renderer(VkInstance vulkanInstance, VkSurfaceKHR surface, ModelCollection* modelCollection, Camera* camera, GLFWwindow* window) {
+Renderer::Renderer(VkInstance vulkanInstance, VkSurfaceKHR surface, ModelCollection* modelCollection, Camera* camera) {
   this->deviceCollection = new DeviceCollection(vulkanInstance);
 
   Device* displayDevice = this->deviceCollection->getDevice(0);
@@ -60,15 +60,18 @@ Renderer::Renderer(VkInstance vulkanInstance, VkSurfaceKHR surface, ModelCollect
   displayDevice->createRenderCommandBuffers();
 
   displayDevice->createSynchronizationObjects();
-
-  while (!glfwWindowShouldClose(window)) {
-    glfwPollEvents();
-    displayDevice->updateUniformBuffer(0, camera->getUniformPointer(), camera->getUniformStructureSize());
-    displayDevice->drawFrame();
-    camera->update();
-  }
 }
 
 Renderer::~Renderer() {
   delete this->deviceCollection;
+}
+
+void Renderer::render() {
+  Device* displayDevice = this->deviceCollection->getDevice(0);
+  displayDevice->drawFrame();
+}
+
+void Renderer::updateUniformBuffers(Camera* camera) {
+  Device* displayDevice = this->deviceCollection->getDevice(0);
+  displayDevice->updateUniformBuffer(0, camera->getUniformPointer(), camera->getUniformStructureSize());
 }
