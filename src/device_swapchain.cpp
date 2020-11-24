@@ -116,3 +116,7 @@ VkExtent2D DeviceSwapchain::getSwapchainExtent() {
 std::vector<VkImageView> DeviceSwapchain::getSwapchainImageViewList() {
   return this->swapchainImageViewList;
 }
+
+std::vector<VkImage> DeviceSwapchain::getSwapchainImageList() {
+  return this->swapchainImageList;
+}

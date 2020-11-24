@@ -508,3 +508,7 @@ VkDescriptorBufferInfo* ModelInstanceCollection::getDescriptorTotalMaterialBuffe
 VkDescriptorBufferInfo* ModelInstanceCollection::getDescriptorTotalMaterialLightBufferInfoPointer() {
   return &this->descriptorTotalMaterialLightBufferInfo;
 }
+
+std::vector<ModelInstance*> ModelInstanceCollection::getModelInstanceList() {
+  return this->modelInstanceList;
+}

@@ -21,4 +21,5 @@ public:
   VkExtent2D getSwapchainExtent();
 
   std::vector<VkImageView> getSwapchainImageViewList();
+  std::vector<VkImage> getSwapchainImageList();
 };

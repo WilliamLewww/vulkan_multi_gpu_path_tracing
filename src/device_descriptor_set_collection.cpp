@@ -77,3 +77,13 @@ std::vector<VkDescriptorSetLayout> DeviceDescriptorSetCollection::getDescriptorS
 
   return descriptorSetLayoutList;
 }
+
+std::vector<VkDescriptorSet> DeviceDescriptorSetCollection::getDescriptorSetList() {
+  std::vector<VkDescriptorSet> descriptorSetList;
+
+  for (int x = 0; x < this->deviceDescriptorSetList.size(); x++) {
+    descriptorSetList.push_back(this->deviceDescriptorSetList[x]->getDescriptorSet());
+  }
+
+  return descriptorSetList;
+}

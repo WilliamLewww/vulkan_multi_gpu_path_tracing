@@ -17,6 +17,7 @@
 #include "acceleration_structure_collection.h"
 #include "device_descriptor_set_collection.h"
 #include "graphics_pipeline.h"
+#include "render_command_buffers.h"
 
 class Device {
 private:
@@ -39,6 +40,7 @@ private:
   AccelerationStructureCollection* accelerationStructureCollection;
   DeviceDescriptorSetCollection* deviceDescriptorSetCollection;
   GraphicsPipeline* graphicsPipeline;
+  RenderCommandBuffers* renderCommandBuffers;
 public:
   Device(VkPhysicalDevice physicalDevice);
   ~Device();
@@ -62,4 +64,5 @@ public:
   void createAccelerationStructureCollection(std::map<Model*, std::vector<ModelInstance*>> modelInstanceMap);
   void createDescriptorSetCollection(std::vector<std::vector<DeviceDescriptor*>> separatedDeviceDescriptorList);
   void createGraphicsPipeline(std::string vertexShaderFile, std::string fragmentShaderFile);
+  void createRenderCommandBuffers();
 };

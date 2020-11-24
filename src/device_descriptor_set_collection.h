@@ -17,4 +17,5 @@ public:
   ~DeviceDescriptorSetCollection();
 
   std::vector<VkDescriptorSetLayout> getDescriptorSetLayoutList();
+  std::vector<VkDescriptorSet> getDescriptorSetList();
 };

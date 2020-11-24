@@ -25,7 +25,7 @@ DeviceQueue::DeviceQueue(VkPhysicalDevice physicalDevice, VkSurfaceKHR surface) 
     VkBool32 isPresentSupported = 0;
     vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, x, surface, &isPresentSupported);
     
-    if (this->presentQueueIndex == -1 && this->computeQueueIndex != x && isPresentSupported) {
+    if (this->presentQueueIndex == -1 && isPresentSupported) {
       this->presentQueueIndex = x;
       this->queueFrequencyMap[x] += 1;
     }

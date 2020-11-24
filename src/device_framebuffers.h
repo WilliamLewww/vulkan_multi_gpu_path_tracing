@@ -16,4 +16,6 @@ public:
                      VkImageView depthImageView);
 
   ~DeviceFramebuffers();
+
+  std::vector<VkFramebuffer> getFramebufferList();
 };

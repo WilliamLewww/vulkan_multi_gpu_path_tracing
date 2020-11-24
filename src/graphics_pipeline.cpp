@@ -173,3 +173,11 @@ GraphicsPipeline::GraphicsPipeline(std::string vertexShaderFile, std::string fra
 GraphicsPipeline::~GraphicsPipeline() {
 
 }
+
+VkPipelineLayout GraphicsPipeline::getPipelineLayout() {
+  return this->pipelineLayout;
+}
+
+VkPipeline GraphicsPipeline::getGraphicsPipeline() {
+  return this->graphicsPipeline;
+}

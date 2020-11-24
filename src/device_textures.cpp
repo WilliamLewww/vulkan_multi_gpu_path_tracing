@@ -83,6 +83,10 @@ DeviceTextures::~DeviceTextures() {
 
 }
 
+VkImage DeviceTextures::getRayTraceImage() {
+  return this->rayTraceImage;
+}
+
 VkDescriptorImageInfo* DeviceTextures::getDescriptorRayTraceImageInfoPointer() {
   return &this->descriptorRayTraceImageInfo;
 }

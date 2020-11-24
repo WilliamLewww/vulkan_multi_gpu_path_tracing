@@ -20,5 +20,6 @@ public:
   
   ~DeviceTextures();
 
+  VkImage getRayTraceImage();
   VkDescriptorImageInfo* getDescriptorRayTraceImageInfoPointer();
 };

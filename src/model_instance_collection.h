@@ -118,4 +118,6 @@ public:
   VkDescriptorBufferInfo* getDescriptorTotalMaterialIndexBufferInfoPointer();
   VkDescriptorBufferInfo* getDescriptorTotalMaterialBufferInfoPointer();
   VkDescriptorBufferInfo* getDescriptorTotalMaterialLightBufferInfoPointer();
+
+  std::vector<ModelInstance*> getModelInstanceList();
 };

@@ -16,6 +16,10 @@ ModelInstance::~ModelInstance() {
 
 }
 
+Model* ModelInstance::getModel() {
+  return this->model;
+}
+
 uint32_t ModelInstance::getInstanceIndex() {
   return this->instanceIndex;
 }

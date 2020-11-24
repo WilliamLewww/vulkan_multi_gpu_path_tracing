@@ -36,3 +36,7 @@ DeviceFramebuffers::DeviceFramebuffers(VkDevice logicalDevice,
 DeviceFramebuffers::~DeviceFramebuffers() {
 
 }
+
+std::vector<VkFramebuffer> DeviceFramebuffers::getFramebufferList() {
+  return this->framebufferList;
+}
