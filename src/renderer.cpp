@@ -1,6 +1,6 @@
 #include "renderer.h"
 
-Renderer::Renderer(VkInstance vulkanInstance, VkSurfaceKHR surface, ModelCollection* modelCollection, Camera* camera) {
+Renderer::Renderer(VkInstance vulkanInstance, VkSurfaceKHR surface, ModelCollection* modelCollection, Camera* camera, GLFWwindow* window) {
   this->deviceCollection = new DeviceCollection(vulkanInstance);
 
   Device* displayDevice = this->deviceCollection->getDevice(0);
@@ -58,6 +58,14 @@ Renderer::Renderer(VkInstance vulkanInstance, VkSurfaceKHR surface, ModelCollect
 
   displayDevice->createGraphicsPipeline("bin/basic.vert.spv", "bin/basic.frag.spv");
   displayDevice->createRenderCommandBuffers();
+
+  displayDevice->createSynchronizationObjects();
+
+  while (!glfwWindowShouldClose(window)) {
+    glfwPollEvents();
+    displayDevice->drawFrame(camera->getUniformPointer(), camera->getUniformStructureSize());
+    camera->update();
+  }
 }
 
 Renderer::~Renderer() {

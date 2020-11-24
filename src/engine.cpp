@@ -16,7 +16,7 @@ Engine::Engine() {
 
   this->surface = new Surface(this->vulkanInstance->getVulkanInstance(), this->window->getWindow());
 
-  this->renderer = new Renderer(this->vulkanInstance->getVulkanInstance(), this->surface->getSurface(), this->modelCollection, this->camera);
+  this->renderer = new Renderer(this->vulkanInstance->getVulkanInstance(), this->surface->getSurface(), this->modelCollection, this->camera, this->window->getWindow());
 }
 
 Engine::~Engine() {

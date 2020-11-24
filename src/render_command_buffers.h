@@ -24,4 +24,6 @@ public:
                       std::vector<ModelInstance*> modelInstanceList);
 
   ~RenderCommandBuffers();
+
+  std::vector<VkCommandBuffer>& getCommandBufferList();
 };

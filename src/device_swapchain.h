@@ -20,6 +20,8 @@ public:
   VkFormat getSwapchainImageFormat();
   VkExtent2D getSwapchainExtent();
 
+  VkSwapchainKHR getSwapchain();
+
   std::vector<VkImageView> getSwapchainImageViewList();
   std::vector<VkImage> getSwapchainImageList();
 };

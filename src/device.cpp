@@ -176,3 +176,85 @@ void Device::createRenderCommandBuffers() {
                                                         this->deviceDescriptorSetCollection->getDescriptorSetList(),
                                                         this->modelInstanceCollection->getModelInstanceList());
 }
+
+void Device::createSynchronizationObjects() {
+  this->imageAvailableSemaphoreList.resize(2);
+  this->renderFinishedSemaphoreList.resize(2);
+  this->inFlightFenceList.resize(2);
+  this->imageInFlightList.resize(this->deviceSwapchain->getSwapchainImageCount());
+  for (int x = 0; x < this->deviceSwapchain->getSwapchainImageCount(); x++) {
+    this->imageInFlightList[x] = VK_NULL_HANDLE;
+  }
+
+  VkSemaphoreCreateInfo semaphoreCreateInfo = {};
+  semaphoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+
+  VkFenceCreateInfo fenceCreateInfo = {};
+  fenceCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+  fenceCreateInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+
+  for (int x = 0; x < 2; x++) {
+    if (vkCreateSemaphore(this->logicalDevice, &semaphoreCreateInfo, NULL, &this->imageAvailableSemaphoreList[x]) == VK_SUCCESS &&
+        vkCreateSemaphore(this->logicalDevice, &semaphoreCreateInfo, NULL, &this->renderFinishedSemaphoreList[x]) == VK_SUCCESS &&
+        vkCreateFence(this->logicalDevice, &fenceCreateInfo, NULL, &this->inFlightFenceList[x]) != VK_SUCCESS) {
+      printf("failed to create synchronization objects for frame #%d\n", x);
+    }
+  }
+}
+
+void Device::updateCameraUniformBuffer(VkDeviceMemory uniformBufferMemory, void* buffer, uint32_t bufferSize) {
+  void* data;
+  vkMapMemory(this->logicalDevice, uniformBufferMemory, 0, bufferSize, 0, &data);
+  memcpy(data, buffer, bufferSize);
+  vkUnmapMemory(this->logicalDevice, uniformBufferMemory);
+}
+
+void Device::drawFrame(void* buffer, uint32_t bufferSize) {
+  vkWaitForFences(this->logicalDevice, 1, &this->inFlightFenceList[this->currentFrame], VK_TRUE, UINT64_MAX);
+    
+  uint32_t imageIndex;
+  vkAcquireNextImageKHR(this->logicalDevice, this->deviceSwapchain->getSwapchain(), UINT64_MAX, this->imageAvailableSemaphoreList[this->currentFrame], VK_NULL_HANDLE, &imageIndex);
+    
+  if (this->imageInFlightList[imageIndex] != VK_NULL_HANDLE) {
+    vkWaitForFences(this->logicalDevice, 1, &this->imageInFlightList[imageIndex], VK_TRUE, UINT64_MAX);
+  }
+  this->imageInFlightList[imageIndex] = this->inFlightFenceList[this->currentFrame];
+ 
+  updateCameraUniformBuffer(this->deviceUniformBufferCollection->getDeviceMemory(0), buffer, bufferSize);
+   
+  VkSubmitInfo submitInfo = {};
+  submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    
+  VkSemaphore waitSemaphores[1] = {this->imageAvailableSemaphoreList[this->currentFrame]};
+  VkPipelineStageFlags waitStages[1] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+  submitInfo.waitSemaphoreCount = 1;
+  submitInfo.pWaitSemaphores = waitSemaphores;
+  submitInfo.pWaitDstStageMask = waitStages;
+
+  submitInfo.commandBufferCount = 1;
+  submitInfo.pCommandBuffers = &this->renderCommandBuffers->getCommandBufferList()[imageIndex];
+
+  VkSemaphore signalSemaphores[1] = {this->renderFinishedSemaphoreList[this->currentFrame]};
+  submitInfo.signalSemaphoreCount = 1;
+  submitInfo.pSignalSemaphores = signalSemaphores;
+
+  vkResetFences(this->logicalDevice, 1, &this->inFlightFenceList[this->currentFrame]);
+
+  if (vkQueueSubmit(this->deviceQueue->getGraphicsQueue(), 1, &submitInfo, this->inFlightFenceList[this->currentFrame]) != VK_SUCCESS) {
+    printf("failed to submit draw command buffer\n");
+  }
+
+  VkPresentInfoKHR presentInfo = {};  
+  presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+  presentInfo.waitSemaphoreCount = 1;
+  presentInfo.pWaitSemaphores = signalSemaphores;
+
+  VkSwapchainKHR swapchains[1] = {this->deviceSwapchain->getSwapchain()};
+  presentInfo.swapchainCount = 1;
+  presentInfo.pSwapchains = swapchains;
+  presentInfo.pImageIndices = &imageIndex;
+
+  vkQueuePresentKHR(this->deviceQueue->getPresentQueue(), &presentInfo);
+
+  this->currentFrame = (this->currentFrame + 1) % 2;
+}

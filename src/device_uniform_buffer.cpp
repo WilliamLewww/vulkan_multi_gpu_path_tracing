@@ -25,6 +25,10 @@ DeviceUniformBuffer::~DeviceUniformBuffer() {
 
 }
 
+VkDeviceMemory DeviceUniformBuffer::getDeviceMemory() {
+  return this->uniformBufferMemory;
+}
+
 VkDescriptorBufferInfo* DeviceUniformBuffer::getDescriptorBufferInfoPointer() {
   return &this->descriptorBufferInfo;
 }

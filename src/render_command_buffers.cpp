@@ -177,3 +177,7 @@ RenderCommandBuffers::RenderCommandBuffers(VkDevice logicalDevice,
 RenderCommandBuffers::~RenderCommandBuffers() {
 
 }
+
+std::vector<VkCommandBuffer>& RenderCommandBuffers::getCommandBufferList() {
+  return this->commandBufferList;
+}

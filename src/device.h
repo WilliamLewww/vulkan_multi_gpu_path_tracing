@@ -18,6 +18,7 @@
 #include "device_descriptor_set_collection.h"
 #include "graphics_pipeline.h"
 #include "render_command_buffers.h"
+#include "synchronization_objects.h"
 
 class Device {
 private:
@@ -41,6 +42,15 @@ private:
   DeviceDescriptorSetCollection* deviceDescriptorSetCollection;
   GraphicsPipeline* graphicsPipeline;
   RenderCommandBuffers* renderCommandBuffers;
+  SynchronizationObjects* synchronizationObjects;
+
+  std::vector<VkSemaphore> imageAvailableSemaphoreList;
+  std::vector<VkSemaphore> renderFinishedSemaphoreList;
+  std::vector<VkFence> inFlightFenceList;
+  std::vector<VkFence> imageInFlightList;
+  uint32_t currentFrame;
+
+  void updateCameraUniformBuffer(VkDeviceMemory uniformBufferMemory, void* buffer, uint32_t bufferSize);
 public:
   Device(VkPhysicalDevice physicalDevice);
   ~Device();
@@ -65,4 +75,7 @@ public:
   void createDescriptorSetCollection(std::vector<std::vector<DeviceDescriptor*>> separatedDeviceDescriptorList);
   void createGraphicsPipeline(std::string vertexShaderFile, std::string fragmentShaderFile);
   void createRenderCommandBuffers();
+  void createSynchronizationObjects();
+
+  void drawFrame(void* buffer, uint32_t bufferSize);
 };
