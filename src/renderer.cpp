@@ -3,8 +3,8 @@
 Renderer::Renderer(VkInstance vulkanInstance, VkSurfaceKHR surface, ModelCollection* modelCollection, Camera* camera) {
   this->deviceCollection = new DeviceCollection(vulkanInstance);
 
-  Device* displayDevice = this->deviceCollection->getDevice(0);
-  displayDevice->initializeDeviceQueue(surface);
+  this->displayDevice = this->deviceCollection->getDevice(0);
+  this->displayDevice->initializeDeviceQueue(surface);
 
   std::vector<const char*> deviceExtensionList {
     VK_KHR_SWAPCHAIN_EXTENSION_NAME, 
@@ -17,49 +17,49 @@ Renderer::Renderer(VkInstance vulkanInstance, VkSurfaceKHR surface, ModelCollect
     "VK_KHR_maintenance3",
     "VK_KHR_maintenance1"
   };
-  displayDevice->createLogicalDevice(deviceExtensionList);
-  displayDevice->createCommandPool();
-  displayDevice->createSwapchain(surface);
-  displayDevice->createRenderPass();
-  displayDevice->createDepthResource();
-  displayDevice->createFramebuffers();
-  displayDevice->createTextures();
+  this->displayDevice->createLogicalDevice(deviceExtensionList);
+  this->displayDevice->createCommandPool();
+  this->displayDevice->createSwapchain(surface);
+  this->displayDevice->createRenderPass();
+  this->displayDevice->createDepthResource();
+  this->displayDevice->createFramebuffers();
+  this->displayDevice->createTextures();
 
   std::map<Model*, uint32_t> modelFrequencyMap = {
     {modelCollection->getModel(0), 2},
     {modelCollection->getModel(1), 1}
   };
-  displayDevice->createModelInstances(modelFrequencyMap);
+  this->displayDevice->createModelInstances(modelFrequencyMap);
 
   std::map<void*, uint32_t> bufferMap = {
     {camera->getUniformPointer(), camera->getUniformStructureSize()},
-    {displayDevice->getModelInstanceCollectionPointer()->getUniformBufferPointer(), displayDevice->getModelInstanceCollectionPointer()->getUniformBufferSize()}
+    {this->displayDevice->getModelInstanceCollectionPointer()->getUniformBufferPointer(), this->displayDevice->getModelInstanceCollectionPointer()->getUniformBufferSize()}
   };
-  displayDevice->createUniformBufferCollection(bufferMap);
+  this->displayDevice->createUniformBufferCollection(bufferMap);
 
-  displayDevice->createAccelerationStructureCollection(displayDevice->getModelInstanceCollectionPointer()->getModelInstanceMap());
+  this->displayDevice->createAccelerationStructureCollection(this->displayDevice->getModelInstanceCollectionPointer()->getModelInstanceMap());
 
   std::vector<std::vector<DeviceDescriptor*>> separatedDeviceDescriptorList = {
     {
-      new DeviceDescriptor(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, (VkShaderStageFlagBits)(VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT), NULL, displayDevice->getDeviceUniformBufferCollection()->getDescriptorBufferInfoPointer(0), NULL, NULL),
-      new DeviceDescriptor(1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, (VkShaderStageFlagBits)(VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT), NULL, displayDevice->getDeviceUniformBufferCollection()->getDescriptorBufferInfoPointer(1), NULL, NULL),
-      new DeviceDescriptor(2, VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR, (VkShaderStageFlagBits)(VK_SHADER_STAGE_FRAGMENT_BIT), NULL, NULL, NULL, displayDevice->getAccelerationStructureCollection()->getWriteDescriptorSetAccelerationStructurePointer()),
-      new DeviceDescriptor(3, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, (VkShaderStageFlagBits)(VK_SHADER_STAGE_FRAGMENT_BIT), displayDevice->getDeviceTextures()->getDescriptorRayTraceImageInfoPointer(), NULL, NULL, NULL),
+      new DeviceDescriptor(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, (VkShaderStageFlagBits)(VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT), NULL, this->displayDevice->getDeviceUniformBufferCollection()->getDescriptorBufferInfoPointer(0), NULL, NULL),
+      new DeviceDescriptor(1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, (VkShaderStageFlagBits)(VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT), NULL, this->displayDevice->getDeviceUniformBufferCollection()->getDescriptorBufferInfoPointer(1), NULL, NULL),
+      new DeviceDescriptor(2, VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR, (VkShaderStageFlagBits)(VK_SHADER_STAGE_FRAGMENT_BIT), NULL, NULL, NULL, this->displayDevice->getAccelerationStructureCollection()->getWriteDescriptorSetAccelerationStructurePointer()),
+      new DeviceDescriptor(3, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, (VkShaderStageFlagBits)(VK_SHADER_STAGE_FRAGMENT_BIT), this->displayDevice->getDeviceTextures()->getDescriptorRayTraceImageInfoPointer(), NULL, NULL, NULL),
     },
     {
-      new DeviceDescriptor(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, (VkShaderStageFlagBits)(VK_SHADER_STAGE_FRAGMENT_BIT), NULL, displayDevice->getModelInstanceCollection()->getDescriptorTotalIndexBufferInfoPointer(), NULL, NULL),
-      new DeviceDescriptor(1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, (VkShaderStageFlagBits)(VK_SHADER_STAGE_FRAGMENT_BIT), NULL, displayDevice->getModelInstanceCollection()->getDescriptorTotalVertexBufferInfoPointer(), NULL, NULL),
-      new DeviceDescriptor(2, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, (VkShaderStageFlagBits)(VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT), NULL, displayDevice->getModelInstanceCollection()->getDescriptorTotalMaterialIndexBufferInfoPointer(), NULL, NULL),
-      new DeviceDescriptor(3, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, (VkShaderStageFlagBits)(VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT), NULL, displayDevice->getModelInstanceCollection()->getDescriptorTotalMaterialBufferInfoPointer(), NULL, NULL),
-      new DeviceDescriptor(4, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, (VkShaderStageFlagBits)(VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT), NULL, displayDevice->getModelInstanceCollection()->getDescriptorTotalMaterialLightBufferInfoPointer(), NULL, NULL),
+      new DeviceDescriptor(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, (VkShaderStageFlagBits)(VK_SHADER_STAGE_FRAGMENT_BIT), NULL, this->displayDevice->getModelInstanceCollection()->getDescriptorTotalIndexBufferInfoPointer(), NULL, NULL),
+      new DeviceDescriptor(1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, (VkShaderStageFlagBits)(VK_SHADER_STAGE_FRAGMENT_BIT), NULL, this->displayDevice->getModelInstanceCollection()->getDescriptorTotalVertexBufferInfoPointer(), NULL, NULL),
+      new DeviceDescriptor(2, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, (VkShaderStageFlagBits)(VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT), NULL, this->displayDevice->getModelInstanceCollection()->getDescriptorTotalMaterialIndexBufferInfoPointer(), NULL, NULL),
+      new DeviceDescriptor(3, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, (VkShaderStageFlagBits)(VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT), NULL, this->displayDevice->getModelInstanceCollection()->getDescriptorTotalMaterialBufferInfoPointer(), NULL, NULL),
+      new DeviceDescriptor(4, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, (VkShaderStageFlagBits)(VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT), NULL, this->displayDevice->getModelInstanceCollection()->getDescriptorTotalMaterialLightBufferInfoPointer(), NULL, NULL),
     }
   };
-  displayDevice->createDescriptorSetCollection(separatedDeviceDescriptorList);
+  this->displayDevice->createDescriptorSetCollection(separatedDeviceDescriptorList);
 
-  displayDevice->createGraphicsPipeline("bin/basic.vert.spv", "bin/basic.frag.spv");
-  displayDevice->createRenderCommandBuffers();
+  this->displayDevice->createGraphicsPipeline("bin/basic.vert.spv", "bin/basic.frag.spv");
+  this->displayDevice->createRenderCommandBuffers();
 
-  displayDevice->createSynchronizationObjects();
+  this->displayDevice->createSynchronizationObjects();
 }
 
 Renderer::~Renderer() {
@@ -67,11 +67,9 @@ Renderer::~Renderer() {
 }
 
 void Renderer::render() {
-  Device* displayDevice = this->deviceCollection->getDevice(0);
-  displayDevice->drawFrame();
+  this->displayDevice->drawFrame();
 }
 
 void Renderer::updateUniformBuffers(Camera* camera) {
-  Device* displayDevice = this->deviceCollection->getDevice(0);
-  displayDevice->updateUniformBuffer(0, camera->getUniformPointer(), camera->getUniformStructureSize());
+  this->displayDevice->updateUniformBuffer(0, camera->getUniformPointer(), camera->getUniformStructureSize());
 }
