@@ -15,6 +15,10 @@ Device::~Device() {
 
 }
 
+VkDevice Device::getLogicalDevice() {
+  return this->logicalDevice;
+}
+
 ModelInstanceCollection* Device::getModelInstanceCollectionPointer() {
   return this->modelInstanceCollection;
 }
@@ -184,14 +188,7 @@ void Device::createSynchronizationObjects() {
   this->synchronizationObjects = new SynchronizationObjects(this->logicalDevice, this->framesInFlight, this->deviceSwapchain->getSwapchainImageCount());
 }
 
-void Device::updateCameraUniformBuffer(VkDeviceMemory uniformBufferMemory, void* buffer, uint32_t bufferSize) {
-  void* data;
-  vkMapMemory(this->logicalDevice, uniformBufferMemory, 0, bufferSize, 0, &data);
-  memcpy(data, buffer, bufferSize);
-  vkUnmapMemory(this->logicalDevice, uniformBufferMemory);
-}
-
-void Device::drawFrame(void* buffer, uint32_t bufferSize) {
+void Device::drawFrame() {
   VkSemaphore imageAvailableSemaphore = synchronizationObjects->getImageAvailableSemaphore(this->currentFrame);
   VkSemaphore renderFinishedSemaphore = synchronizationObjects->getRenderFinishedSemaphore(this->currentFrame);
   VkFence inFlightFence = synchronizationObjects->getInFlightFence(this->currentFrame);
@@ -206,8 +203,6 @@ void Device::drawFrame(void* buffer, uint32_t bufferSize) {
     vkWaitForFences(this->logicalDevice, 1, &imageInFlight, VK_TRUE, UINT64_MAX);
   }
   imageInFlight = inFlightFence;
- 
-  updateCameraUniformBuffer(this->deviceUniformBufferCollection->getDeviceMemory(0), buffer, bufferSize);
    
   VkSubmitInfo submitInfo = {};
   submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;

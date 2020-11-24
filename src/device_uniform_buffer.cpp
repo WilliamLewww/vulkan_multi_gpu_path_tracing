@@ -32,3 +32,10 @@ VkDeviceMemory DeviceUniformBuffer::getDeviceMemory() {
 VkDescriptorBufferInfo* DeviceUniformBuffer::getDescriptorBufferInfoPointer() {
   return &this->descriptorBufferInfo;
 }
+
+void DeviceUniformBuffer::updateUniformBuffer(VkDevice logicalDevice, void* buffer, uint32_t bufferSize) {
+  void* data;
+  vkMapMemory(logicalDevice, this->uniformBufferMemory, 0, bufferSize, 0, &data);
+  memcpy(data, buffer, bufferSize);
+  vkUnmapMemory(logicalDevice, this->uniformBufferMemory);
+}

@@ -12,8 +12,8 @@ DeviceUniformBufferCollection::~DeviceUniformBufferCollection() {
   }
 }
 
-VkDeviceMemory DeviceUniformBufferCollection::getDeviceMemory(int index) {
-  return this->deviceUniformBufferList[index]->getDeviceMemory();
+void DeviceUniformBufferCollection::updateUniformBuffer(VkDevice logicalDevice, int index, void* buffer, uint32_t bufferSize) {
+  this->deviceUniformBufferList[index]->updateUniformBuffer(logicalDevice, buffer, bufferSize);
 }
 
 VkDescriptorBufferInfo* DeviceUniformBufferCollection::getDescriptorBufferInfoPointer(int index) {

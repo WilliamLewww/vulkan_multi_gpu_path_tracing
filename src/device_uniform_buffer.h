@@ -16,6 +16,7 @@ public:
   ~DeviceUniformBuffer();
 
   VkDeviceMemory getDeviceMemory();
-
   VkDescriptorBufferInfo* getDescriptorBufferInfoPointer();
+
+  void updateUniformBuffer(VkDevice logicalDevice, void* buffer, uint32_t bufferSize);
 };

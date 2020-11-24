@@ -46,11 +46,11 @@ private:
   GraphicsPipeline* graphicsPipeline;
   RenderCommandBuffers* renderCommandBuffers;
   SynchronizationObjects* synchronizationObjects;
-
-  void updateCameraUniformBuffer(VkDeviceMemory uniformBufferMemory, void* buffer, uint32_t bufferSize);
 public:
   Device(VkPhysicalDevice physicalDevice);
   ~Device();
+
+  VkDevice getLogicalDevice();
 
   ModelInstanceCollection* getModelInstanceCollectionPointer();
   DeviceUniformBufferCollection* getDeviceUniformBufferCollection();
@@ -74,5 +74,5 @@ public:
   void createRenderCommandBuffers();
   void createSynchronizationObjects();
 
-  void drawFrame(void* buffer, uint32_t bufferSize);
+  void drawFrame();
 };

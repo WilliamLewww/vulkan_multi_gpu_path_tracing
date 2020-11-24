@@ -13,6 +13,6 @@ public:
   DeviceUniformBufferCollection(std::map<void*, uint32_t> bufferMap, VkDevice logicalDevice, VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties);
   ~DeviceUniformBufferCollection();
 
-  VkDeviceMemory getDeviceMemory(int index); 
+  void updateUniformBuffer(VkDevice logicalDevice, int index, void* buffer, uint32_t bufferSize);
   VkDescriptorBufferInfo* getDescriptorBufferInfoPointer(int index);
 };

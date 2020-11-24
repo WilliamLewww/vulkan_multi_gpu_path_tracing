@@ -63,7 +63,8 @@ Renderer::Renderer(VkInstance vulkanInstance, VkSurfaceKHR surface, ModelCollect
 
   while (!glfwWindowShouldClose(window)) {
     glfwPollEvents();
-    displayDevice->drawFrame(camera->getUniformPointer(), camera->getUniformStructureSize());
+    displayDevice->getDeviceUniformBufferCollection()->updateUniformBuffer(displayDevice->getLogicalDevice(), 0, camera->getUniformPointer(), camera->getUniformStructureSize());
+    displayDevice->drawFrame();
     camera->update();
   }
 }
