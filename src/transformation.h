@@ -4,14 +4,20 @@
 
 #include "string.h"
 
+struct Matrix4x4 {
+  float data[16];
+
+  float& operator[](int index);
+};
+
 class Transformation {
 private:
-  float transformMatrix[16];
+  Matrix4x4 transformationMatrix;
 public:
   Transformation();
-  Transformation(float matrix[16]);
+  Transformation(Matrix4x4 transformationMatrix);
   ~Transformation();
 
-  float* getTransformMatrix();
+  Matrix4x4 getTransformMatrix();
   VkTransformMatrixKHR getVulkanTransformMatrix();
 };

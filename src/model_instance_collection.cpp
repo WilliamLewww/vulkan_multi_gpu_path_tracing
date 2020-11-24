@@ -471,7 +471,7 @@ void ModelInstanceCollection::createTotalBuffers(std::vector<float> totalVertexL
 std::vector<float> ModelInstanceCollection::getTotalTransformList() {
   std::vector<float> transformList(this->modelInstanceList.size() * 16);
   for (int x = 0; x < this->modelInstanceList.size(); x++) {
-    memcpy((16 * x) + transformList.data(), this->modelInstanceList[x]->getTransformation().getTransformMatrix(), sizeof(float) * 16);
+    memcpy((16 * x) + transformList.data(), this->modelInstanceList[x]->getTransformation().getTransformMatrix().data, sizeof(float) * 16);
   }
 
   return transformList;
