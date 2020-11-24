@@ -20,4 +20,6 @@ public:
                                 VkQueue queue);
 
   ~TopLevelAccelerationStructure();
+
+  VkAccelerationStructureKHR* getAccelerationStructurePointer();
 };

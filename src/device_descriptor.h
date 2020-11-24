@@ -18,6 +18,8 @@ public:
   ~DeviceDescriptor();
 
   VkDescriptorType getDescriptorType();
+  VkDescriptorSetLayoutBinding getDescriptorSetLayoutBinding();
+  VkWriteDescriptorSet getWriteDescriptorSet();
 
   void setDestinationDescriptorSet(VkDescriptorSet descriptorSet);
 };

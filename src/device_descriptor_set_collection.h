@@ -2,6 +2,7 @@
 
 #include <vulkan/vulkan.h>
 #include <vector>
+#include <stdio.h>
 
 #include "device_descriptor_set.h"
 
@@ -12,6 +13,6 @@ private:
 
   std::vector<DeviceDescriptorSet*> deviceDescriptorSetList;
 public:
-  DeviceDescriptorSetCollection(std::vector<std::vector<DeviceDescriptor*>> separatedDeviceDescriptorList);
+  DeviceDescriptorSetCollection(std::vector<std::vector<DeviceDescriptor*>> separatedDeviceDescriptorList, VkDevice logicalDevice);
   ~DeviceDescriptorSetCollection();
 };

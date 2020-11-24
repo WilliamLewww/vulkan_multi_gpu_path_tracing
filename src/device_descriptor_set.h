@@ -15,4 +15,10 @@ private:
 public:
   DeviceDescriptorSet(std::vector<DeviceDescriptor*> deviceDescriptorList);
   ~DeviceDescriptorSet();
+
+  VkDescriptorSet& getDescriptorSet();
+  VkDescriptorSetLayout& getDescriptorSetLayout();
+
+  std::vector<VkDescriptorSetLayoutBinding> getDescriptorSetLayoutBindingList();
+  std::vector<VkWriteDescriptorSet> getWriteDescriptorSetList();
 };

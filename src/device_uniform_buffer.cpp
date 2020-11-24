@@ -13,8 +13,18 @@ DeviceUniformBuffer::DeviceUniformBuffer(VkDevice logicalDevice, VkPhysicalDevic
   vkMapMemory(logicalDevice, this->uniformBufferMemory, 0, bufferSize, 0, &data);
   memcpy(data, buffer, bufferSize);
   vkUnmapMemory(logicalDevice, this->uniformBufferMemory);
+
+  this->descriptorBufferInfo = {
+    .buffer= this->uniformBuffer,
+    .offset = 0,
+    .range = VK_WHOLE_SIZE
+  };
 }
 
 DeviceUniformBuffer::~DeviceUniformBuffer() {
 
+}
+
+VkDescriptorBufferInfo* DeviceUniformBuffer::getDescriptorBufferInfoPointer() {
+  return &this->descriptorBufferInfo;
 }

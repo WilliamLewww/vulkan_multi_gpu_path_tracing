@@ -15,6 +15,7 @@
 #include "model_instance_collection.h"
 #include "device_uniform_buffer_collection.h"
 #include "acceleration_structure_collection.h"
+#include "device_descriptor_set_collection.h"
 
 class Device {
 private:
@@ -35,11 +36,16 @@ private:
   ModelInstanceCollection* modelInstanceCollection;
   DeviceUniformBufferCollection* deviceUniformBufferCollection;
   AccelerationStructureCollection* accelerationStructureCollection;
+  DeviceDescriptorSetCollection* deviceDescriptorSetCollection;
 public:
   Device(VkPhysicalDevice physicalDevice);
   ~Device();
 
   ModelInstanceCollection* getModelInstanceCollectionPointer();
+  DeviceUniformBufferCollection* getDeviceUniformBufferCollection();
+  AccelerationStructureCollection* getAccelerationStructureCollection();
+  DeviceTextures* getDeviceTextures();
+  ModelInstanceCollection* getModelInstanceCollection();
 
   void initializeDeviceQueue(VkSurfaceKHR surface);
   void createLogicalDevice(std::vector<const char*> extensions);
@@ -52,4 +58,5 @@ public:
   void createModelInstances(std::map<Model*, uint32_t> modelFrequencyMap);
   void createUniformBufferCollection(std::map<void*, uint32_t> bufferMap);
   void createAccelerationStructureCollection(std::map<Model*, std::vector<ModelInstance*>> modelInstanceMap);
+  void createDescriptorSetCollection(std::vector<std::vector<DeviceDescriptor*>> separatedDeviceDescriptorList);
 };

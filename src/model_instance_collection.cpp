@@ -56,6 +56,36 @@ ModelInstanceCollection::ModelInstanceCollection(std::map<Model*, uint32_t> mode
                      physicalDeviceMemoryProperties, 
                      commandPool,
                      queue);
+
+  this->descriptorTotalVertexBufferInfo = {
+    .buffer = this->totalVertexBuffer,
+    .offset = 0,
+    .range = VK_WHOLE_SIZE
+  };
+
+  this->descriptorTotalIndexBufferInfo = {
+    .buffer = this->totalIndexBuffer,
+    .offset = 0,
+    .range = VK_WHOLE_SIZE
+  };
+
+  this->descriptorTotalMaterialIndexBufferInfo = {
+    .buffer = this->totalMaterialIndexBuffer,
+    .offset = 0,
+    .range = VK_WHOLE_SIZE
+  };
+
+  this->descriptorTotalMaterialBufferInfo = {
+    .buffer = this->totalMaterialBuffer,
+    .offset = 0,
+    .range = VK_WHOLE_SIZE
+  };
+
+  this->descriptorTotalMaterialLightBufferInfo = {
+    .buffer = this->totalMaterialLightBuffer,
+    .offset = 0,
+    .range = VK_WHOLE_SIZE
+  };
 }
 
 ModelInstanceCollection::~ModelInstanceCollection() {
@@ -457,4 +487,24 @@ uint32_t ModelInstanceCollection::getUniformBufferSize() {
 
 std::map<Model*, std::vector<ModelInstance*>> ModelInstanceCollection::getModelInstanceMap() {
   return this->modelInstanceMap;
+}
+
+VkDescriptorBufferInfo* ModelInstanceCollection::getDescriptorTotalVertexBufferInfoPointer() {
+  return &this->descriptorTotalVertexBufferInfo;
+}
+
+VkDescriptorBufferInfo* ModelInstanceCollection::getDescriptorTotalIndexBufferInfoPointer() {
+  return &this->descriptorTotalIndexBufferInfo;
+}
+
+VkDescriptorBufferInfo* ModelInstanceCollection::getDescriptorTotalMaterialIndexBufferInfoPointer() {
+  return &this->descriptorTotalMaterialIndexBufferInfo;
+}
+
+VkDescriptorBufferInfo* ModelInstanceCollection::getDescriptorTotalMaterialBufferInfoPointer() {
+  return &this->descriptorTotalMaterialBufferInfo;
+}
+
+VkDescriptorBufferInfo* ModelInstanceCollection::getDescriptorTotalMaterialLightBufferInfoPointer() {
+  return &this->descriptorTotalMaterialLightBufferInfo;
 }

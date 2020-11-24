@@ -11,6 +11,8 @@ private:
 
   TopLevelAccelerationStructure* topLevelAccelerationStructure;
 
+  VkWriteDescriptorSetAccelerationStructureKHR writeDescriptorSetAccelerationStructure;
+
   void addBottomLevelAccelerationStructureInstance(BottomLevelAccelerationStructure* bottomLevelAccelerationStructure, ModelInstance* modelInstance, VkDevice logicalDevice);
 public:
   AccelerationStructureCollection(std::map<Model*, std::vector<ModelInstance*>> modelInstanceMap, 
@@ -20,4 +22,6 @@ public:
                                   VkQueue queue);
 
   ~AccelerationStructureCollection();
+
+  VkWriteDescriptorSetAccelerationStructureKHR* getWriteDescriptorSetAccelerationStructurePointer();
 };

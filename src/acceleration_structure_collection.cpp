@@ -21,6 +21,13 @@ AccelerationStructureCollection::AccelerationStructureCollection(std::map<Model*
   }
 
   this->topLevelAccelerationStructure = new TopLevelAccelerationStructure(this->bottomLevelAccelerationStructureInstanceList, logicalDevice, physicalDeviceMemoryProperties, commandPool, queue);
+
+  this->writeDescriptorSetAccelerationStructure = {
+    .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR,
+    .pNext = NULL,
+    .accelerationStructureCount = 1,
+    .pAccelerationStructures = this->topLevelAccelerationStructure->getAccelerationStructurePointer()
+  };
 }
   
 AccelerationStructureCollection::~AccelerationStructureCollection() {
@@ -48,4 +55,8 @@ void AccelerationStructureCollection::addBottomLevelAccelerationStructureInstanc
   };
 
   this->bottomLevelAccelerationStructureInstanceList.push_back(geometryInstance);
+}
+
+VkWriteDescriptorSetAccelerationStructureKHR* AccelerationStructureCollection::getWriteDescriptorSetAccelerationStructurePointer() {
+  return &this->writeDescriptorSetAccelerationStructure;
 }

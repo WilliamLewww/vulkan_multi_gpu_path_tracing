@@ -72,8 +72,17 @@ DeviceTextures::DeviceTextures(VkDevice logicalDevice,
   vkQueueWaitIdle(queue);
 
   vkFreeCommandBuffers(logicalDevice, commandPool, 1, &commandBuffer);
+
+  this->descriptorRayTraceImageInfo = {
+    .imageView = this->rayTraceImageView,
+    .imageLayout = VK_IMAGE_LAYOUT_GENERAL
+  };
 }
 
 DeviceTextures::~DeviceTextures() {
 
+}
+
+VkDescriptorImageInfo* DeviceTextures::getDescriptorRayTraceImageInfoPointer() {
+  return &this->descriptorRayTraceImageInfo;
 }

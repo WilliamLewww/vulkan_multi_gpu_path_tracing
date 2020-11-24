@@ -59,6 +59,12 @@ private:
   VkBuffer totalMaterialLightBuffer;
   VkDeviceMemory totalMaterialLightBufferMemory;
 
+  VkDescriptorBufferInfo descriptorTotalVertexBufferInfo;
+  VkDescriptorBufferInfo descriptorTotalIndexBufferInfo;
+  VkDescriptorBufferInfo descriptorTotalMaterialIndexBufferInfo;
+  VkDescriptorBufferInfo descriptorTotalMaterialBufferInfo;
+  VkDescriptorBufferInfo descriptorTotalMaterialLightBufferInfo;
+
   void createVertexBuffer(Model* model,
                           VkDevice logicalDevice, 
                           VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties, 
@@ -106,4 +112,10 @@ public:
   uint32_t getUniformBufferSize();
 
   std::map<Model*, std::vector<ModelInstance*>> getModelInstanceMap();
+
+  VkDescriptorBufferInfo* getDescriptorTotalVertexBufferInfoPointer();
+  VkDescriptorBufferInfo* getDescriptorTotalIndexBufferInfoPointer();
+  VkDescriptorBufferInfo* getDescriptorTotalMaterialIndexBufferInfoPointer();
+  VkDescriptorBufferInfo* getDescriptorTotalMaterialBufferInfoPointer();
+  VkDescriptorBufferInfo* getDescriptorTotalMaterialLightBufferInfoPointer();
 };

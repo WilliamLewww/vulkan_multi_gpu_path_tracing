@@ -41,3 +41,11 @@ VkDescriptorType DeviceDescriptor::getDescriptorType() {
 void DeviceDescriptor::setDestinationDescriptorSet(VkDescriptorSet descriptorSet) {
   this->writeDescriptorSet.dstSet = descriptorSet;
 }
+
+VkDescriptorSetLayoutBinding DeviceDescriptor::getDescriptorSetLayoutBinding() {
+  return this->descriptorSetLayoutBinding;
+}
+
+VkWriteDescriptorSet DeviceDescriptor::getWriteDescriptorSet() {
+  return this->writeDescriptorSet;
+}

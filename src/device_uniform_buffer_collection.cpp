@@ -11,3 +11,7 @@ DeviceUniformBufferCollection::~DeviceUniformBufferCollection() {
     delete this->deviceUniformBufferList[x];
   }
 }
+
+VkDescriptorBufferInfo* DeviceUniformBufferCollection::getDescriptorBufferInfoPointer(int index) {
+  return this->deviceUniformBufferList[index]->getDescriptorBufferInfoPointer();
+}

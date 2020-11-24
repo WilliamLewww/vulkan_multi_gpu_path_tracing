@@ -16,6 +16,22 @@ ModelInstanceCollection* Device::getModelInstanceCollectionPointer() {
   return this->modelInstanceCollection;
 }
 
+DeviceUniformBufferCollection* Device::getDeviceUniformBufferCollection() {
+  return this->deviceUniformBufferCollection;
+}
+
+AccelerationStructureCollection* Device::getAccelerationStructureCollection() {
+  return this->accelerationStructureCollection;
+}
+
+DeviceTextures* Device::getDeviceTextures() {
+  return this->deviceTextures;
+}
+
+ModelInstanceCollection* Device::getModelInstanceCollection() {
+  return this->modelInstanceCollection;
+}
+
 void Device::initializeDeviceQueue(VkSurfaceKHR surface) {
   this->deviceQueue = new DeviceQueue(this->physicalDevice, surface);
 }
@@ -136,4 +152,8 @@ void Device::createUniformBufferCollection(std::map<void*, uint32_t> bufferMap) 
 
 void Device::createAccelerationStructureCollection(std::map<Model*, std::vector<ModelInstance*>> modelInstanceMap) {
   this->accelerationStructureCollection = new AccelerationStructureCollection(modelInstanceMap, this->logicalDevice, this->physicalDeviceMemoryProperties, this->deviceCommandPool->getCommandPool(), this->deviceQueue->getComputeQueue());
+}
+
+void Device::createDescriptorSetCollection(std::vector<std::vector<DeviceDescriptor*>> separatedDeviceDescriptorList) {
+  this->deviceDescriptorSetCollection = new DeviceDescriptorSetCollection(separatedDeviceDescriptorList, this->logicalDevice);
 }

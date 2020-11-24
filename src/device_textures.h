@@ -9,6 +9,8 @@ private:
   VkImageView rayTraceImageView;
   VkImage rayTraceImage;
   VkDeviceMemory rayTraceImageMemory;
+
+  VkDescriptorImageInfo descriptorRayTraceImageInfo;
 public:
   DeviceTextures(VkDevice logicalDevice, 
                  VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties, 
@@ -17,4 +19,6 @@ public:
                  VkQueue queue);
   
   ~DeviceTextures();
+
+  VkDescriptorImageInfo* getDescriptorRayTraceImageInfoPointer();
 };

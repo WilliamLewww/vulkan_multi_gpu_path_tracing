@@ -241,3 +241,7 @@ TopLevelAccelerationStructure::TopLevelAccelerationStructure(std::vector<VkAccel
 TopLevelAccelerationStructure::~TopLevelAccelerationStructure() {
 
 }
+
+VkAccelerationStructureKHR* TopLevelAccelerationStructure::getAccelerationStructurePointer() {
+  return &this->accelerationStructure;
+}
