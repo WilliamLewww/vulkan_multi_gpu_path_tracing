@@ -1,9 +1,5 @@
 #include "transformation.h"
 
-float& Matrix4x4::operator[](int x) {
-  return this->data[x];
-}
-
 Transformation::Transformation() {
   // column major
   Matrix4x4 transformationMatrix = {

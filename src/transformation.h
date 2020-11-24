@@ -1,14 +1,9 @@
 #pragma once
 
 #include <vulkan/vulkan.h>
+#include <string.h>
 
-#include "string.h"
-
-struct Matrix4x4 {
-  float data[16];
-
-  float& operator[](int index);
-};
+#include "matrix.h"
 
 class Transformation {
 private:
