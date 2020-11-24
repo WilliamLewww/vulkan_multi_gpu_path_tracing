@@ -50,8 +50,6 @@ public:
   Device(VkPhysicalDevice physicalDevice);
   ~Device();
 
-  VkDevice getLogicalDevice();
-
   ModelInstanceCollection* getModelInstanceCollectionPointer();
   DeviceUniformBufferCollection* getDeviceUniformBufferCollection();
   AccelerationStructureCollection* getAccelerationStructureCollection();
@@ -75,4 +73,5 @@ public:
   void createSynchronizationObjects();
 
   void drawFrame();
+  void updateUniformBuffer(int index, void* buffer, uint32_t bufferSize);
 };

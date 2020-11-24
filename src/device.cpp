@@ -15,10 +15,6 @@ Device::~Device() {
 
 }
 
-VkDevice Device::getLogicalDevice() {
-  return this->logicalDevice;
-}
-
 ModelInstanceCollection* Device::getModelInstanceCollectionPointer() {
   return this->modelInstanceCollection;
 }
@@ -239,4 +235,8 @@ void Device::drawFrame() {
   vkQueuePresentKHR(this->deviceQueue->getPresentQueue(), &presentInfo);
 
   this->currentFrame = (this->currentFrame + 1) % this->framesInFlight;
+}
+
+void Device::updateUniformBuffer(int index, void* buffer, uint32_t bufferSize) {
+  this->deviceUniformBufferCollection->updateUniformBuffer(this->logicalDevice, index, buffer, bufferSize);
 }
