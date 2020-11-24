@@ -238,5 +238,5 @@ void Device::drawFrame() {
 
   vkQueuePresentKHR(this->deviceQueue->getPresentQueue(), &presentInfo);
 
-  this->currentFrame = (this->currentFrame + 1) % 2;
+  this->currentFrame = (this->currentFrame + 1) % this->framesInFlight;
 }
