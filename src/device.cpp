@@ -90,7 +90,7 @@ void Device::createLogicalDevice(std::vector<const char*> extensions) {
 
   VkDeviceCreateInfo deviceCreateInfo = {
     .sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
-    .pNext = &rayTracingFeatures,
+    .pNext = NULL,
     .flags = 0,
     .queueCreateInfoCount = deviceQueueCreateInfoCount,
     .pQueueCreateInfos = deviceQueueCreateInfoList.data(),
