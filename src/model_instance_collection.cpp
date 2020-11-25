@@ -1,6 +1,6 @@
 #include "model_instance_collection.h"
 
-ModelInstanceCollection::ModelInstanceCollection(std::map<Model*, uint32_t> modelFrequencyMap, 
+ModelInstanceCollection::ModelInstanceCollection(std::map<Model*, std::vector<Matrix4x4>> modelFrequencyMap, 
                                                  VkDevice logicalDevice, 
                                                  VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties, 
                                                  VkCommandPool commandPool,
@@ -14,15 +14,15 @@ ModelInstanceCollection::ModelInstanceCollection(std::map<Model*, uint32_t> mode
   std::vector<Material> totalMaterialList;
   std::vector<LightContainer> totalMaterialLightList;
 
-  std::pair<Model*, uint32_t> previousPair;
+  std::pair<Model*, std::vector<Matrix4x4>> previousPair;
 
-  for (std::pair<Model*, uint32_t> pair : modelFrequencyMap) {
+  for (std::pair<Model*, std::vector<Matrix4x4>> pair : modelFrequencyMap) {
     this->createVertexBuffer(pair.first, logicalDevice, physicalDeviceMemoryProperties, commandPool, queue, &totalVertexList);
     this->createIndexBuffer(pair.first, logicalDevice, physicalDeviceMemoryProperties, commandPool, queue, &totalIndexList);
     this->createMaterialBuffers(pair.first, logicalDevice, physicalDeviceMemoryProperties, commandPool, queue, &totalMaterialIndexList, &totalMaterialList, &totalMaterialLightList);
 
-    for (int x = 0; x < pair.second; x++) {
-      this->modelInstanceList.push_back(new ModelInstance(pair.first, &this->vertexBufferMap[pair.first], &this->indexBufferMap[pair.first], modelIndex, instanceIndex));
+    for (int x = 0; x < pair.second.size(); x++) {
+      this->modelInstanceList.push_back(new ModelInstance(pair.first, &this->vertexBufferMap[pair.first], &this->indexBufferMap[pair.first], modelIndex, instanceIndex, pair.second[x]));
       this->modelInstanceMap[pair.first].push_back(this->modelInstanceList.back());
 
       if (modelIndex == 0) {

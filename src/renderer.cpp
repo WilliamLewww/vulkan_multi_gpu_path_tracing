@@ -25,9 +25,20 @@ Renderer::Renderer(VkInstance vulkanInstance, VkSurfaceKHR surface, ModelCollect
   this->displayDevice->createFramebuffers();
   this->displayDevice->createTextures();
 
-  std::map<Model*, uint32_t> modelFrequencyMap = {
-    {modelCollection->getModel(0), 2},
-    {modelCollection->getModel(1), 1}
+  std::map<Model*, std::vector<Matrix4x4>> modelFrequencyMap = {
+    {
+      modelCollection->getModel(0),
+      {
+        createIdentityMatrix4x4(), 
+        createIdentityMatrix4x4()
+      }
+    },
+    {
+      modelCollection->getModel(1), 
+      {
+        createIdentityMatrix4x4()
+      }
+    }
   };
   this->displayDevice->createModelInstances(modelFrequencyMap);
 

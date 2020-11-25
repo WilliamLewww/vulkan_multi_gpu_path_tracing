@@ -1,16 +1,7 @@
 #include "transformation.h"
 
 Transformation::Transformation() {
-  // column major
-  Matrix4x4 transformationMatrix = {
-    .data = {
-      1.0, 0.0, 0.0, 0.0,
-      0.0, 1.0, 0.0, 0.0,
-      0.0, 0.0, 1.0, 0.0,
-      0.0, 0.0, 0.0, 1.0
-    }
-  };
-
+  Matrix4x4 transformationMatrix = createIdentityMatrix4x4();
   memcpy(&this->transformationMatrix, &transformationMatrix, sizeof(Matrix4x4));
 }
 

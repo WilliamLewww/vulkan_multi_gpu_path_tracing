@@ -14,7 +14,7 @@ private:
   uint32_t instanceIndex;
   Transformation transformation;
 public:
-  ModelInstance(Model* model, VkBuffer* vertexBuffer, VkBuffer* indexBuffer, uint32_t modelIndex, uint32_t instanceIndex);
+  ModelInstance(Model* model, VkBuffer* vertexBuffer, VkBuffer* indexBuffer, uint32_t modelIndex, uint32_t instanceIndex, Matrix4x4 transformationMatrix);
   ~ModelInstance();
 
   Model* getModel();

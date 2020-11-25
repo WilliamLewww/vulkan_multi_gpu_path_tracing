@@ -64,7 +64,7 @@ public:
   void createDepthResource();
   void createFramebuffers();
   void createTextures();
-  void createModelInstances(std::map<Model*, uint32_t> modelFrequencyMap);
+  void createModelInstances(std::map<Model*, std::vector<Matrix4x4>> modelFrequencyMap);
   void createUniformBufferCollection(std::map<void*, uint32_t> bufferMap);
   void createAccelerationStructureCollection(std::map<Model*, std::vector<ModelInstance*>> modelInstanceMap);
   void createDescriptorSetCollection(std::vector<std::vector<DeviceDescriptor*>> separatedDeviceDescriptorList);

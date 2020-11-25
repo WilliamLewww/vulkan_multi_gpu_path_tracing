@@ -5,3 +5,5 @@ struct Matrix4x4 {
 
   float& operator[](int index);
 };
+
+Matrix4x4 createIdentityMatrix4x4();

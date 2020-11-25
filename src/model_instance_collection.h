@@ -100,7 +100,7 @@ private:
 
   std::vector<float> getTotalTransformList();
 public:
-  ModelInstanceCollection(std::map<Model*, uint32_t> modelFrequencyMap,
+  ModelInstanceCollection(std::map<Model*, std::vector<Matrix4x4>> modelFrequencyMap,
                           VkDevice logicalDevice, 
                           VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties, 
                           VkCommandPool commandPool,
