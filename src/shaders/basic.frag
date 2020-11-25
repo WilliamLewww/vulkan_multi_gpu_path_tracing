@@ -12,6 +12,11 @@ struct Material {
   vec3 emission;
 };
 
+struct LightContainer {
+  int count; 
+  int indices[64];
+};
+
 layout(location = 0) in vec3 interpolatedPosition;
 flat layout(location = 1) in uint instanceIndex;
 
@@ -42,7 +47,7 @@ layout(binding = 0, set = 1) buffer IndexBuffer { uint data[]; } indexBuffer;
 layout(binding = 1, set = 1) buffer VertexBuffer { float data[]; } vertexBuffer;
 layout(binding = 2, set = 1) buffer MaterialIndexBuffer { uint data[]; } materialIndexBuffer;
 layout(binding = 3, set = 1) buffer MaterialBuffer { Material data[]; } materialBuffer;
-layout(binding = 4, set = 1) buffer MaterialLightBuffer { int count; int indices[]; } materialLightBuffer;
+layout(binding = 4, set = 1) buffer MaterialLightBuffer { LightContainer data[]; } materialLightBuffer;
 
 float random(vec2 uv, float seed) {
   return fract(sin(mod(dot(uv, vec2(12.9898, 78.233)) + 1113.1 * seed, M_PI)) * 43758.5453);;
@@ -68,6 +73,8 @@ void main() {
 
   uint indexOffset = instanceDescriptionContainer.indexOffsets[instanceIndex];
   uint vertexOffset = instanceDescriptionContainer.vertexOffsets[instanceIndex];
+  uint materialIndexOffset = instanceDescriptionContainer.materialIndexOffsets[instanceIndex];
+  uint materialOffset = instanceDescriptionContainer.materialOffsets[instanceIndex];
   mat4 transformMatrix = instanceDescriptionContainer.transformMatrix[instanceIndex];
 
   ivec3 indices = ivec3(indexBuffer.data[3 * gl_PrimitiveID + 0 + indexOffset], indexBuffer.data[3 * gl_PrimitiveID + 1 + indexOffset], indexBuffer.data[3 * gl_PrimitiveID + 2 + indexOffset]);
@@ -78,9 +85,9 @@ void main() {
   
   vec3 geometricNormal = normalize(cross(vertexB - vertexA, vertexC - vertexA));
 
-  vec3 surfaceColor = materialBuffer.data[materialIndexBuffer.data[gl_PrimitiveID]].diffuse;
+  vec3 surfaceColor = materialBuffer.data[materialIndexBuffer.data[gl_PrimitiveID + materialIndexOffset] + materialOffset].diffuse;
 
-  vec4 color = vec4(normalize(indices), 1.0);
+  vec4 color = vec4(surfaceColor, 1.0);
   if (camera.frameCount > 0) {
     vec4 previousColor = imageLoad(image, ivec2(gl_FragCoord.xy));
     previousColor *= camera.frameCount;
