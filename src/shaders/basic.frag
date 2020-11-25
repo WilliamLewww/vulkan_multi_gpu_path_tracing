@@ -68,6 +68,8 @@ void main() {
 
   uint indexOffset = instanceDescriptionContainer.indexOffsets[instanceIndex];
   uint vertexOffset = instanceDescriptionContainer.vertexOffsets[instanceIndex];
+  uint materialIndexOffset = instanceDescriptionContainer.materialIndexOffsets[instanceIndex];
+  uint materialOffset = instanceDescriptionContainer.materialOffsets[instanceIndex];
   mat4 transformMatrix = instanceDescriptionContainer.transformMatrix[instanceIndex];
 
   ivec3 indices = ivec3(indexBuffer.data[3 * gl_PrimitiveID + 0 + indexOffset], indexBuffer.data[3 * gl_PrimitiveID + 1 + indexOffset], indexBuffer.data[3 * gl_PrimitiveID + 2 + indexOffset]);
@@ -78,9 +80,9 @@ void main() {
   
   vec3 geometricNormal = normalize(cross(vertexB - vertexA, vertexC - vertexA));
 
-  vec3 surfaceColor = materialBuffer.data[materialIndexBuffer.data[gl_PrimitiveID]].diffuse;
+  vec3 surfaceColor = materialBuffer.data[materialIndexBuffer.data[gl_PrimitiveID + materialIndexOffset] + materialOffset].diffuse;
 
-  vec4 color = vec4(normalize(indices), 1.0);
+  vec4 color = vec4(surfaceColor, 1.0);
   if (camera.frameCount > 0) {
     vec4 previousColor = imageLoad(image, ivec2(gl_FragCoord.xy));
     previousColor *= camera.frameCount;
