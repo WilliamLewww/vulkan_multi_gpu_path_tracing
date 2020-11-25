@@ -26,6 +26,8 @@ private:
   std::vector<ModelInstance*> modelInstanceList;
   std::vector<uint32_t> vertexOffsetList;
   std::vector<uint32_t> indexOffsetList;
+  std::vector<uint32_t> materialIndexOffsetList;
+  std::vector<uint32_t> materialOffsetList;
 
   float* uniformBuffer;
 

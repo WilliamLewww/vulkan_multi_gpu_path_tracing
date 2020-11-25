@@ -28,10 +28,14 @@ ModelInstanceCollection::ModelInstanceCollection(std::map<Model*, std::vector<Ma
       if (modelIndex == 0) {
         this->vertexOffsetList.push_back(0);
         this->indexOffsetList.push_back(0);
+        this->materialIndexOffsetList.push_back(0);
+        this->materialOffsetList.push_back(0);
       }
       else {
         this->vertexOffsetList.push_back(previousPair.first->getVertexCount());
         this->indexOffsetList.push_back(previousPair.first->getTotalIndexCount());
+        this->materialIndexOffsetList.push_back(previousPair.first->getTotalMaterialIndexCount());
+        this->materialOffsetList.push_back(previousPair.first->getMaterialCount());
       }
     }
     previousPair = pair;
@@ -41,11 +45,13 @@ ModelInstanceCollection::ModelInstanceCollection(std::map<Model*, std::vector<Ma
   uint32_t instanceCount = this->modelInstanceList.size();
   std::vector<float> totalTransformList = this->getTotalTransformList();
 
-  this->uniformBuffer = (float*)malloc(512);
+  this->uniformBuffer = (float*)malloc(2048);
   memcpy(this->uniformBuffer, &instanceCount, sizeof(uint32_t));
   memcpy(4 + this->uniformBuffer, this->vertexOffsetList.data(), sizeof(uint32_t) * this->vertexOffsetList.size());
   memcpy(36 + this->uniformBuffer, this->indexOffsetList.data(), sizeof(uint32_t) * this->indexOffsetList.size());
-  memcpy(68 + this->uniformBuffer, totalTransformList.data(), sizeof(float) * totalTransformList.size());
+  memcpy(68 + this->uniformBuffer, this->materialIndexOffsetList.data(), sizeof(uint32_t) * this->materialIndexOffsetList.size());
+  memcpy(100 + this->uniformBuffer, this->materialOffsetList.data(), sizeof(uint32_t) * this->materialOffsetList.size());
+  memcpy(132 + this->uniformBuffer, totalTransformList.data(), sizeof(float) * totalTransformList.size());
 
   createTotalBuffers(totalVertexList,
                      totalIndexList,
@@ -482,7 +488,7 @@ void* ModelInstanceCollection::getUniformBufferPointer() {
 }
 
 uint32_t ModelInstanceCollection::getUniformBufferSize() {
-  return 512;
+  return 2048;
 }
 
 std::map<Model*, std::vector<ModelInstance*>> ModelInstanceCollection::getModelInstanceMap() {

@@ -30,7 +30,7 @@ Renderer::Renderer(VkInstance vulkanInstance, VkSurfaceKHR surface, ModelCollect
       modelCollection->getModel(0),
       {
         createIdentityMatrix4x4(), 
-        createTranslateMatrix4x4(25, 0, 0)
+        createTranslateMatrix4x4(20, 0, 0)
       }
     },
     {

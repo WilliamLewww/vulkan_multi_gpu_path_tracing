@@ -30,6 +30,8 @@ layout(binding = 1, set = 0) uniform InstanceDescriptionContainer {
   uint instanceCount;
   uint vertexOffsets[8];
   uint indexOffsets[8];
+  uint materialIndexOffsets[8];
+  uint materialOffsets[8];
   mat4 transformMatrix[8];
 } instanceDescriptionContainer;
 
@@ -63,182 +65,22 @@ vec3 alignHemisphereWithCoordinateSystem(vec3 hemisphere, vec3 up) {
 
 void main() {
   vec3 directColor = vec3(0.0, 0.0, 0.0);
-  vec3 indirectColor = vec3(0.0, 0.0, 0.0);
 
-  ivec3 indices = ivec3(indexBuffer.data[3 * gl_PrimitiveID + 0], indexBuffer.data[3 * gl_PrimitiveID + 1], indexBuffer.data[3 * gl_PrimitiveID + 2]);
+  uint indexOffset = instanceDescriptionContainer.indexOffsets[instanceIndex];
+  uint vertexOffset = instanceDescriptionContainer.vertexOffsets[instanceIndex];
+  mat4 transformMatrix = instanceDescriptionContainer.transformMatrix[instanceIndex];
 
-  vec3 vertexA = (instanceDescriptionContainer.transformMatrix[0] * vec4(vertexBuffer.data[3 * indices.x + 0], vertexBuffer.data[3 * indices.x + 1], vertexBuffer.data[3 * indices.x + 2], 1.0)).xyz;
-  vec3 vertexB = (instanceDescriptionContainer.transformMatrix[0] * vec4(vertexBuffer.data[3 * indices.y + 0], vertexBuffer.data[3 * indices.y + 1], vertexBuffer.data[3 * indices.y + 2], 1.0)).xyz;
-  vec3 vertexC = (instanceDescriptionContainer.transformMatrix[0] * vec4(vertexBuffer.data[3 * indices.z + 0], vertexBuffer.data[3 * indices.z + 1], vertexBuffer.data[3 * indices.z + 2], 1.0)).xyz;
+  ivec3 indices = ivec3(indexBuffer.data[3 * gl_PrimitiveID + 0 + indexOffset], indexBuffer.data[3 * gl_PrimitiveID + 1 + indexOffset], indexBuffer.data[3 * gl_PrimitiveID + 2 + indexOffset]);
+
+  vec3 vertexA = (transformMatrix * vec4(vertexBuffer.data[3 * indices.x + 0 + vertexOffset], vertexBuffer.data[3 * indices.x + 1 + vertexOffset], vertexBuffer.data[3 * indices.x + 2 + vertexOffset], 1.0)).xyz;
+  vec3 vertexB = (transformMatrix * vec4(vertexBuffer.data[3 * indices.y + 0 + vertexOffset], vertexBuffer.data[3 * indices.y + 1 + vertexOffset], vertexBuffer.data[3 * indices.y + 2 + vertexOffset], 1.0)).xyz;
+  vec3 vertexC = (transformMatrix * vec4(vertexBuffer.data[3 * indices.z + 0 + vertexOffset], vertexBuffer.data[3 * indices.z + 1 + vertexOffset], vertexBuffer.data[3 * indices.z + 2 + vertexOffset], 1.0)).xyz;
   
   vec3 geometricNormal = normalize(cross(vertexB - vertexA, vertexC - vertexA));
 
   vec3 surfaceColor = materialBuffer.data[materialIndexBuffer.data[gl_PrimitiveID]].diffuse;
 
-  bool isLight = false;
-  for (int x = 0; x < materialLightBuffer.count; x++) {
-    if (gl_PrimitiveID == materialLightBuffer.indices[x]) {
-      isLight = true;
-    }
-  }
-
-  if (isLight) {
-    directColor = materialBuffer.data[materialIndexBuffer.data[gl_PrimitiveID]].emission;
-  }
-  else {
-    int lightIndex = materialLightBuffer.indices[int(random(gl_FragCoord.xy, camera.frameCount) * materialLightBuffer.count)];
-    vec3 lightColor = materialBuffer.data[materialIndexBuffer.data[lightIndex]].emission;
-
-    ivec3 lightIndices = ivec3(indexBuffer.data[3 * lightIndex + 0], indexBuffer.data[3 * lightIndex + 1], indexBuffer.data[3 * lightIndex + 2]);
-
-    vec3 lightVertexA = (instanceDescriptionContainer.transformMatrix[0] * vec4(vertexBuffer.data[3 * lightIndices.x + 0], vertexBuffer.data[3 * lightIndices.x + 1], vertexBuffer.data[3 * lightIndices.x + 2], 1.0)).xyz;
-    vec3 lightVertexB = (instanceDescriptionContainer.transformMatrix[0] * vec4(vertexBuffer.data[3 * lightIndices.y + 0], vertexBuffer.data[3 * lightIndices.y + 1], vertexBuffer.data[3 * lightIndices.y + 2], 1.0)).xyz;
-    vec3 lightVertexC = (instanceDescriptionContainer.transformMatrix[0] * vec4(vertexBuffer.data[3 * lightIndices.z + 0], vertexBuffer.data[3 * lightIndices.z + 1], vertexBuffer.data[3 * lightIndices.z + 2], 1.0)).xyz;
-
-    vec2 uv = vec2(random(gl_FragCoord.xy, camera.frameCount), random(gl_FragCoord.xy, camera.frameCount + 1));
-    if (uv.x + uv.y > 1.0f) {
-      uv.x = 1.0f - uv.x;
-      uv.y = 1.0f - uv.y;
-    }
-
-    vec3 lightBarycentric = vec3(1.0 - uv.x - uv.y, uv.x, uv.y);
-    vec3 lightPosition = lightVertexA * lightBarycentric.x + lightVertexB * lightBarycentric.y + lightVertexC * lightBarycentric.z;
-
-    vec3 positionToLightDirection = normalize(lightPosition - interpolatedPosition);
-
-    vec3 shadowRayOrigin = interpolatedPosition;
-    vec3 shadowRayDirection = positionToLightDirection;
-    float shadowRayDistance = length(lightPosition - interpolatedPosition) - 0.001f;
-
-    rayQueryEXT rayQuery;
-    rayQueryInitializeEXT(rayQuery, topLevelAS, gl_RayFlagsTerminateOnFirstHitEXT, 0xFF, shadowRayOrigin, 0.001f, shadowRayDirection, shadowRayDistance);
-  
-    while (rayQueryProceedEXT(rayQuery));
-
-    if (rayQueryGetIntersectionTypeEXT(rayQuery, true) == gl_RayQueryCommittedIntersectionNoneEXT) {
-      directColor = surfaceColor * lightColor * dot(geometricNormal, positionToLightDirection);
-    }
-    else {
-      int intersectionPrimitiveIndex = rayQueryGetIntersectionPrimitiveIndexEXT(rayQuery, true);
-      bool intersectionIsLight = false;
-      for (int x = 0; x < materialLightBuffer.count; x++) {
-        if (intersectionPrimitiveIndex == materialLightBuffer.indices[x]) {
-          intersectionIsLight = true;
-          lightIndex = intersectionPrimitiveIndex;
-        }
-      }
-
-      if (intersectionIsLight) {
-        lightColor = materialBuffer.data[materialIndexBuffer.data[lightIndex]].emission;
-        uv = rayQueryGetIntersectionBarycentricsEXT(rayQuery, true);
-        lightBarycentric = vec3(1.0 - uv.x - uv.y, uv.x, uv.y);
-
-        ivec3 lightIndices = ivec3(indexBuffer.data[3 * lightIndex + 0], indexBuffer.data[3 * lightIndex + 1], indexBuffer.data[3 * lightIndex + 2]);
-
-        vec3 lightVertexA = (instanceDescriptionContainer.transformMatrix[0] * vec4(vertexBuffer.data[3 * lightIndices.x + 0], vertexBuffer.data[3 * lightIndices.x + 1], vertexBuffer.data[3 * lightIndices.x + 2], 1.0)).xyz;
-        vec3 lightVertexB = (instanceDescriptionContainer.transformMatrix[0] * vec4(vertexBuffer.data[3 * lightIndices.y + 0], vertexBuffer.data[3 * lightIndices.y + 1], vertexBuffer.data[3 * lightIndices.y + 2], 1.0)).xyz;
-        vec3 lightVertexC = (instanceDescriptionContainer.transformMatrix[0] * vec4(vertexBuffer.data[3 * lightIndices.z + 0], vertexBuffer.data[3 * lightIndices.z + 1], vertexBuffer.data[3 * lightIndices.z + 2], 1.0)).xyz;
-
-        lightPosition = lightVertexA * lightBarycentric.x + lightVertexB * lightBarycentric.y + lightVertexC * lightBarycentric.z;
-        
-        positionToLightDirection = normalize(lightPosition - interpolatedPosition);
-        directColor = surfaceColor * lightColor * dot(geometricNormal, positionToLightDirection);
-      }
-    }
-  }
-
-  vec3 hemisphere = uniformSampleHemisphere(vec2(random(gl_FragCoord.xy, camera.frameCount), random(gl_FragCoord.xy, camera.frameCount + 1)));
-  vec3 alignedHemisphere = alignHemisphereWithCoordinateSystem(hemisphere, geometricNormal);
-
-  vec3 rayOrigin = interpolatedPosition;
-  vec3 rayDirection = alignedHemisphere;
-  vec3 previousNormal = geometricNormal;
-
-  bool rayActive = true;
-  int maxRayDepth = 16;
-  for (int rayDepth = 0; rayDepth < maxRayDepth && rayActive; rayDepth++) {
-    rayQueryEXT rayQuery;
-    rayQueryInitializeEXT(rayQuery, topLevelAS, gl_RayFlagsTerminateOnFirstHitEXT, 0xFF, rayOrigin, 0.001f, rayDirection, 1000.0f);
-
-    while (rayQueryProceedEXT(rayQuery));
-
-    if (rayQueryGetIntersectionTypeEXT(rayQuery, true) != gl_RayQueryCommittedIntersectionNoneEXT) {
-      int extensionPrimitiveIndex = rayQueryGetIntersectionPrimitiveIndexEXT(rayQuery, true);
-      vec2 extensionIntersectionBarycentric = rayQueryGetIntersectionBarycentricsEXT(rayQuery, true);
-
-      ivec3 extensionIndices = ivec3(indexBuffer.data[3 * extensionPrimitiveIndex + 0], indexBuffer.data[3 * extensionPrimitiveIndex + 1], indexBuffer.data[3 * extensionPrimitiveIndex + 2]);
-      vec3 extensionBarycentric = vec3(1.0 - extensionIntersectionBarycentric.x - extensionIntersectionBarycentric.y, extensionIntersectionBarycentric.x, extensionIntersectionBarycentric.y);
-      
-      vec3 extensionVertexA = (instanceDescriptionContainer.transformMatrix[0] * vec4(vertexBuffer.data[3 * extensionIndices.x + 0], vertexBuffer.data[3 * extensionIndices.x + 1], vertexBuffer.data[3 * extensionIndices.x + 2], 1.0)).xyz;
-      vec3 extensionVertexB = (instanceDescriptionContainer.transformMatrix[0] * vec4(vertexBuffer.data[3 * extensionIndices.y + 0], vertexBuffer.data[3 * extensionIndices.y + 1], vertexBuffer.data[3 * extensionIndices.y + 2], 1.0)).xyz;
-      vec3 extensionVertexC = (instanceDescriptionContainer.transformMatrix[0] * vec4(vertexBuffer.data[3 * extensionIndices.z + 0], vertexBuffer.data[3 * extensionIndices.z + 1], vertexBuffer.data[3 * extensionIndices.z + 2], 1.0)).xyz;
-    
-      vec3 extensionPosition = extensionVertexA * extensionBarycentric.x + extensionVertexB * extensionBarycentric.y + extensionVertexC * extensionBarycentric.z;
-      vec3 extensionNormal = normalize(cross(extensionVertexB - extensionVertexA, extensionVertexC - extensionVertexA));
-
-      vec3 extensionSurfaceColor = materialBuffer.data[materialIndexBuffer.data[extensionPrimitiveIndex]].diffuse;
-
-      bool extensionIsLight = false;
-      for (int x = 0; x < materialLightBuffer.count; x++) {
-        if (gl_PrimitiveID == materialLightBuffer.indices[x]) {
-          extensionIsLight = true;
-        }
-      }
-      if (extensionIsLight) {
-        indirectColor += (1.0 / (rayDepth + 1)) * materialBuffer.data[materialIndexBuffer.data[extensionPrimitiveIndex]].emission * dot(previousNormal, rayDirection);
-      }
-      else {
-        int randomIndex = materialLightBuffer.indices[int(random(gl_FragCoord.xy, camera.frameCount) * materialLightBuffer.count)];
-        vec3 lightColor = materialBuffer.data[materialIndexBuffer.data[randomIndex]].emission;
-
-        ivec3 lightIndices = ivec3(indexBuffer.data[3 * randomIndex + 0], indexBuffer.data[3 * randomIndex + 1], indexBuffer.data[3 * randomIndex + 2]);
-
-        vec3 lightVertexA = (instanceDescriptionContainer.transformMatrix[0] * vec4(vertexBuffer.data[3 * lightIndices.x + 0], vertexBuffer.data[3 * lightIndices.x + 1], vertexBuffer.data[3 * lightIndices.x + 2], 1.0)).xyz;
-        vec3 lightVertexB = (instanceDescriptionContainer.transformMatrix[0] * vec4(vertexBuffer.data[3 * lightIndices.y + 0], vertexBuffer.data[3 * lightIndices.y + 1], vertexBuffer.data[3 * lightIndices.y + 2], 1.0)).xyz;
-        vec3 lightVertexC = (instanceDescriptionContainer.transformMatrix[0] * vec4(vertexBuffer.data[3 * lightIndices.z + 0], vertexBuffer.data[3 * lightIndices.z + 1], vertexBuffer.data[3 * lightIndices.z + 2], 1.0)).xyz;
-
-        vec2 uv = vec2(random(gl_FragCoord.xy, camera.frameCount + rayDepth), random(gl_FragCoord.xy, camera.frameCount + rayDepth + 1));
-        if (uv.x + uv.y > 1.0f) {
-          uv.x = 1.0f - uv.x;
-          uv.y = 1.0f - uv.y;
-        }
-
-        vec3 lightBarycentric = vec3(1.0 - uv.x - uv.y, uv.x, uv.y);
-        vec3 lightPosition = lightVertexA * lightBarycentric.x + lightVertexB * lightBarycentric.y + lightVertexC * lightBarycentric.z;
-
-        vec3 positionToLightDirection = normalize(lightPosition - extensionPosition);
-
-        vec3 shadowRayOrigin = extensionPosition;
-        vec3 shadowRayDirection = positionToLightDirection;
-        float shadowRayDistance = length(lightPosition - extensionPosition) - 0.001f;
-
-        rayQueryEXT rayQuery;
-        rayQueryInitializeEXT(rayQuery, topLevelAS, gl_RayFlagsTerminateOnFirstHitEXT, 0xFF, shadowRayOrigin, 0.001f, shadowRayDirection, shadowRayDistance);
-      
-        while (rayQueryProceedEXT(rayQuery));
-
-        if (rayQueryGetIntersectionTypeEXT(rayQuery, true) == gl_RayQueryCommittedIntersectionNoneEXT) {
-          indirectColor += (1.0 / (rayDepth + 1)) * extensionSurfaceColor * lightColor  * dot(previousNormal, rayDirection) * dot(extensionNormal, positionToLightDirection);
-        }
-        else {
-          rayActive = false;
-        }
-      }
-
-      vec3 hemisphere = uniformSampleHemisphere(vec2(random(gl_FragCoord.xy, camera.frameCount + rayDepth), random(gl_FragCoord.xy, camera.frameCount + rayDepth + 1)));
-      vec3 alignedHemisphere = alignHemisphereWithCoordinateSystem(hemisphere, extensionNormal);
-
-      rayOrigin = extensionPosition;
-      rayDirection = alignedHemisphere;
-      previousNormal = extensionNormal;
-    }
-    else {
-      rayActive = false;
-    }
-  }
-
-  vec4 color = vec4(directColor + indirectColor, 1.0);
-
+  vec4 color = vec4(normalize(indices), 1.0);
   if (camera.frameCount > 0) {
     vec4 previousColor = imageLoad(image, ivec2(gl_FragCoord.xy));
     previousColor *= camera.frameCount;
@@ -246,6 +88,5 @@ void main() {
     color += previousColor;
     color /= (camera.frameCount + 1);
   }
-
   outColor = color;
 }
