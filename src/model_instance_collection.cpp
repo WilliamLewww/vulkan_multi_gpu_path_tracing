@@ -196,81 +196,20 @@ void ModelInstanceCollection::createMaterialBuffers(Model* model,
                                                     std::vector<Material>* totalMaterialList,
                                                     std::vector<LightContainer>* totalMaterialLightList) {
 
-  VkDeviceSize indexBufferSize = sizeof(uint32_t) * model->getTotalMaterialIndexCount();
-
-  std::vector<uint32_t> materialIndexList(model->getTotalMaterialIndexCount());
   for (int x = 0; x < model->getTotalMaterialIndexCount(); x++) {
-    materialIndexList[x] = model->getTotalMaterialIndex(x);
-    totalMaterialIndexList->push_back(materialIndexList[x]);
+    totalMaterialIndexList->push_back(model->getTotalMaterialIndex(x));
   }
-
-  VkBuffer indexStagingBuffer;
-  VkDeviceMemory indexStagingBufferMemory;
-  BufferFactory::createBuffer(logicalDevice,
-                              physicalDeviceMemoryProperties,
-                              indexBufferSize, 
-                              VK_BUFFER_USAGE_TRANSFER_SRC_BIT, 
-                              VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, 
-                              &indexStagingBuffer, 
-                              &indexStagingBufferMemory);
-
-  void* indexData;
-  vkMapMemory(logicalDevice, indexStagingBufferMemory, 0, indexBufferSize, 0, &indexData);
-  memcpy(indexData, materialIndexList.data(), indexBufferSize);
-  vkUnmapMemory(logicalDevice, indexStagingBufferMemory);
-
-  BufferFactory::createBuffer(logicalDevice,
-                              physicalDeviceMemoryProperties,
-                              indexBufferSize, 
-                              VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT, 
-                              VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 
-                              &this->materialIndexBufferMap[model], 
-                              &this->materialIndexBufferMemoryMap[model]);
-
-  BufferFactory::copyBuffer(logicalDevice, commandPool, queue, indexStagingBuffer, this->materialIndexBufferMap[model], indexBufferSize);
-  
-  vkDestroyBuffer(logicalDevice, indexStagingBuffer, NULL);
-  vkFreeMemory(logicalDevice, indexStagingBufferMemory, NULL);
-
-  VkDeviceSize materialBufferSize = sizeof(struct Material) * model->getMaterialCount();
 
   std::vector<Material> materialList(model->getMaterialCount());
   for (int x = 0; x < model->getMaterialCount(); x++) {
-    memcpy(materialList[x].ambient, model->getMaterial(x).ambient, sizeof(float) * 3);
-    memcpy(materialList[x].diffuse, model->getMaterial(x).diffuse, sizeof(float) * 3);
-    memcpy(materialList[x].specular, model->getMaterial(x).specular, sizeof(float) * 3);
-    memcpy(materialList[x].emission, model->getMaterial(x).emission, sizeof(float) * 3);
+    Material material = {};
+    memcpy(material.ambient, model->getMaterial(x).ambient, sizeof(float) * 3);
+    memcpy(material.diffuse, model->getMaterial(x).diffuse, sizeof(float) * 3);
+    memcpy(material.specular, model->getMaterial(x).specular, sizeof(float) * 3);
+    memcpy(material.emission, model->getMaterial(x).emission, sizeof(float) * 3);
 
-    totalMaterialList->push_back(materialList[x]);
+    totalMaterialList->push_back(material);
   }
-
-  VkBuffer materialStagingBuffer;
-  VkDeviceMemory materialStagingBufferMemory;
-  BufferFactory::createBuffer(logicalDevice,
-                              physicalDeviceMemoryProperties,
-                              materialBufferSize, 
-                              VK_BUFFER_USAGE_TRANSFER_SRC_BIT, 
-                              VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, 
-                              &materialStagingBuffer, 
-                              &materialStagingBufferMemory);
-
-  void* materialData;
-  vkMapMemory(logicalDevice, materialStagingBufferMemory, 0, materialBufferSize, 0, &materialData);
-  memcpy(materialData, materialList.data(), materialBufferSize);
-  vkUnmapMemory(logicalDevice, materialStagingBufferMemory);
-
-  BufferFactory::createBuffer(logicalDevice,
-                              physicalDeviceMemoryProperties,
-                              materialBufferSize,
-                              VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT, 
-                              VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 
-                              &this->materialBufferMap[model], 
-                              &this->materialBufferMemoryMap[model]);
-
-  BufferFactory::copyBuffer(logicalDevice, commandPool, queue, materialStagingBuffer, this->materialBufferMap[model], materialBufferSize);
-  
-  vkDestroyBuffer(logicalDevice, materialStagingBuffer, NULL);
-  vkFreeMemory(logicalDevice, materialStagingBufferMemory, NULL);
 
   LightContainer lightContainer = {
     .count = 0,
@@ -285,34 +224,6 @@ void ModelInstanceCollection::createMaterialBuffers(Model* model,
     }
   }
   totalMaterialLightList->push_back(lightContainer);
-  
-  VkBuffer materialLightStagingBuffer;
-  VkDeviceMemory materialLightStagingBufferMemory;
-  BufferFactory::createBuffer(logicalDevice,
-                              physicalDeviceMemoryProperties,
-                              sizeof(LightContainer), 
-                              VK_BUFFER_USAGE_TRANSFER_SRC_BIT, 
-                              VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, 
-                              &materialLightStagingBuffer, 
-                              &materialLightStagingBufferMemory);
-
-  void* materialLightData;
-  vkMapMemory(logicalDevice, materialLightStagingBufferMemory, 0, sizeof(LightContainer), 0, &materialLightData);
-  memcpy(materialLightData, &lightContainer, sizeof(LightContainer));
-  vkUnmapMemory(logicalDevice, materialLightStagingBufferMemory);
-
-  BufferFactory::createBuffer(logicalDevice,
-                              physicalDeviceMemoryProperties,
-                              sizeof(LightContainer), 
-                              VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT, 
-                              VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 
-                              &this->materialLightBufferMap[model], 
-                              &this->materialLightBufferMemoryMap[model]);
-
-  BufferFactory::copyBuffer(logicalDevice, commandPool, queue, materialLightStagingBuffer, this->materialLightBufferMap[model], sizeof(LightContainer));
-  
-  vkDestroyBuffer(logicalDevice, materialLightStagingBuffer, NULL);
-  vkFreeMemory(logicalDevice, materialLightStagingBufferMemory, NULL);
 }
 
 void ModelInstanceCollection::createTotalBuffers(std::vector<float> totalVertexList,

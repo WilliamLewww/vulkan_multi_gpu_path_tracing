@@ -37,15 +37,6 @@ private:
   std::map<Model*, VkBuffer> indexBufferMap;
   std::map<Model*, VkDeviceMemory> indexBufferMemoryMap;
 
-  std::map<Model*, VkBuffer> materialIndexBufferMap;
-  std::map<Model*, VkDeviceMemory> materialIndexBufferMemoryMap;
-
-  std::map<Model*, VkBuffer> materialBufferMap;
-  std::map<Model*, VkDeviceMemory> materialBufferMemoryMap;
-
-  std::map<Model*, VkBuffer> materialLightBufferMap;
-  std::map<Model*, VkDeviceMemory> materialLightBufferMemoryMap;
-
   VkBuffer totalVertexBuffer;
   VkDeviceMemory totalVertexBufferMemory;
 
