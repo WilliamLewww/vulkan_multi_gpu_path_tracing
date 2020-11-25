@@ -47,10 +47,12 @@ ModelInstanceCollection::ModelInstanceCollection(std::map<Model*, std::vector<Ma
 
   this->uniformBuffer = (float*)malloc(2048);
   memcpy(this->uniformBuffer, &instanceCount, sizeof(uint32_t));
-  memcpy(4 + this->uniformBuffer, this->vertexOffsetList.data(), sizeof(uint32_t) * this->vertexOffsetList.size());
-  memcpy(36 + this->uniformBuffer, this->indexOffsetList.data(), sizeof(uint32_t) * this->indexOffsetList.size());
-  memcpy(68 + this->uniformBuffer, this->materialIndexOffsetList.data(), sizeof(uint32_t) * this->materialIndexOffsetList.size());
-  memcpy(100 + this->uniformBuffer, this->materialOffsetList.data(), sizeof(uint32_t) * this->materialOffsetList.size());
+  for (int x = 0; x < this->vertexOffsetList.size(); x++) {
+    memcpy(4 + (x * 4) + this->uniformBuffer, &this->vertexOffsetList[x], sizeof(uint32_t));
+    memcpy(36 + (x * 4) + this->uniformBuffer, &this->indexOffsetList[x], sizeof(uint32_t));
+    memcpy(68 + (x * 4) + this->uniformBuffer, &this->materialIndexOffsetList[x], sizeof(uint32_t) * this->materialIndexOffsetList.size());
+    memcpy(100 + (x * 4) + this->uniformBuffer, &this->materialOffsetList[x], sizeof(uint32_t) * this->materialOffsetList.size());
+  }
   memcpy(132 + this->uniformBuffer, totalTransformList.data(), sizeof(float) * totalTransformList.size());
 
   createTotalBuffers(totalVertexList,
