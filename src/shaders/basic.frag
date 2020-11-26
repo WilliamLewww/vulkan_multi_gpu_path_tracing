@@ -85,17 +85,20 @@ void main() {
   vec3 geometricNormal = normalize(cross(vertexB - vertexA, vertexC - vertexA));
 
   vec3 surfaceColor = materialBuffer.data[materialIndexBuffer.data[gl_PrimitiveID + materialIndexOffset] + materialOffset].diffuse;
+  vec3 emissionColor = materialBuffer.data[materialIndexBuffer.data[gl_PrimitiveID + materialIndexOffset] + materialOffset].emission;
 
-  uint count = materialLightBuffer.count;
-
-  if (materialLightBuffer.indices[0] == 40) {
-    surfaceColor = vec3(1.0);
+  if (dot(emissionColor, emissionColor) > 0) {
+    directColor = emissionColor;
   }
   else {
-    surfaceColor = vec3(0.0);
+    int randomIndex = int(random(gl_FragCoord.xy, camera.frameCount) * materialLightBuffer.count);
+    int lightPrimitiveIndex = materialLightBuffer.indices[randomIndex];
+    int lightModelIndex = materialLightBuffer.indicesModel[randomIndex];
+
+    directColor = vec3(lightModelIndex == 0);
   }
 
-  vec4 color = vec4(surfaceColor, 1.0);
+  vec4 color = vec4(directColor, 1.0);
   if (camera.frameCount > 0) {
     vec4 previousColor = imageLoad(image, ivec2(gl_FragCoord.xy));
     previousColor *= camera.frameCount;
