@@ -24,12 +24,7 @@ private:
   };
 
   struct InstanceUniform {
-    alignas(4) uint32_t instanceCount;
-    alignas(4) uint32_t vertexOffsets[8];
-    alignas(4) uint32_t indexOffsets[8];
-    alignas(4) uint32_t materialIndexOffsets[8];
-    alignas(4) uint32_t materialOffsets[8];
-    alignas(4) float transformMatrix[256];
+    float buffer[260];
   };
 
   std::map<Model*, std::vector<ModelInstance*>> modelInstanceMap;
