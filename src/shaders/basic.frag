@@ -45,7 +45,6 @@ layout(binding = 3, set = 1) buffer MaterialBuffer { Material data[]; } material
 layout(binding = 4, set = 1) buffer MaterialLightBuffer { 
   uint count; 
   int indices[64];
-  int indicesModel[64];
   int indicesInstance[64];
 } materialLightBuffer;
 
@@ -94,9 +93,29 @@ void main() {
   else {
     int randomIndex = int(random(gl_FragCoord.xy, camera.frameCount) * materialLightBuffer.count);
     int lightPrimitiveIndex = materialLightBuffer.indices[randomIndex];
-    int lightModelIndex = materialLightBuffer.indicesModel[randomIndex];
+    int lightInstanceIndex = materialLightBuffer.indicesInstance[randomIndex];
+    uint lightIndexOffset = instanceDescriptionContainer.indexOffsets[lightInstanceIndex];
+    uint lightVertexOffset = instanceDescriptionContainer.vertexOffsets[lightInstanceIndex];
+    mat4 lightTransformMatrix = instanceDescriptionContainer.transformMatrix[lightInstanceIndex];
 
-    directColor = vec3(lightModelIndex == 0);
+    ivec3 lightIndices = ivec3(indexBuffer.data[3 * lightPrimitiveIndex + 0 + lightIndexOffset], indexBuffer.data[3 * lightPrimitiveIndex + 1 + lightIndexOffset], indexBuffer.data[3 * lightPrimitiveIndex + 2 + lightIndexOffset]);
+
+    vec3 lightVertexA = (lightTransformMatrix * vec4(vertexBuffer.data[3 * lightIndices.x + 0 + lightVertexOffset], vertexBuffer.data[3 * lightIndices.x + 1 + lightVertexOffset], vertexBuffer.data[3 * lightIndices.x + 2 + lightVertexOffset], 1.0)).xyz;
+    vec3 lightVertexB = (lightTransformMatrix * vec4(vertexBuffer.data[3 * lightIndices.y + 0 + lightVertexOffset], vertexBuffer.data[3 * lightIndices.y + 1 + lightVertexOffset], vertexBuffer.data[3 * lightIndices.y + 2 + lightVertexOffset], 1.0)).xyz;
+    vec3 lightVertexC = (lightTransformMatrix * vec4(vertexBuffer.data[3 * lightIndices.z + 0 + lightVertexOffset], vertexBuffer.data[3 * lightIndices.z + 1 + lightVertexOffset], vertexBuffer.data[3 * lightIndices.z + 2 + lightVertexOffset], 1.0)).xyz;
+
+    vec2 uv = vec2(random(gl_FragCoord.xy, camera.frameCount), random(gl_FragCoord.xy, camera.frameCount + 1));
+    if (uv.x + uv.y > 1.0f) {
+      uv.x = 1.0f - uv.x;
+      uv.y = 1.0f - uv.y;
+    }
+
+    vec3 lightBarycentric = vec3(1.0 - uv.x - uv.y, uv.x, uv.y);
+    vec3 lightPosition = lightVertexA * lightBarycentric.x + lightVertexB * lightBarycentric.y + lightVertexC * lightBarycentric.z;
+
+    vec3 positionToLightDirection = normalize(lightPosition - interpolatedPosition);
+
+    directColor = vec3(surfaceColor * dot(geometricNormal, positionToLightDirection));
   }
 
   vec4 color = vec4(directColor, 1.0);
