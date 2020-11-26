@@ -14,13 +14,14 @@ ModelInstanceCollection::ModelInstanceCollection(std::map<Model*, std::vector<Ma
   std::vector<Material> totalMaterialList;
   LightContainer lightContainer = {
     .count = 0,
-    .indices = {}
+    .indices = {},
+    .indicesModel = {},
+    .indicesInstance = {}
   };
 
   std::pair<Model*, std::vector<Matrix4x4>> previousPair;
 
   for (std::pair<Model*, std::vector<Matrix4x4>> pair : modelFrequencyMap) {
-    this->modelIndexMap[pair.first] = modelIndex;
     this->createVertexBuffer(pair.first, logicalDevice, physicalDeviceMemoryProperties, commandPool, queue, &totalVertexList);
     this->createIndexBuffer(pair.first, logicalDevice, physicalDeviceMemoryProperties, commandPool, queue, &totalIndexList);
     this->createMaterialBuffers(pair.first, logicalDevice, physicalDeviceMemoryProperties, commandPool, queue, &totalMaterialIndexList, &totalMaterialList, &lightContainer);
@@ -41,7 +42,20 @@ ModelInstanceCollection::ModelInstanceCollection(std::map<Model*, std::vector<Ma
         this->materialIndexOffsetList.push_back(previousPair.first->getTotalMaterialIndexCount());
         this->materialOffsetList.push_back(previousPair.first->getMaterialCount());
       }
+
+      for (int y = 0; y < pair.first->getTotalMaterialIndexCount(); y++) {
+        float* materialEmission = pair.first->getMaterial(pair.first->getTotalMaterialIndex(y)).emission;
+        if (materialEmission[0] > 0 || materialEmission[1] > 0 || materialEmission[2] > 0) {
+          lightContainer.indices[lightContainer.count] = y;
+          lightContainer.indicesModel[lightContainer.count] = modelIndex;
+          lightContainer.indicesInstance[lightContainer.count] = instanceIndex;
+          lightContainer.count += 1;
+        }
+      }
+
+      instanceIndex += 1;
     }
+
     previousPair = pair;
     modelIndex += 1;
   }
@@ -213,15 +227,6 @@ void ModelInstanceCollection::createMaterialBuffers(Model* model,
     memcpy(material.emission, model->getMaterial(x).emission, sizeof(float) * 3);
 
     totalMaterialList->push_back(material);
-  }
-
-  for (int x = 0; x < model->getTotalMaterialIndexCount(); x++) {
-    float* materialEmission = model->getMaterial(model->getTotalMaterialIndex(x)).emission;
-    if (materialEmission[0] > 0 || materialEmission[1] > 0 || materialEmission[2] > 0) {
-      lightContainer->indices[lightContainer->count] = x;
-      lightContainer->indicesModel[lightContainer->count] = this->modelIndexMap[model];
-      lightContainer->count += 1;
-    }
   }
 }
 
