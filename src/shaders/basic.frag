@@ -46,6 +46,7 @@ layout(binding = 4, set = 1) buffer MaterialLightBuffer {
   uint count; 
   int indices[64];
   int indicesModel[64];
+  int indicesInstance[64];
 } materialLightBuffer;
 
 float random(vec2 uv, float seed) {
