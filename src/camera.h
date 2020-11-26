@@ -8,12 +8,12 @@
 class Camera {
 private:
   struct CameraUniform {
-    float position[4];
-    float right[4];
-    float up[4];
-    float forward[4];
+    alignas(16) float position[4];
+    alignas(16) float right[4];
+    alignas(16) float up[4];
+    alignas(16) float forward[4];
 
-    uint32_t frameCount;
+    alignas(4)  uint32_t frameCount;
   };
 
   CameraUniform uniform;
