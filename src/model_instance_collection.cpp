@@ -61,15 +61,15 @@ ModelInstanceCollection::ModelInstanceCollection(std::map<Model*, std::vector<Ma
   uint32_t instanceCount = this->modelInstanceList.size();
   std::vector<float> totalTransformList = this->getTotalTransformList();
 
-  this->uniformBuffer = (float*)malloc(2048);
-  memcpy(this->uniformBuffer, &instanceCount, sizeof(uint32_t));
+  this->instanceUniform = {};
+  memcpy((float*)&this->instanceUniform, &instanceCount, sizeof(uint32_t));
   for (int x = 0; x < this->vertexOffsetList.size(); x++) {
-    memcpy(4 + (x * 4) + this->uniformBuffer, &this->vertexOffsetList[x], sizeof(uint32_t));
-    memcpy(36 + (x * 4) + this->uniformBuffer, &this->indexOffsetList[x], sizeof(uint32_t));
-    memcpy(68 + (x * 4) + this->uniformBuffer, &this->materialIndexOffsetList[x], sizeof(uint32_t));
-    memcpy(100 + (x * 4) + this->uniformBuffer, &this->materialOffsetList[x], sizeof(uint32_t));
+    memcpy(4 + (x * 4) + (float*)&this->instanceUniform, &this->vertexOffsetList[x], sizeof(uint32_t));
+    memcpy(36 + (x * 4) + (float*)&this->instanceUniform, &this->indexOffsetList[x], sizeof(uint32_t));
+    memcpy(68 + (x * 4) + (float*)&this->instanceUniform, &this->materialIndexOffsetList[x], sizeof(uint32_t));
+    memcpy(100 + (x * 4) + (float*)&this->instanceUniform, &this->materialOffsetList[x], sizeof(uint32_t));
   }
-  memcpy(132 + this->uniformBuffer, totalTransformList.data(), sizeof(float) * totalTransformList.size());
+  memcpy(132 + (float*)&this->instanceUniform, totalTransformList.data(), sizeof(float) * totalTransformList.size());
 
   createTotalBuffers(totalVertexList,
                      totalIndexList,
@@ -399,11 +399,11 @@ std::vector<float> ModelInstanceCollection::getTotalTransformList() {
 }
 
 void* ModelInstanceCollection::getUniformBufferPointer() {
-  return this->uniformBuffer;
+  return &this->instanceUniform;
 }
 
 uint32_t ModelInstanceCollection::getUniformBufferSize() {
-  return 2048;
+  return sizeof(InstanceUniform);
 }
 
 std::map<Model*, std::vector<ModelInstance*>> ModelInstanceCollection::getModelInstanceMap() {

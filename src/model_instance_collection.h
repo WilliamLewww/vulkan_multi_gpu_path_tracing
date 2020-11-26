@@ -3,6 +3,7 @@
 #include <vulkan/vulkan.h>
 #include <vector>
 #include <map>
+#include <stddef.h>
 
 #include "model_instance.h"
 #include "buffer_factory.h"
@@ -22,6 +23,15 @@ private:
     alignas(4) int indicesInstance[64];
   };
 
+  struct InstanceUniform {
+    alignas(4) uint32_t instanceCount;
+    alignas(4) uint32_t vertexOffsets[8];
+    alignas(4) uint32_t indexOffsets[8];
+    alignas(4) uint32_t materialIndexOffsets[8];
+    alignas(4) uint32_t materialOffsets[8];
+    alignas(4) float transformMatrix[256];
+  };
+
   std::map<Model*, std::vector<ModelInstance*>> modelInstanceMap;
 
   std::vector<ModelInstance*> modelInstanceList;
@@ -30,7 +40,7 @@ private:
   std::vector<uint32_t> materialIndexOffsetList;
   std::vector<uint32_t> materialOffsetList;
 
-  float* uniformBuffer;
+  InstanceUniform instanceUniform;
 
   std::map<Model*, VkBuffer> vertexBufferMap;
   std::map<Model*, VkDeviceMemory> vertexBufferMemoryMap;
