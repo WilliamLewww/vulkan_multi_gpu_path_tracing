@@ -12,11 +12,6 @@ struct Material {
   vec3 emission;
 };
 
-struct LightContainer {
-  int count; 
-  int indices[64];
-};
-
 layout(location = 0) in vec3 interpolatedPosition;
 flat layout(location = 1) in uint instanceIndex;
 
@@ -47,7 +42,11 @@ layout(binding = 0, set = 1) buffer IndexBuffer { uint data[]; } indexBuffer;
 layout(binding = 1, set = 1) buffer VertexBuffer { float data[]; } vertexBuffer;
 layout(binding = 2, set = 1) buffer MaterialIndexBuffer { uint data[]; } materialIndexBuffer;
 layout(binding = 3, set = 1) buffer MaterialBuffer { Material data[]; } materialBuffer;
-layout(binding = 4, set = 1) buffer MaterialLightBuffer { LightContainer data[]; } materialLightBuffer;
+layout(binding = 4, set = 1) buffer MaterialLightBuffer { 
+  uint count; 
+  int indices[64];
+  int indicesModel[64];
+} materialLightBuffer;
 
 float random(vec2 uv, float seed) {
   return fract(sin(mod(dot(uv, vec2(12.9898, 78.233)) + 1113.1 * seed, M_PI)) * 43758.5453);;
@@ -86,6 +85,15 @@ void main() {
   vec3 geometricNormal = normalize(cross(vertexB - vertexA, vertexC - vertexA));
 
   vec3 surfaceColor = materialBuffer.data[materialIndexBuffer.data[gl_PrimitiveID + materialIndexOffset] + materialOffset].diffuse;
+
+  uint count = materialLightBuffer.count;
+
+  if (materialLightBuffer.indices[0] == 40) {
+    surfaceColor = vec3(1.0);
+  }
+  else {
+    surfaceColor = vec3(0.0);
+  }
 
   vec4 color = vec4(surfaceColor, 1.0);
   if (camera.frameCount > 0) {

@@ -17,11 +17,13 @@ private:
   };
 
   struct LightContainer {
-    alignas(4) int count;
+    alignas(4) uint32_t count;
     alignas(4) int indices[64];
+    alignas(4) int indicesModel[64];
   };
 
   std::map<Model*, std::vector<ModelInstance*>> modelInstanceMap;
+  std::map<Model*, uint32_t> modelIndexMap;
 
   std::vector<ModelInstance*> modelInstanceList;
   std::vector<uint32_t> vertexOffsetList;
@@ -79,13 +81,13 @@ private:
                              VkQueue queue,
                              std::vector<uint32_t>* totalMaterialIndexList = NULL,
                              std::vector<Material>* totalMaterialList = NULL,
-                             std::vector<LightContainer>* totalMaterialLightList = NULL);
+                             LightContainer* totalMaterialLightList = NULL);
 
   void createTotalBuffers(std::vector<float> totalVertexList,
                           std::vector<uint32_t> totalIndexList,
                           std::vector<uint32_t> totalMaterialIndexList,
                           std::vector<Material> totalMaterialList,
-                          std::vector<LightContainer> totalMaterialLightList,
+                          LightContainer totalMaterialLightList,
                           VkDevice logicalDevice, 
                           VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties, 
                           VkCommandPool commandPool,
