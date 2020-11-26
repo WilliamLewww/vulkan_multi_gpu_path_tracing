@@ -25,6 +25,7 @@ BottomLevelAccelerationStructure::BottomLevelAccelerationStructure(Model* model,
 
   VkAccelerationStructureCreateInfoKHR accelerationStructureCreateInfo = {};
   accelerationStructureCreateInfo.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_CREATE_INFO_KHR;
+  accelerationStructureCreateInfo.pNext = NULL;
   accelerationStructureCreateInfo.type = VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_KHR;
   accelerationStructureCreateInfo.flags = VK_BUILD_ACCELERATION_STRUCTURE_PREFER_FAST_TRACE_BIT_KHR;
   accelerationStructureCreateInfo.maxGeometryCount = 1;
@@ -33,6 +34,8 @@ BottomLevelAccelerationStructure::BottomLevelAccelerationStructure(Model* model,
   if (pvkCreateAccelerationStructureKHR(logicalDevice, &accelerationStructureCreateInfo, NULL, &this->accelerationStructure) != VK_SUCCESS) {
     printf("%s\n", "failed to create acceleration structure");
   }
+
+  printf("HELLO\n");
 
   // ==============================================================================================================
 
