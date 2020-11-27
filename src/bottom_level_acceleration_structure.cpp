@@ -8,11 +8,78 @@ BottomLevelAccelerationStructure::BottomLevelAccelerationStructure(Model* model,
                                                                    VkCommandPool commandPool,
                                                                    VkQueue queue) {
 
-  // PFN_vkCreateAccelerationStructureKHR pvkCreateAccelerationStructureKHR = (PFN_vkCreateAccelerationStructureKHR)vkGetDeviceProcAddr(logicalDevice, "vkCreateAccelerationStructureKHR");
-  // PFN_vkGetAccelerationStructureMemoryRequirementsKHR pvkGetAccelerationStructureMemoryRequirementsKHR = (PFN_vkGetAccelerationStructureMemoryRequirementsKHR)vkGetDeviceProcAddr(logicalDevice, "vkGetAccelerationStructureMemoryRequirementsKHR");
-  // PFN_vkBindAccelerationStructureMemoryKHR pvkBindAccelerationStructureMemoryKHR = (PFN_vkBindAccelerationStructureMemoryKHR)vkGetDeviceProcAddr(logicalDevice, "vkBindAccelerationStructureMemoryKHR");
-  // PFN_vkGetBufferDeviceAddressKHR pvkGetBufferDeviceAddressKHR = (PFN_vkGetBufferDeviceAddressKHR)vkGetDeviceProcAddr(logicalDevice, "vkGetBufferDeviceAddressKHR");
-  // PFN_vkCmdBuildAccelerationStructureKHR pvkCmdBuildAccelerationStructureKHR = (PFN_vkCmdBuildAccelerationStructureKHR)vkGetDeviceProcAddr(logicalDevice, "vkCmdBuildAccelerationStructureKHR");
+  PFN_vkGetAccelerationStructureBuildSizesKHR pvkGetAccelerationStructureBuildSizesKHR = (PFN_vkGetAccelerationStructureBuildSizesKHR)vkGetDeviceProcAddr(logicalDevice, "vkGetAccelerationStructureBuildSizesKHR");
+  PFN_vkCreateAccelerationStructureKHR pvkCreateAccelerationStructureKHR = (PFN_vkCreateAccelerationStructureKHR)vkGetDeviceProcAddr(logicalDevice, "vkCreateAccelerationStructureKHR");
+
+  VkAccelerationStructureGeometryTrianglesDataKHR accelerationStructureGeometryTrianglesData = {
+    .sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_TRIANGLES_DATA_KHR,
+    .pNext = NULL,
+    .vertexFormat = VK_FORMAT_R32G32B32_SFLOAT,
+    .vertexData = {},
+    .vertexStride = 0,
+    .maxVertex = model->getVertexCount(),
+    .indexType = VK_INDEX_TYPE_UINT32,
+    .indexData = {},
+    .transformData = {}
+  };
+
+  VkAccelerationStructureGeometryDataKHR accelerationStructureGeometryData = {
+    .triangles = accelerationStructureGeometryTrianglesData
+  };
+
+  VkAccelerationStructureGeometryKHR accelerationStructureGeometry = {
+    .sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_KHR,
+    .pNext = NULL,
+    .geometryType = VK_GEOMETRY_TYPE_TRIANGLES_KHR,
+    .geometry = accelerationStructureGeometryData,
+    .flags = VK_GEOMETRY_OPAQUE_BIT_KHR
+  };
+
+  VkAccelerationStructureBuildGeometryInfoKHR accelerationStructureBuildGeometryInfo = {
+    .sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_GEOMETRY_INFO_KHR,
+    .pNext = NULL,
+    .type = VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_KHR,
+    .flags = VK_BUILD_ACCELERATION_STRUCTURE_PREFER_FAST_TRACE_BIT_KHR,
+    .mode = VK_BUILD_ACCELERATION_STRUCTURE_MODE_BUILD_KHR,
+    .srcAccelerationStructure = VK_NULL_HANDLE,
+    .dstAccelerationStructure = VK_NULL_HANDLE,
+    .geometryCount = 1,
+    .pGeometries = &accelerationStructureGeometry,
+    .ppGeometries = NULL,
+    .scratchData = {}
+  };
+
+  VkAccelerationStructureBuildSizesInfoKHR accelerationStructureBuildSizesInfo = {
+    .sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_SIZES_INFO_KHR,
+    .pNext = NULL,
+    .accelerationStructureSize = 0,
+    .updateScratchSize = 0,
+    .buildScratchSize = 0
+  };
+
+  pvkGetAccelerationStructureBuildSizesKHR(logicalDevice, 
+                                           VK_ACCELERATION_STRUCTURE_BUILD_TYPE_HOST_KHR, 
+                                           &accelerationStructureBuildGeometryInfo, 
+                                           &accelerationStructureBuildGeometryInfo.geometryCount, 
+                                           &accelerationStructureBuildSizesInfo);
+
+  BufferFactory::createBuffer(logicalDevice,
+                              physicalDeviceMemoryProperties,
+                              accelerationStructureBuildSizesInfo.accelerationStructureSize, 
+                              VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT, 
+                              VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 
+                              &this->accelerationStructureBuffer, 
+                              &this->accelerationStructureBufferMemory);
+
+  VkBuffer scratchBuffer;
+  VkDeviceMemory scratchBufferMemory;
+  BufferFactory::createBuffer(logicalDevice,
+                              physicalDeviceMemoryProperties,
+                              accelerationStructureBuildSizesInfo.buildScratchSize, 
+                              VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT, 
+                              VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 
+                              &scratchBuffer, 
+                              &scratchBufferMemory);
 
   // VkAccelerationStructureCreateGeometryTypeInfoKHR geometryInfos = {};
   // geometryInfos.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_CREATE_GEOMETRY_TYPE_INFO_KHR;

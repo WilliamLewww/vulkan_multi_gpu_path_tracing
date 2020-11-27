@@ -51,7 +51,7 @@ Renderer::Renderer(VkInstance vulkanInstance, VkSurfaceKHR surface, ModelCollect
   };
   this->displayDevice->createUniformBufferCollection(bufferMap);
 
-  // this->displayDevice->createAccelerationStructureCollection(this->displayDevice->getModelInstanceCollectionPointer()->getModelInstanceMap());
+  this->displayDevice->createAccelerationStructureCollection(this->displayDevice->getModelInstanceCollectionPointer()->getModelInstanceMap());
 
   std::vector<std::vector<DeviceDescriptor*>> separatedDeviceDescriptorList = {
     {
