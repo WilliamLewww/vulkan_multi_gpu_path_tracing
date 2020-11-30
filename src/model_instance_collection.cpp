@@ -14,7 +14,7 @@ ModelInstanceCollection::ModelInstanceCollection(std::map<Model*, std::vector<Ma
   std::vector<Material> totalMaterialList;
   LightContainer lightContainer = {
     .count = 0,
-    .indices = {},
+    .indicesPrimitive = {},
     .indicesInstance = {}
   };
 
@@ -45,7 +45,7 @@ ModelInstanceCollection::ModelInstanceCollection(std::map<Model*, std::vector<Ma
       for (int y = 0; y < pair.first->getTotalMaterialIndexCount(); y++) {
         float* materialEmission = pair.first->getMaterial(pair.first->getTotalMaterialIndex(y)).emission;
         if (materialEmission[0] > 0 || materialEmission[1] > 0 || materialEmission[2] > 0) {
-          lightContainer.indices[lightContainer.count] = y;
+          lightContainer.indicesPrimitive[lightContainer.count] = y;
           lightContainer.indicesInstance[lightContainer.count] = instanceIndex;
           lightContainer.count += 1;
         }

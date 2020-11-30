@@ -44,7 +44,7 @@ layout(binding = 2, set = 1) buffer MaterialIndexBuffer { uint data[]; } materia
 layout(binding = 3, set = 1) buffer MaterialBuffer { Material data[]; } materialBuffer;
 layout(binding = 4, set = 1) buffer MaterialLightBuffer { 
   uint count; 
-  int indices[64];
+  int indicesPrimitive[64];
   int indicesInstance[64];
 } materialLightBuffer;
 
@@ -118,17 +118,11 @@ void main() {
   }
   else {
     int randomIndex = int(random(gl_FragCoord.xy, camera.frameCount) * materialLightBuffer.count);
-    int lightPrimitiveIndex = materialLightBuffer.indices[randomIndex];
     int lightInstanceIndex = materialLightBuffer.indicesInstance[randomIndex];
-    uint lightIndexOffset = instanceDescriptionContainer.indexOffsets[lightInstanceIndex];
-    uint lightVertexOffset = instanceDescriptionContainer.vertexOffsets[lightInstanceIndex];
-    mat4 lightTransformMatrix = instanceDescriptionContainer.transformMatrix[lightInstanceIndex];
+    int lightPrimitiveIndex = materialLightBuffer.indicesPrimitive[randomIndex];
 
-    ivec3 lightIndices = ivec3(indexBuffer.data[3 * lightPrimitiveIndex + 0 + lightIndexOffset], indexBuffer.data[3 * lightPrimitiveIndex + 1 + lightIndexOffset], indexBuffer.data[3 * lightPrimitiveIndex + 2 + lightIndexOffset]);
-
-    vec3 lightVertexA = (lightTransformMatrix * vec4(vertexBuffer.data[3 * lightIndices.x + 0 + lightVertexOffset], vertexBuffer.data[3 * lightIndices.x + 1 + lightVertexOffset], vertexBuffer.data[3 * lightIndices.x + 2 + lightVertexOffset], 1.0)).xyz;
-    vec3 lightVertexB = (lightTransformMatrix * vec4(vertexBuffer.data[3 * lightIndices.y + 0 + lightVertexOffset], vertexBuffer.data[3 * lightIndices.y + 1 + lightVertexOffset], vertexBuffer.data[3 * lightIndices.y + 2 + lightVertexOffset], 1.0)).xyz;
-    vec3 lightVertexC = (lightTransformMatrix * vec4(vertexBuffer.data[3 * lightIndices.z + 0 + lightVertexOffset], vertexBuffer.data[3 * lightIndices.z + 1 + lightVertexOffset], vertexBuffer.data[3 * lightIndices.z + 2 + lightVertexOffset], 1.0)).xyz;
+    vec3 lightVertexA, lightVertexB, lightVertexC;
+    getVertexFromIndices(lightInstanceIndex, lightPrimitiveIndex, lightVertexA, lightVertexB, lightVertexC);
 
     vec2 uv = vec2(random(gl_FragCoord.xy, camera.frameCount), random(gl_FragCoord.xy, camera.frameCount + 1));
     if (uv.x + uv.y > 1.0f) {
