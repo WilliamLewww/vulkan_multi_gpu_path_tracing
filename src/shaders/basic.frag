@@ -99,22 +99,27 @@ void getVertexFromIndices(uint instanceIndex, uint primitiveIndex, out vec3 vert
              1.0)).xyz;
 }
 
+Material getMaterialFromPrimitive(uint instanceIndex, uint primitiveIndex) {
+  uint materialIndexOffset = instanceDescriptionContainer.materialIndexOffsets[instanceIndex];
+  uint materialOffset = instanceDescriptionContainer.materialOffsets[instanceIndex];
+
+  Material material = materialBuffer.data[materialIndexBuffer.data[primitiveIndex + materialIndexOffset] + materialOffset];
+
+  return material;
+}
+
 void main() {
   vec3 directColor = vec3(0.0, 0.0, 0.0);
-
-  uint materialIndexOffset = instanceDescriptionContainer.materialIndexOffsets[rasterInstanceIndex];
-  uint materialOffset = instanceDescriptionContainer.materialOffsets[rasterInstanceIndex];
 
   vec3 vertexA, vertexB, vertexC;
   getVertexFromIndices(rasterInstanceIndex, gl_PrimitiveID, vertexA, vertexB, vertexC);
 
   vec3 geometricNormal = normalize(cross(vertexB - vertexA, vertexC - vertexA));
 
-  vec3 surfaceColor = materialBuffer.data[materialIndexBuffer.data[gl_PrimitiveID + materialIndexOffset] + materialOffset].diffuse;
-  vec3 emissionColor = materialBuffer.data[materialIndexBuffer.data[gl_PrimitiveID + materialIndexOffset] + materialOffset].emission;
-
-  if (dot(emissionColor, emissionColor) > 0) {
-    directColor = emissionColor;
+  Material rasterMaterial = getMaterialFromPrimitive(rasterInstanceIndex, gl_PrimitiveID);
+ 
+  if (dot(rasterMaterial.emission, rasterMaterial.emission) > 0) {
+    directColor = rasterMaterial.emission;
   }
   else {
     int randomIndex = int(random(gl_FragCoord.xy, camera.frameCount) * materialLightBuffer.count);
@@ -135,7 +140,7 @@ void main() {
 
     vec3 positionToLightDirection = normalize(lightPosition - interpolatedPosition);
 
-    directColor = vec3(surfaceColor * dot(geometricNormal, positionToLightDirection));
+    directColor = vec3(rasterMaterial.diffuse * dot(geometricNormal, positionToLightDirection));
   }
 
   vec4 color = vec4(directColor, 1.0);
