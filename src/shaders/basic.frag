@@ -122,25 +122,38 @@ void main() {
     directColor = rasterMaterial.emission;
   }
   else {
-    int randomIndex = int(random(gl_FragCoord.xy, camera.frameCount) * materialLightBuffer.count);
-    int lightInstanceIndex = materialLightBuffer.indicesInstance[randomIndex];
-    int lightPrimitiveIndex = materialLightBuffer.indicesPrimitive[randomIndex];
+    for (int x = 0; x < 1; x++) {
+      int lightInstanceIndex = materialLightBuffer.indicesInstance[x];
+      int lightPrimitiveIndex = materialLightBuffer.indicesPrimitive[x];
 
-    vec3 lightVertexA, lightVertexB, lightVertexC;
-    getVertexFromIndices(lightInstanceIndex, lightPrimitiveIndex, lightVertexA, lightVertexB, lightVertexC);
+      vec3 lightVertexA, lightVertexB, lightVertexC;
+      getVertexFromIndices(lightInstanceIndex, lightPrimitiveIndex, lightVertexA, lightVertexB, lightVertexC);
 
-    vec2 uv = vec2(random(gl_FragCoord.xy, camera.frameCount), random(gl_FragCoord.xy, camera.frameCount + 1));
-    if (uv.x + uv.y > 1.0f) {
-      uv.x = 1.0f - uv.x;
-      uv.y = 1.0f - uv.y;
+      vec3 lightCross = cross(lightVertexB - lightVertexA, lightVertexC - lightVertexA);
+      vec3 lightGeometricNormal = normalize(lightCross);
+      float lightArea = length(lightCross) * 0.5;
+
+      Material lightMaterial = getMaterialFromPrimitive(lightInstanceIndex, lightPrimitiveIndex);
+
+      vec2 uv = vec2(random(gl_FragCoord.xy, camera.frameCount), random(gl_FragCoord.xy, camera.frameCount + 1));
+      if (uv.x + uv.y > 1.0f) {
+        uv.x = 1.0f - uv.x;
+        uv.y = 1.0f - uv.y;
+      }
+
+      vec3 lightBarycentric = vec3(1.0 - uv.x - uv.y, uv.x, uv.y);
+      vec3 lightPosition = lightVertexA * lightBarycentric.x + lightVertexB * lightBarycentric.y + lightVertexC * lightBarycentric.z;
+
+      vec3 positionToLightDirection = normalize(lightPosition - interpolatedPosition);
+
+      if (dot(lightGeometricNormal, geometricNormal) > -0.000001 && dot(lightGeometricNormal, geometricNormal) < 0.000001) {
+        directColor = vec3(1.0);
+      }
+
+      // directColor += vec3(rasterMaterial.diffuse * lightMaterial.emission * dot(geometricNormal, positionToLightDirection));
     }
 
-    vec3 lightBarycentric = vec3(1.0 - uv.x - uv.y, uv.x, uv.y);
-    vec3 lightPosition = lightVertexA * lightBarycentric.x + lightVertexB * lightBarycentric.y + lightVertexC * lightBarycentric.z;
-
-    vec3 positionToLightDirection = normalize(lightPosition - interpolatedPosition);
-
-    directColor = vec3(rasterMaterial.diffuse * dot(geometricNormal, positionToLightDirection));
+    // directColor = geometricNormal;
   }
 
   vec4 color = vec4(directColor, 1.0);
