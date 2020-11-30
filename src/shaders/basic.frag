@@ -13,7 +13,7 @@ struct Material {
 };
 
 layout(location = 0) in vec3 interpolatedPosition;
-flat layout(location = 1) in uint instanceIndex;
+flat layout(location = 1) in uint rasterInstanceIndex;
 
 layout(location = 0) out vec4 outColor;
 
@@ -67,21 +67,47 @@ vec3 alignHemisphereWithCoordinateSystem(vec3 hemisphere, vec3 up) {
   return hemisphere.x * right + hemisphere.y * up + hemisphere.z * forward;
 }
 
+ivec3 getIndicesFromPrimitive(uint instanceIndex, uint primitiveIndex) {
+  uint indexOffset = instanceDescriptionContainer.indexOffsets[instanceIndex];
+
+  ivec3 indices = ivec3(indexBuffer.data[3 * primitiveIndex + 0 + indexOffset], 
+                        indexBuffer.data[3 * primitiveIndex + 1 + indexOffset], 
+                        indexBuffer.data[3 * primitiveIndex + 2 + indexOffset]);
+
+  return indices;
+};
+
+void getVertexFromIndices(uint instanceIndex, uint primitiveIndex, out vec3 vertexA, out vec3 vertexB, out vec3 vertexC) {
+  uint vertexOffset = instanceDescriptionContainer.vertexOffsets[instanceIndex];
+  mat4 transformMatrix = instanceDescriptionContainer.transformMatrix[instanceIndex];
+
+  ivec3 indices = getIndicesFromPrimitive(instanceIndex, primitiveIndex);
+
+  vertexA = (transformMatrix * vec4(vertexBuffer.data[3 * indices.x + 0 + vertexOffset], 
+             vertexBuffer.data[3 * indices.x + 1 + vertexOffset], 
+             vertexBuffer.data[3 * indices.x + 2 + vertexOffset], 
+             1.0)).xyz;
+
+  vertexB = (transformMatrix * vec4(vertexBuffer.data[3 * indices.y + 0 + vertexOffset], 
+             vertexBuffer.data[3 * indices.y + 1 + vertexOffset], 
+             vertexBuffer.data[3 * indices.y + 2 + vertexOffset], 
+             1.0)).xyz;
+  
+  vertexC = (transformMatrix * vec4(vertexBuffer.data[3 * indices.z + 0 + vertexOffset], 
+             vertexBuffer.data[3 * indices.z + 1 + vertexOffset], 
+             vertexBuffer.data[3 * indices.z + 2 + vertexOffset], 
+             1.0)).xyz;
+}
+
 void main() {
   vec3 directColor = vec3(0.0, 0.0, 0.0);
 
-  uint indexOffset = instanceDescriptionContainer.indexOffsets[instanceIndex];
-  uint vertexOffset = instanceDescriptionContainer.vertexOffsets[instanceIndex];
-  uint materialIndexOffset = instanceDescriptionContainer.materialIndexOffsets[instanceIndex];
-  uint materialOffset = instanceDescriptionContainer.materialOffsets[instanceIndex];
-  mat4 transformMatrix = instanceDescriptionContainer.transformMatrix[instanceIndex];
+  uint materialIndexOffset = instanceDescriptionContainer.materialIndexOffsets[rasterInstanceIndex];
+  uint materialOffset = instanceDescriptionContainer.materialOffsets[rasterInstanceIndex];
 
-  ivec3 indices = ivec3(indexBuffer.data[3 * gl_PrimitiveID + 0 + indexOffset], indexBuffer.data[3 * gl_PrimitiveID + 1 + indexOffset], indexBuffer.data[3 * gl_PrimitiveID + 2 + indexOffset]);
+  vec3 vertexA, vertexB, vertexC;
+  getVertexFromIndices(rasterInstanceIndex, gl_PrimitiveID, vertexA, vertexB, vertexC);
 
-  vec3 vertexA = (transformMatrix * vec4(vertexBuffer.data[3 * indices.x + 0 + vertexOffset], vertexBuffer.data[3 * indices.x + 1 + vertexOffset], vertexBuffer.data[3 * indices.x + 2 + vertexOffset], 1.0)).xyz;
-  vec3 vertexB = (transformMatrix * vec4(vertexBuffer.data[3 * indices.y + 0 + vertexOffset], vertexBuffer.data[3 * indices.y + 1 + vertexOffset], vertexBuffer.data[3 * indices.y + 2 + vertexOffset], 1.0)).xyz;
-  vec3 vertexC = (transformMatrix * vec4(vertexBuffer.data[3 * indices.z + 0 + vertexOffset], vertexBuffer.data[3 * indices.z + 1 + vertexOffset], vertexBuffer.data[3 * indices.z + 2 + vertexOffset], 1.0)).xyz;
-  
   vec3 geometricNormal = normalize(cross(vertexB - vertexA, vertexC - vertexA));
 
   vec3 surfaceColor = materialBuffer.data[materialIndexBuffer.data[gl_PrimitiveID + materialIndexOffset] + materialOffset].diffuse;
