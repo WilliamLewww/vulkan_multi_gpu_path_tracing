@@ -1,3 +1,5 @@
+*.spv
+
 # Prerequisites
 *.d
 
