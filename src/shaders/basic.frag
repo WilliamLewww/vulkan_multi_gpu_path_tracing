@@ -163,7 +163,8 @@ void main() {
 
       if (rayQueryGetIntersectionTypeEXT(rayQuery, true) == gl_RayQueryCommittedIntersectionNoneEXT) {
         if (dot(positionToLightDirection, geometricNormal) > 0.0001) {
-          directColor += vec3(rasterMaterial.diffuse * (lightMaterial.emission * lightIntensity) * dot(geometricNormal, positionToLightDirection));
+          float lightAttenuation = getLightAttenuation(length(lightPosition - interpolatedPosition), 1, 0.05, 0.03);
+          directColor += lightAttenuation * vec3(rasterMaterial.diffuse * (lightMaterial.emission * lightMaterial.diffuse * lightIntensity) * dot(geometricNormal, positionToLightDirection));
         }
       }
       else {
@@ -193,7 +194,8 @@ void main() {
           positionToLightDirection = normalize(lightPosition - interpolatedPosition);
 
           if (dot(positionToLightDirection, geometricNormal) > 0.0001) {
-            directColor += vec3(rasterMaterial.diffuse * (lightMaterial.emission * lightIntensity) * dot(geometricNormal, positionToLightDirection));
+            float lightAttenuation = getLightAttenuation(length(lightPosition - interpolatedPosition), 1, 0.05, 0.03);
+            directColor += lightAttenuation * vec3(rasterMaterial.diffuse * (lightMaterial.emission * lightMaterial.diffuse * lightIntensity) * dot(geometricNormal, positionToLightDirection));
           }
         }
       }
