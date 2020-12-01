@@ -119,9 +119,7 @@ void main() {
 
   vec3 vertexA, vertexB, vertexC;
   getVertexFromIndices(rasterInstanceIndex, gl_PrimitiveID, vertexA, vertexB, vertexC);
-
   vec3 geometricNormal = normalize(cross(vertexB - vertexA, vertexC - vertexA));
-
   Material rasterMaterial = getMaterialFromPrimitive(rasterInstanceIndex, gl_PrimitiveID);
  
   if (dot(rasterMaterial.emission, rasterMaterial.emission) > 0) {
@@ -134,11 +132,6 @@ void main() {
 
       vec3 lightVertexA, lightVertexB, lightVertexC;
       getVertexFromIndices(lightInstanceIndex, lightPrimitiveIndex, lightVertexA, lightVertexB, lightVertexC);
-
-      vec3 lightCross = cross(lightVertexB - lightVertexA, lightVertexC - lightVertexA);
-      float lightArea = length(lightCross) * 0.5;
-      float lightIntensity = sqrt(lightArea);
-
       Material lightMaterial = getMaterialFromPrimitive(lightInstanceIndex, lightPrimitiveIndex);
 
       vec2 uv = vec2(random(gl_FragCoord.xy, camera.frameCount), random(gl_FragCoord.xy, camera.frameCount + 1));
@@ -151,18 +144,17 @@ void main() {
       vec3 lightPosition = lightVertexA * lightBarycentric.x + lightVertexB * lightBarycentric.y + lightVertexC * lightBarycentric.z;
 
       vec3 positionToLightDirection = normalize(lightPosition - interpolatedPosition);
-
-      vec3 shadowRayOrigin = interpolatedPosition;
-      vec3 shadowRayDirection = positionToLightDirection;
       float shadowRayDistance = length(lightPosition - interpolatedPosition) - 0.0001f;
 
       rayQueryEXT rayQuery;
-      rayQueryInitializeEXT(rayQuery, topLevelAS, gl_RayFlagsTerminateOnFirstHitEXT, 0xFF, shadowRayOrigin, 0.0001f, shadowRayDirection, shadowRayDistance);
+      rayQueryInitializeEXT(rayQuery, topLevelAS, gl_RayFlagsTerminateOnFirstHitEXT, 0xFF, interpolatedPosition, 0.0001f, positionToLightDirection, shadowRayDistance);
   
       while (rayQueryProceedEXT(rayQuery));
 
       if (rayQueryGetIntersectionTypeEXT(rayQuery, true) == gl_RayQueryCommittedIntersectionNoneEXT) {
         if (dot(positionToLightDirection, geometricNormal) > 0.0001) {
+          float lightArea = length(cross(lightVertexB - lightVertexA, lightVertexC - lightVertexA)) * 0.5;
+          float lightIntensity = sqrt(lightArea);
           float lightAttenuation = getLightAttenuation(length(lightPosition - interpolatedPosition), 1, 0.05, 0.03);
           directColor += lightAttenuation * vec3(rasterMaterial.diffuse * (lightMaterial.emission * lightMaterial.diffuse * lightIntensity) * dot(geometricNormal, positionToLightDirection));
         }
@@ -180,11 +172,6 @@ void main() {
 
         if (intersectionIsLight) {
           getVertexFromIndices(intersectionInstanceIndex, intersectionPrimitiveIndex, lightVertexA, lightVertexB, lightVertexC);
-        
-          vec3 lightCross = cross(lightVertexB - lightVertexA, lightVertexC - lightVertexA);
-          float lightArea = length(lightCross) * 0.5;
-          float lightIntensity = sqrt(lightArea);
-
           lightMaterial = getMaterialFromPrimitive(lightInstanceIndex, lightPrimitiveIndex);
 
           uv = rayQueryGetIntersectionBarycentricsEXT(rayQuery, true);
@@ -194,6 +181,8 @@ void main() {
           positionToLightDirection = normalize(lightPosition - interpolatedPosition);
 
           if (dot(positionToLightDirection, geometricNormal) > 0.0001) {
+            float lightArea = length(cross(lightVertexB - lightVertexA, lightVertexC - lightVertexA)) * 0.5;
+            float lightIntensity = sqrt(lightArea);
             float lightAttenuation = getLightAttenuation(length(lightPosition - interpolatedPosition), 1, 0.05, 0.03);
             directColor += lightAttenuation * vec3(rasterMaterial.diffuse * (lightMaterial.emission * lightMaterial.diffuse * lightIntensity) * dot(geometricNormal, positionToLightDirection));
           }
