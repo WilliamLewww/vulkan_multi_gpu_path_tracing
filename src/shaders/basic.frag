@@ -108,6 +108,10 @@ Material getMaterialFromPrimitive(uint instanceIndex, uint primitiveIndex) {
   return material;
 }
 
+float getLightAttenuation(float distance, float c, float l, float q) {
+  return 1.0 / (c + (l * distance) + (q * distance * distance));
+}
+
 void main() {
   vec3 directColor = vec3(0.0, 0.0, 0.0);
 
