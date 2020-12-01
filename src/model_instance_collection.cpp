@@ -18,7 +18,10 @@ ModelInstanceCollection::ModelInstanceCollection(std::map<Model*, std::vector<Ma
     .indicesInstance = {}
   };
 
-  std::pair<Model*, std::vector<Matrix4x4>> previousPair;
+  uint32_t cumulativeVertexOffset = 0;
+  uint32_t cumulativeIndexOffset = 0;
+  uint32_t cumulativeMaterialIndexOffset = 0;
+  uint32_t cumulativeMaterialOffset = 0;
 
   for (std::pair<Model*, std::vector<Matrix4x4>> pair : modelFrequencyMap) {
     this->createVertexBuffer(pair.first, logicalDevice, physicalDeviceMemoryProperties, commandPool, queue, &totalVertexList);
@@ -29,18 +32,15 @@ ModelInstanceCollection::ModelInstanceCollection(std::map<Model*, std::vector<Ma
       this->modelInstanceList.push_back(new ModelInstance(pair.first, &this->vertexBufferMap[pair.first], &this->indexBufferMap[pair.first], modelIndex, instanceIndex, pair.second[x]));
       this->modelInstanceMap[pair.first].push_back(this->modelInstanceList.back());
 
-      if (modelIndex == 0) {
-        this->vertexOffsetList.push_back(0);
-        this->indexOffsetList.push_back(0);
-        this->materialIndexOffsetList.push_back(0);
-        this->materialOffsetList.push_back(0);
-      }
-      else {
-        this->vertexOffsetList.push_back(previousPair.first->getVertexCount());
-        this->indexOffsetList.push_back(previousPair.first->getTotalIndexCount());
-        this->materialIndexOffsetList.push_back(previousPair.first->getTotalMaterialIndexCount());
-        this->materialOffsetList.push_back(previousPair.first->getMaterialCount());
-      }
+      this->vertexOffsetList.push_back(cumulativeVertexOffset);
+      this->indexOffsetList.push_back(cumulativeIndexOffset);
+      this->materialIndexOffsetList.push_back(cumulativeMaterialIndexOffset);
+      this->materialOffsetList.push_back(cumulativeMaterialOffset);
+
+      cumulativeVertexOffset += pair.first->getVertexCount();
+      cumulativeIndexOffset += pair.first->getTotalIndexCount();
+      cumulativeMaterialIndexOffset += pair.first->getTotalMaterialIndexCount();
+      cumulativeMaterialOffset += pair.first->getMaterialCount();
 
       for (int y = 0; y < pair.first->getTotalMaterialIndexCount(); y++) {
         float* materialEmission = pair.first->getMaterial(pair.first->getTotalMaterialIndex(y)).emission;
@@ -54,7 +54,6 @@ ModelInstanceCollection::ModelInstanceCollection(std::map<Model*, std::vector<Ma
       instanceIndex += 1;
     }
 
-    previousPair = pair;
     modelIndex += 1;
   }
 
