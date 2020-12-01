@@ -21,8 +21,8 @@ private:
 
   struct LightContainer {
     alignas(4) uint32_t count;
-    alignas(4) int indicesPrimitive[64];
-    alignas(4) int indicesInstance[64];
+    alignas(4) uint32_t indicesPrimitive[64];
+    alignas(4) uint32_t indicesInstance[64];
   };
 
   struct InstanceUniform {

@@ -46,8 +46,8 @@ layout(binding = 2, set = 1) buffer MaterialIndexBuffer { uint data[]; } materia
 layout(binding = 3, set = 1) buffer MaterialBuffer { Material data[]; } materialBuffer;
 layout(binding = 4, set = 1) buffer MaterialLightBuffer { 
   uint count; 
-  int indicesPrimitive[64];
-  int indicesInstance[64];
+  uint indicesPrimitive[64];
+  uint indicesInstance[64];
 } materialLightBuffer;
 
 float random(vec2 uv, float seed) {
@@ -129,8 +129,8 @@ void main() {
   }
   else {
     for (int x = 0; x < materialLightBuffer.count; x++) {
-      int lightInstanceIndex = materialLightBuffer.indicesInstance[x];
-      int lightPrimitiveIndex = materialLightBuffer.indicesPrimitive[x];
+      uint lightInstanceIndex = materialLightBuffer.indicesInstance[x];
+      uint lightPrimitiveIndex = materialLightBuffer.indicesPrimitive[x];
 
       vec3 lightVertexA, lightVertexB, lightVertexC;
       getVertexFromIndices(lightInstanceIndex, lightPrimitiveIndex, lightVertexA, lightVertexB, lightVertexC);
