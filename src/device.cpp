@@ -199,22 +199,22 @@ void Device::drawFrame() {
     vkWaitForFences(this->logicalDevice, 1, &imageInFlight, VK_TRUE, UINT64_MAX);
   }
   imageInFlight = inFlightFence;
-   
-  VkSubmitInfo submitInfo = {};
-  submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-    
+
   VkSemaphore waitSemaphores[1] = {imageAvailableSemaphore};
   VkPipelineStageFlags waitStages[1] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
-  submitInfo.waitSemaphoreCount = 1;
-  submitInfo.pWaitSemaphores = waitSemaphores;
-  submitInfo.pWaitDstStageMask = waitStages;
-
-  submitInfo.commandBufferCount = 1;
-  submitInfo.pCommandBuffers = &this->renderCommandBuffers->getCommandBufferList()[imageIndex];
-
   VkSemaphore signalSemaphores[1] = {renderFinishedSemaphore};
-  submitInfo.signalSemaphoreCount = 1;
-  submitInfo.pSignalSemaphores = signalSemaphores;
+   
+  VkSubmitInfo submitInfo = {
+    .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
+    .pNext = NULL,
+    .waitSemaphoreCount = 1,
+    .pWaitSemaphores = waitSemaphores,
+    .pWaitDstStageMask = waitStages,
+    .commandBufferCount = 1,
+    .pCommandBuffers = &this->renderCommandBuffers->getCommandBufferList()[imageIndex],
+    .signalSemaphoreCount = 1,
+    .pSignalSemaphores = signalSemaphores,
+  };
 
   vkResetFences(this->logicalDevice, 1, &inFlightFence);
 
@@ -222,15 +222,18 @@ void Device::drawFrame() {
     printf("failed to submit draw command buffer\n");
   }
 
-  VkPresentInfoKHR presentInfo = {};  
-  presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-  presentInfo.waitSemaphoreCount = 1;
-  presentInfo.pWaitSemaphores = signalSemaphores;
-
   VkSwapchainKHR swapchains[1] = {this->deviceSwapchain->getSwapchain()};
-  presentInfo.swapchainCount = 1;
-  presentInfo.pSwapchains = swapchains;
-  presentInfo.pImageIndices = &imageIndex;
+
+  VkPresentInfoKHR presentInfo = {
+    .sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
+    .pNext = NULL,
+    .waitSemaphoreCount = 1,
+    .pWaitSemaphores = signalSemaphores,
+    .swapchainCount = 1,
+    .pSwapchains = swapchains,
+    .pImageIndices = &imageIndex,
+    .pResults = NULL,
+  };
 
   vkQueuePresentKHR(this->deviceQueue->getPresentQueue(), &presentInfo);
 
