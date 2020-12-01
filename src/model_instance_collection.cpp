@@ -60,7 +60,9 @@ ModelInstanceCollection::ModelInstanceCollection(std::map<Model*, std::vector<Ma
   uint32_t instanceCount = this->modelInstanceList.size();
   std::vector<float> totalTransformList = this->getTotalTransformList();
 
-  this->instanceUniform = {};
+  this->instanceUniform = {
+    .buffer = {}
+  };
   memcpy((float*)&this->instanceUniform, &instanceCount, sizeof(uint32_t));
   for (int x = 0; x < this->vertexOffsetList.size(); x++) {
     memcpy(4 + (x * 4) + (float*)&this->instanceUniform, &this->vertexOffsetList[x], sizeof(uint32_t));
@@ -217,7 +219,12 @@ void ModelInstanceCollection::createMaterialBuffers(Model* model,
 
   std::vector<Material> materialList(model->getMaterialCount());
   for (int x = 0; x < model->getMaterialCount(); x++) {
-    Material material = {};
+    Material material = {
+      .ambient = {},
+      .diffuse = {},
+      .specular = {},
+      .emission = {}
+    };
     memcpy(material.ambient, model->getMaterial(x).ambient, sizeof(float) * 3);
     memcpy(material.diffuse, model->getMaterial(x).diffuse, sizeof(float) * 3);
     memcpy(material.specular, model->getMaterial(x).specular, sizeof(float) * 3);

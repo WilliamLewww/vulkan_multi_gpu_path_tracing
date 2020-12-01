@@ -14,16 +14,22 @@ DeviceDepthResource::DeviceDepthResource(VkDevice logicalDevice, VkPhysicalDevic
                             &this->depthImage, 
                             &this->depthImageMemory);
 
-  VkImageViewCreateInfo viewInfo = {};
-  viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-  viewInfo.image = this->depthImage;
-  viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-  viewInfo.format = depthFormat;
-  viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
-  viewInfo.subresourceRange.baseMipLevel = 0;
-  viewInfo.subresourceRange.levelCount = 1;
-  viewInfo.subresourceRange.baseArrayLayer = 0;
-  viewInfo.subresourceRange.layerCount = 1;
+  VkImageViewCreateInfo viewInfo = {
+    .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
+    .pNext = NULL,
+    .flags = 0,
+    .image = this->depthImage,
+    .viewType = VK_IMAGE_VIEW_TYPE_2D,
+    .format = depthFormat,
+    .components = {},
+    .subresourceRange = {
+      .aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT,
+      .baseMipLevel = 0,
+      .levelCount = 1,
+      .baseArrayLayer = 0,
+      .layerCount = 1
+    },
+  };
 
   if (vkCreateImageView(logicalDevice, &viewInfo, NULL, &this->depthImageView) != VK_SUCCESS) {
     printf("failed to create texture image view\n");

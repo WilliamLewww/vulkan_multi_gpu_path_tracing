@@ -17,56 +17,75 @@ DeviceTextures::DeviceTextures(VkDevice logicalDevice,
                             &this->rayTraceImage, 
                             &this->rayTraceImageMemory);
 
-  VkImageSubresourceRange subresourceRange = {};
-  subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-  subresourceRange.baseMipLevel = 0;
-  subresourceRange.levelCount = 1;
-  subresourceRange.baseArrayLayer = 0;
-  subresourceRange.layerCount = 1;
+  VkImageSubresourceRange subresourceRange = {
+    .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
+    .baseMipLevel = 0,
+    .levelCount = 1,
+    .baseArrayLayer = 0,
+    .layerCount = 1,
+  };
 
-  VkImageViewCreateInfo imageViewCreateInfo = {};
-  imageViewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-  imageViewCreateInfo.pNext = NULL;
-  imageViewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-  imageViewCreateInfo.format = swapchainImageFormat;
-  imageViewCreateInfo.subresourceRange = subresourceRange;
-  imageViewCreateInfo.image = this->rayTraceImage;
+  VkImageViewCreateInfo imageViewCreateInfo = {
+    .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
+    .pNext = NULL,
+    .flags = 0,
+    .image = this->rayTraceImage,
+    .viewType = VK_IMAGE_VIEW_TYPE_2D,
+    .format = swapchainImageFormat,
+    .components = {},
+    .subresourceRange = subresourceRange,
+  };
 
   if (vkCreateImageView(logicalDevice, &imageViewCreateInfo, NULL, &this->rayTraceImageView) != VK_SUCCESS) {
     printf("failed to create image view\n");
   }
 
-  VkImageMemoryBarrier imageMemoryBarrier = {};
-  imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-  imageMemoryBarrier.pNext = NULL;
-  imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-  imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_GENERAL;
-  imageMemoryBarrier.image = this->rayTraceImage;
-  imageMemoryBarrier.subresourceRange = subresourceRange;
-  imageMemoryBarrier.srcAccessMask = 0;
-  imageMemoryBarrier.dstAccessMask = 0;
+  VkImageMemoryBarrier imageMemoryBarrier = {
+    .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+    .pNext = NULL,
+    .srcAccessMask = 0,
+    .dstAccessMask = 0,
+    .oldLayout = VK_IMAGE_LAYOUT_UNDEFINED,
+    .newLayout = VK_IMAGE_LAYOUT_GENERAL,
+    .srcQueueFamilyIndex = 0,
+    .dstQueueFamilyIndex = 0,
+    .image = this->rayTraceImage,
+    .subresourceRange = subresourceRange,
+  };
 
-  VkCommandBufferAllocateInfo bufferAllocateInfo = {};
-  bufferAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-  bufferAllocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-  bufferAllocateInfo.commandPool = commandPool;
-  bufferAllocateInfo.commandBufferCount = 1;
+  VkCommandBufferAllocateInfo bufferAllocateInfo = {
+    .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
+    .pNext = NULL,
+    .commandPool = commandPool,
+    .level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
+    .commandBufferCount = 1,
+  };
 
   VkCommandBuffer commandBuffer;
   vkAllocateCommandBuffers(logicalDevice, &bufferAllocateInfo, &commandBuffer);
   
-  VkCommandBufferBeginInfo commandBufferBeginInfo = {};
-  commandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-  commandBufferBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+  VkCommandBufferBeginInfo commandBufferBeginInfo = {
+    .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+    .pNext = NULL,
+    .flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT,
+    .pInheritanceInfo = NULL
+  };
   
   vkBeginCommandBuffer(commandBuffer, &commandBufferBeginInfo);
   vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0, NULL, 0, NULL, 1, &imageMemoryBarrier);
   vkEndCommandBuffer(commandBuffer);
 
-  VkSubmitInfo submitInfo = {};
-  submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-  submitInfo.commandBufferCount = 1;
-  submitInfo.pCommandBuffers = &commandBuffer;
+  VkSubmitInfo submitInfo = {
+    .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
+    .pNext = NULL,
+    .waitSemaphoreCount = 0,
+    .pWaitSemaphores = NULL,
+    .pWaitDstStageMask = NULL,
+    .commandBufferCount = 1,
+    .pCommandBuffers = &commandBuffer,
+    .signalSemaphoreCount = 0,
+    .pSignalSemaphores = NULL,
+  };
 
   vkQueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE);
   vkQueueWaitIdle(queue);
