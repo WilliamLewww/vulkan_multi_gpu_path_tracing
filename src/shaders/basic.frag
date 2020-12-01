@@ -10,6 +10,8 @@ struct Material {
   vec3 diffuse;
   vec3 specular;
   vec3 emission;
+
+  float shininess;
 };
 
 layout(location = 0) in vec3 interpolatedPosition;

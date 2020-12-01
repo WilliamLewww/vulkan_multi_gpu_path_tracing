@@ -15,6 +15,8 @@ private:
     alignas(16) float diffuse[3];
     alignas(16) float specular[3];
     alignas(16) float emission[3];
+
+    alignas(4) float shininess;
   };
 
   struct LightContainer {
