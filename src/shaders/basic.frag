@@ -122,7 +122,7 @@ void main() {
     directColor = rasterMaterial.emission;
   }
   else {
-    for (int x = 0; x < 1; x++) {
+    for (int x = 0; x < materialLightBuffer.count; x++) {
       int lightInstanceIndex = materialLightBuffer.indicesInstance[x];
       int lightPrimitiveIndex = materialLightBuffer.indicesPrimitive[x];
 
@@ -130,8 +130,8 @@ void main() {
       getVertexFromIndices(lightInstanceIndex, lightPrimitiveIndex, lightVertexA, lightVertexB, lightVertexC);
 
       vec3 lightCross = cross(lightVertexB - lightVertexA, lightVertexC - lightVertexA);
-      vec3 lightGeometricNormal = normalize(lightCross);
       float lightArea = length(lightCross) * 0.5;
+      float lightIntensity = sqrt(lightArea);
 
       Material lightMaterial = getMaterialFromPrimitive(lightInstanceIndex, lightPrimitiveIndex);
 
@@ -146,14 +146,52 @@ void main() {
 
       vec3 positionToLightDirection = normalize(lightPosition - interpolatedPosition);
 
-      if (dot(lightGeometricNormal, geometricNormal) > -0.000001 && dot(lightGeometricNormal, geometricNormal) < 0.000001) {
-        directColor = vec3(1.0);
+      vec3 shadowRayOrigin = interpolatedPosition;
+      vec3 shadowRayDirection = positionToLightDirection;
+      float shadowRayDistance = length(lightPosition - interpolatedPosition) - 0.0001f;
+
+      rayQueryEXT rayQuery;
+      rayQueryInitializeEXT(rayQuery, topLevelAS, gl_RayFlagsTerminateOnFirstHitEXT, 0xFF, shadowRayOrigin, 0.0001f, shadowRayDirection, shadowRayDistance);
+  
+      while (rayQueryProceedEXT(rayQuery));
+
+      if (rayQueryGetIntersectionTypeEXT(rayQuery, true) == gl_RayQueryCommittedIntersectionNoneEXT) {
+        if (dot(positionToLightDirection, geometricNormal) > 0.0001) {
+          directColor += vec3(rasterMaterial.diffuse * (lightMaterial.emission * lightIntensity) * dot(geometricNormal, positionToLightDirection));
+        }
       }
+      else {
+        int intersectionInstanceIndex = rayQueryGetIntersectionInstanceIdEXT(rayQuery, true);
+        int intersectionPrimitiveIndex = rayQueryGetIntersectionPrimitiveIndexEXT(rayQuery, true);
 
-      // directColor += vec3(rasterMaterial.diffuse * lightMaterial.emission * dot(geometricNormal, positionToLightDirection));
+        bool intersectionIsLight = false;
+        for (int y = 0; y < materialLightBuffer.count; y++) {
+          if (intersectionInstanceIndex == materialLightBuffer.indicesInstance[y] && intersectionPrimitiveIndex == materialLightBuffer.indicesPrimitive[y]) {
+            intersectionIsLight = true;
+          }
+        }
+
+        if (intersectionIsLight) {
+          getVertexFromIndices(intersectionInstanceIndex, intersectionPrimitiveIndex, lightVertexA, lightVertexB, lightVertexC);
+        
+          vec3 lightCross = cross(lightVertexB - lightVertexA, lightVertexC - lightVertexA);
+          float lightArea = length(lightCross) * 0.5;
+          float lightIntensity = sqrt(lightArea);
+
+          lightMaterial = getMaterialFromPrimitive(lightInstanceIndex, lightPrimitiveIndex);
+
+          uv = rayQueryGetIntersectionBarycentricsEXT(rayQuery, true);
+          lightBarycentric = vec3(1.0 - uv.x - uv.y, uv.x, uv.y);
+
+          lightPosition = lightVertexA * lightBarycentric.x + lightVertexB * lightBarycentric.y + lightVertexC * lightBarycentric.z;
+          positionToLightDirection = normalize(lightPosition - interpolatedPosition);
+
+          if (dot(positionToLightDirection, geometricNormal) > 0.0001) {
+            directColor += vec3(rasterMaterial.diffuse * (lightMaterial.emission * lightIntensity) * dot(geometricNormal, positionToLightDirection));
+          }
+        }
+      }
     }
-
-    // directColor = geometricNormal;
   }
 
   vec4 color = vec4(directColor, 1.0);
