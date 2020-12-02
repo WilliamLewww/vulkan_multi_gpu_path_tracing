@@ -224,7 +224,8 @@ void ModelInstanceCollection::createMaterialBuffers(Model* model,
       .diffuse = {},
       .specular = {},
       .emission = {},
-      .shininess = 0
+      .shininess = 0,
+      .dissolve = 0
     };
     memcpy(material.ambient, model->getMaterial(x).ambient, sizeof(float) * 3);
     memcpy(material.diffuse, model->getMaterial(x).diffuse, sizeof(float) * 3);
@@ -232,6 +233,7 @@ void ModelInstanceCollection::createMaterialBuffers(Model* model,
     memcpy(material.emission, model->getMaterial(x).emission, sizeof(float) * 3);
 
     material.shininess = model->getMaterial(x).shininess;
+    material.dissolve = model->getMaterial(x).dissolve;
 
     totalMaterialList->push_back(material);
   }

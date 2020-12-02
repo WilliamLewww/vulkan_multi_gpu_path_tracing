@@ -12,6 +12,7 @@ struct Material {
   vec3 emission;
 
   float shininess;
+  float dissolve;
 };
 
 layout(location = 0) in vec3 interpolatedPosition;
@@ -201,6 +202,10 @@ void main() {
         }
       }
     }
+  }
+
+  if (rasterMaterial.dissolve == 0.5) {
+    directColor = vec3(1.0);
   }
 
   vec4 color = vec4(directColor, 1.0);
