@@ -141,8 +141,8 @@ void main() {
 
       vec3 lightBarycentric = vec3(1.0 - uv.x - uv.y, uv.x, uv.y);
       vec3 lightPosition = lightVertexA * lightBarycentric.x + lightVertexB * lightBarycentric.y + lightVertexC * lightBarycentric.z;
-
       vec3 positionToLightDirection = normalize(lightPosition - interpolatedPosition);
+      
       float shadowRayDistance = length(lightPosition - interpolatedPosition) - 0.0001f;
 
       rayQueryEXT rayQuery;
@@ -156,7 +156,13 @@ void main() {
           float lightArea = length(cross(lightVertexB - lightVertexA, lightVertexC - lightVertexA)) * 0.5;
           float lightIntensity = sqrt(lightArea);
           float lightAttenuation = getLightAttenuation(length(lightPosition - interpolatedPosition), 1, 0.05, 0.03);
-          directColor += lightAttenuation * vec3(rasterMaterial.diffuse * (lightMaterial.emission * lightMaterial.diffuse * lightIntensity) * dot(geometricNormal, positionToLightDirection));
+
+          vec3 surfaceToCamera = normalize(camera.position.xyz - interpolatedPosition);
+          vec3 reflectedPositionToLightDirection = (2 * geometricNormal * dot(positionToLightDirection, geometricNormal)) - positionToLightDirection;
+
+          vec3 diffuse = vec3(rasterMaterial.diffuse * (lightMaterial.emission * lightMaterial.diffuse * lightIntensity) * dot(geometricNormal, positionToLightDirection));
+          vec3 specular = vec3(rasterMaterial.specular * (lightMaterial.emission * lightMaterial.specular * lightIntensity) * max(0, pow(dot(reflectedPositionToLightDirection, surfaceToCamera), 50)));
+          directColor += lightAttenuation * (diffuse + specular);
         }
       }
       else {
@@ -174,8 +180,8 @@ void main() {
           getVertexFromIndices(intersectionInstanceIndex, intersectionPrimitiveIndex, lightVertexA, lightVertexB, lightVertexC);
 
           uv = rayQueryGetIntersectionBarycentricsEXT(rayQuery, true);
+          
           lightBarycentric = vec3(1.0 - uv.x - uv.y, uv.x, uv.y);
-
           lightPosition = lightVertexA * lightBarycentric.x + lightVertexB * lightBarycentric.y + lightVertexC * lightBarycentric.z;
           positionToLightDirection = normalize(lightPosition - interpolatedPosition);
 
@@ -184,7 +190,13 @@ void main() {
             float lightArea = length(cross(lightVertexB - lightVertexA, lightVertexC - lightVertexA)) * 0.5;
             float lightIntensity = sqrt(lightArea);
             float lightAttenuation = getLightAttenuation(length(lightPosition - interpolatedPosition), 1, 0.05, 0.03);
-            directColor += lightAttenuation * vec3(rasterMaterial.diffuse * (lightMaterial.emission * lightMaterial.diffuse * lightIntensity) * dot(geometricNormal, positionToLightDirection));
+            
+            vec3 surfaceToCamera = normalize(camera.position.xyz - interpolatedPosition);
+            vec3 reflectedPositionToLightDirection = (2 * geometricNormal * dot(positionToLightDirection, geometricNormal)) - positionToLightDirection;
+
+            vec3 diffuse = vec3(rasterMaterial.diffuse * (lightMaterial.emission * lightMaterial.diffuse * lightIntensity) * dot(geometricNormal, positionToLightDirection));
+            vec3 specular = vec3(rasterMaterial.specular * (lightMaterial.emission * lightMaterial.specular * lightIntensity) * max(0, pow(dot(reflectedPositionToLightDirection, surfaceToCamera), 50)));
+            directColor += lightAttenuation * (diffuse + specular);
           }
         }
       }
