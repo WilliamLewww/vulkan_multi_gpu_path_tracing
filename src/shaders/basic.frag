@@ -161,7 +161,7 @@ void main() {
           vec3 reflectedPositionToLightDirection = (2 * geometricNormal * dot(positionToLightDirection, geometricNormal)) - positionToLightDirection;
 
           vec3 diffuse = vec3(rasterMaterial.diffuse * lightMaterial.diffuse * dot(geometricNormal, positionToLightDirection));
-          vec3 specular = vec3(rasterMaterial.specular * lightMaterial.specular * max(0, pow(dot(reflectedPositionToLightDirection, surfaceToCamera), 50)));
+          vec3 specular = vec3(rasterMaterial.specular * lightMaterial.specular * max(0, pow(dot(reflectedPositionToLightDirection, surfaceToCamera), rasterMaterial.shininess)));
           directColor += lightMaterial.emission * lightAttenuation * lightIntensity * (diffuse + specular);
         }
       }
@@ -195,7 +195,7 @@ void main() {
             vec3 reflectedPositionToLightDirection = (2 * geometricNormal * dot(positionToLightDirection, geometricNormal)) - positionToLightDirection;
 
             vec3 diffuse = vec3(rasterMaterial.diffuse * lightMaterial.diffuse * dot(geometricNormal, positionToLightDirection));
-            vec3 specular = vec3(rasterMaterial.specular * lightMaterial.specular * max(0, pow(dot(reflectedPositionToLightDirection, surfaceToCamera), 50)));
+            vec3 specular = vec3(rasterMaterial.specular * lightMaterial.specular * max(0, pow(dot(reflectedPositionToLightDirection, surfaceToCamera), rasterMaterial.shininess)));
             directColor += lightMaterial.emission * lightAttenuation * lightIntensity * (diffuse + specular);
           }
         }
