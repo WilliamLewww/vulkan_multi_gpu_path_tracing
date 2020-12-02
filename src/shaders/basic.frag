@@ -132,7 +132,6 @@ void main() {
 
       vec3 lightVertexA, lightVertexB, lightVertexC;
       getVertexFromIndices(lightInstanceIndex, lightPrimitiveIndex, lightVertexA, lightVertexB, lightVertexC);
-      Material lightMaterial = getMaterialFromPrimitive(lightInstanceIndex, lightPrimitiveIndex);
 
       vec2 uv = vec2(random(gl_FragCoord.xy, camera.frameCount), random(gl_FragCoord.xy, camera.frameCount + 1));
       if (uv.x + uv.y > 1.0f) {
@@ -153,6 +152,7 @@ void main() {
 
       if (rayQueryGetIntersectionTypeEXT(rayQuery, true) == gl_RayQueryCommittedIntersectionNoneEXT) {
         if (dot(positionToLightDirection, geometricNormal) > 0.0001) {
+          Material lightMaterial = getMaterialFromPrimitive(lightInstanceIndex, lightPrimitiveIndex);
           float lightArea = length(cross(lightVertexB - lightVertexA, lightVertexC - lightVertexA)) * 0.5;
           float lightIntensity = sqrt(lightArea);
           float lightAttenuation = getLightAttenuation(length(lightPosition - interpolatedPosition), 1, 0.05, 0.03);
@@ -172,7 +172,6 @@ void main() {
 
         if (intersectionIsLight) {
           getVertexFromIndices(intersectionInstanceIndex, intersectionPrimitiveIndex, lightVertexA, lightVertexB, lightVertexC);
-          lightMaterial = getMaterialFromPrimitive(lightInstanceIndex, lightPrimitiveIndex);
 
           uv = rayQueryGetIntersectionBarycentricsEXT(rayQuery, true);
           lightBarycentric = vec3(1.0 - uv.x - uv.y, uv.x, uv.y);
@@ -181,6 +180,7 @@ void main() {
           positionToLightDirection = normalize(lightPosition - interpolatedPosition);
 
           if (dot(positionToLightDirection, geometricNormal) > 0.0001) {
+            Material lightMaterial = getMaterialFromPrimitive(lightInstanceIndex, lightPrimitiveIndex);
             float lightArea = length(cross(lightVertexB - lightVertexA, lightVertexC - lightVertexA)) * 0.5;
             float lightIntensity = sqrt(lightArea);
             float lightAttenuation = getLightAttenuation(length(lightPosition - interpolatedPosition), 1, 0.05, 0.03);
