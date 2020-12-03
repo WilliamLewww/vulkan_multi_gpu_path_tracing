@@ -183,7 +183,8 @@ vec3 shade(uint instanceIndex, uint primitiveIndex, vec3 position, vec3 normal, 
         
         if (dot(positionToLightDirection, normal) > 0.0001) {
           if (intersectionMaterial.dissolve < 1.0) {
-            
+            vec3 directColor = lightMaterial.emission * lightAttenuation * lightIntensity * (diffuse + specular);
+            color = (intersectionMaterial.diffuse * intersectionMaterial.dissolve) + (directColor * (1.0 - intersectionMaterial.dissolve));
           }
           else {
             color += lightMaterial.emission * lightAttenuation * lightIntensity * (diffuse + specular);
