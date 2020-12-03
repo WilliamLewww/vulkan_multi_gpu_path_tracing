@@ -277,11 +277,12 @@ void main() {
   vec3 geometricNormal = normalize(cross(vertexB - vertexA, vertexC - vertexA));
   Material rasterMaterial = getMaterialFromPrimitive(rasterInstanceIndex, gl_PrimitiveID);
 
-  if (rasterMaterial.dissolve == 1.0) {
-    directColor = shade(interpolatedPosition, geometricNormal, rasterMaterial);
-  }
-  else {
-    directColor = shadeRefraction(interpolatedPosition, geometricNormal, rasterMaterial);
+  directColor = shade(interpolatedPosition, geometricNormal, rasterMaterial);
+
+  if (rasterMaterial.dissolve < 1.0) {
+    vec3 refractedDirectColor = shadeRefraction(interpolatedPosition, geometricNormal, rasterMaterial);
+
+    directColor = (directColor * rasterMaterial.dissolve) + (refractedDirectColor * (1.0 - rasterMaterial.dissolve));
   }
 
   vec4 color = vec4(directColor, 1.0);
