@@ -204,10 +204,6 @@ void main() {
     }
   }
 
-  if (rasterMaterial.dissolve == 0.5) {
-    directColor = vec3(1.0);
-  }
-
   vec4 color = vec4(directColor, 1.0);
   if (camera.frameCount > 0) {
     vec4 previousColor = imageLoad(image, ivec2(gl_FragCoord.xy));
