@@ -13,6 +13,7 @@ struct Material {
 
   float shininess;
   float dissolve;
+  float ior;
 };
 
 layout(location = 0) in vec3 interpolatedPosition;
