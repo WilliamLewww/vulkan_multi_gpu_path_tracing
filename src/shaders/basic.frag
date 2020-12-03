@@ -280,6 +280,11 @@ vec3 shadeRefraction(vec3 position, vec3 normal, Material material) {
   
     color = shade(intersectionInstanceIndex, intersectionPrimitiveIndex, intersectionPosition, intersectionGeometricNormal, intersectionMaterial);
   }
+  else {
+    Material intersectionMaterial = getMaterialFromPrimitive(intersectionInstanceIndex, intersectionPrimitiveIndex);
+
+    color = shade(intersectionInstanceIndex, intersectionPrimitiveIndex, intersectionPosition, intersectionGeometricNormal, intersectionMaterial);
+  }
 
   return color;
 }
