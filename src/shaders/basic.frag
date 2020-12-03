@@ -254,9 +254,95 @@ void main() {
       intersectionInstanceIndex = rayQueryGetIntersectionInstanceIdEXT(rayQuery, true);
       intersectionPrimitiveIndex = rayQueryGetIntersectionPrimitiveIndexEXT(rayQuery, true);
 
+      getVertexFromIndices(intersectionInstanceIndex, intersectionPrimitiveIndex, intersectionVertexA, intersectionVertexB, intersectionVertexC);
+      intersectionGeometricNormal = normalize(cross(intersectionVertexB - intersectionVertexA, intersectionVertexC - intersectionVertexA));
       Material intersectionMaterial = getMaterialFromPrimitive(intersectionInstanceIndex, intersectionPrimitiveIndex);
 
-      directColor = intersectionMaterial.diffuse;
+      intersectionUV = rayQueryGetIntersectionBarycentricsEXT(rayQuery, true);
+    
+      intersectionBarycentrics = vec3(1.0 - intersectionUV.x - intersectionUV.y, intersectionUV.x, intersectionUV.y);
+      intersectionPosition = intersectionVertexA * intersectionBarycentrics.x + intersectionVertexB * intersectionBarycentrics.y + intersectionVertexC * intersectionBarycentrics.z;
+    
+      if (dot(intersectionMaterial.emission, intersectionMaterial.emission) > 0) {
+        directColor = intersectionMaterial.emission;
+      }
+      else {
+        for (int x = 0; x < materialLightBuffer.count; x++) {
+          uint lightInstanceIndex = materialLightBuffer.indicesInstance[x];
+          uint lightPrimitiveIndex = materialLightBuffer.indicesPrimitive[x];
+
+          vec3 lightVertexA, lightVertexB, lightVertexC;
+          getVertexFromIndices(lightInstanceIndex, lightPrimitiveIndex, lightVertexA, lightVertexB, lightVertexC);
+
+          vec2 uv = vec2(random(gl_FragCoord.xy, camera.frameCount), random(gl_FragCoord.xy, camera.frameCount + 1));
+          if (uv.x + uv.y > 1.0f) {
+            uv.x = 1.0f - uv.x;
+            uv.y = 1.0f - uv.y;
+          }
+
+          vec3 lightBarycentric = vec3(1.0 - uv.x - uv.y, uv.x, uv.y);
+          vec3 lightPosition = lightVertexA * lightBarycentric.x + lightVertexB * lightBarycentric.y + lightVertexC * lightBarycentric.z;
+          vec3 positionToLightDirection = normalize(lightPosition - intersectionPosition);
+          
+          float shadowRayDistance = length(lightPosition - intersectionPosition) - 0.0001f;
+
+          rayQueryEXT rayQuery;
+          rayQueryInitializeEXT(rayQuery, topLevelAS, gl_RayFlagsTerminateOnFirstHitEXT, 0xFF, intersectionPosition, 0.0001f, positionToLightDirection, shadowRayDistance);
+      
+          while (rayQueryProceedEXT(rayQuery));
+
+          if (rayQueryGetIntersectionTypeEXT(rayQuery, true) == gl_RayQueryCommittedIntersectionNoneEXT) {
+            if (dot(positionToLightDirection, intersectionGeometricNormal) > 0.0001) {
+              Material lightMaterial = getMaterialFromPrimitive(lightInstanceIndex, lightPrimitiveIndex);
+              float lightArea = length(cross(lightVertexB - lightVertexA, lightVertexC - lightVertexA)) * 0.5;
+              float lightIntensity = sqrt(lightArea);
+              float lightAttenuation = getLightAttenuation(length(lightPosition - intersectionPosition), 1, 0.05, 0.03);
+
+              vec3 surfaceToCamera = normalize(camera.position.xyz - intersectionPosition);
+              vec3 reflectedPositionToLightDirection = (2 * intersectionGeometricNormal * dot(positionToLightDirection, intersectionGeometricNormal)) - positionToLightDirection;
+
+              vec3 diffuse = vec3(intersectionMaterial.diffuse * lightMaterial.diffuse * dot(intersectionGeometricNormal, positionToLightDirection));
+              vec3 specular = vec3(intersectionMaterial.specular * lightMaterial.specular * max(0, pow(dot(reflectedPositionToLightDirection, surfaceToCamera), intersectionMaterial.shininess)));
+              directColor += lightMaterial.emission * lightAttenuation * lightIntensity * (diffuse + specular);
+            }
+          }
+          else {
+            int intersectionInstanceIndex = rayQueryGetIntersectionInstanceIdEXT(rayQuery, true);
+            int intersectionPrimitiveIndex = rayQueryGetIntersectionPrimitiveIndexEXT(rayQuery, true);
+
+            bool intersectionIsLight = false;
+            for (int y = 0; y < materialLightBuffer.count; y++) {
+              if (intersectionInstanceIndex == materialLightBuffer.indicesInstance[y] && intersectionPrimitiveIndex == materialLightBuffer.indicesPrimitive[y]) {
+                intersectionIsLight = true;
+              }
+            }
+
+            if (intersectionIsLight) {
+              getVertexFromIndices(intersectionInstanceIndex, intersectionPrimitiveIndex, lightVertexA, lightVertexB, lightVertexC);
+
+              uv = rayQueryGetIntersectionBarycentricsEXT(rayQuery, true);
+              
+              lightBarycentric = vec3(1.0 - uv.x - uv.y, uv.x, uv.y);
+              lightPosition = lightVertexA * lightBarycentric.x + lightVertexB * lightBarycentric.y + lightVertexC * lightBarycentric.z;
+              positionToLightDirection = normalize(lightPosition - intersectionPosition);
+
+              if (dot(positionToLightDirection, intersectionGeometricNormal) > 0.0001) {
+                Material lightMaterial = getMaterialFromPrimitive(lightInstanceIndex, lightPrimitiveIndex);
+                float lightArea = length(cross(lightVertexB - lightVertexA, lightVertexC - lightVertexA)) * 0.5;
+                float lightIntensity = sqrt(lightArea);
+                float lightAttenuation = getLightAttenuation(length(lightPosition - intersectionPosition), 1, 0.05, 0.03);
+                
+                vec3 surfaceToCamera = normalize(camera.position.xyz - intersectionPosition);
+                vec3 reflectedPositionToLightDirection = (2 * intersectionGeometricNormal * dot(positionToLightDirection, intersectionGeometricNormal)) - positionToLightDirection;
+
+                vec3 diffuse = vec3(intersectionMaterial.diffuse * lightMaterial.diffuse * dot(intersectionGeometricNormal, positionToLightDirection));
+                vec3 specular = vec3(intersectionMaterial.specular * lightMaterial.specular * max(0, pow(dot(reflectedPositionToLightDirection, surfaceToCamera), intersectionMaterial.shininess)));
+                directColor += lightMaterial.emission * lightAttenuation * lightIntensity * (diffuse + specular);
+              }
+            }
+          }
+        }
+      }
     }
   }
 
