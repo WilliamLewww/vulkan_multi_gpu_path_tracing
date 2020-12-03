@@ -117,11 +117,20 @@ float getLightAttenuation(float distance, float c, float l, float q) {
 }
 
 vec3 refract(vec3 incidentDirection, vec3 normal, float firstIOR, float secondIOR) {
-  float n = firstIOR / secondIOR;
-  float c1 = dot(normal, incidentDirection);
-  float c2 = sqrt(1.0 - (pow(n, 2) * (1.0 - pow(c1, 2))));
-
-  return n * (incidentDirection + (c1 * normal)) - (normal * c2);
+  float cosi = clamp(-1, 1, dot(incidentDirection, normal)); 
+  float etai = firstIOR, etat = secondIOR; 
+  vec3 n = normal; 
+  if (cosi < 0) { 
+    cosi = -cosi; 
+  } 
+  else { 
+    etai = secondIOR;
+    etat = firstIOR;
+    n= -normal; 
+  } 
+  float eta = etai / etat; 
+  float k = 1 - eta * eta * (1 - cosi * cosi); 
+  return k < 0 ? vec3(0) : eta * incidentDirection + (eta * cosi - sqrt(k)) * n; 
 }
 
 void main() {
@@ -213,25 +222,41 @@ void main() {
     }
   }
 
-  float previousIOR = 1.0;
-
   if (rasterMaterial.dissolve < 1) {
     vec3 cameraToSurface = normalize(interpolatedPosition - camera.position.xyz);
 
-    vec3 transmissionDirection = refract(cameraToSurface, geometricNormal, previousIOR, rasterMaterial.ior);
+    vec3 transmissionDirection = refract(cameraToSurface, geometricNormal, 1.0, rasterMaterial.ior);
 
     rayQueryEXT rayQuery;
     rayQueryInitializeEXT(rayQuery, topLevelAS, gl_RayFlagsTerminateOnFirstHitEXT, 0xFF, interpolatedPosition, 0.0001f, transmissionDirection, 1000.0f);
 
     while (rayQueryProceedEXT(rayQuery));
 
+    int intersectionInstanceIndex = rayQueryGetIntersectionInstanceIdEXT(rayQuery, true);
+    int intersectionPrimitiveIndex = rayQueryGetIntersectionPrimitiveIndexEXT(rayQuery, true);
+
+    vec3 intersectionVertexA, intersectionVertexB, intersectionVertexC;
+    getVertexFromIndices(intersectionInstanceIndex, intersectionPrimitiveIndex, intersectionVertexA, intersectionVertexB, intersectionVertexC);
+    vec3 intersectionGeometricNormal = normalize(cross(intersectionVertexB - intersectionVertexA, intersectionVertexC - intersectionVertexA));
+
+    vec2 intersectionUV = rayQueryGetIntersectionBarycentricsEXT(rayQuery, true);
+    
+    vec3 intersectionBarycentrics = vec3(1.0 - intersectionUV.x - intersectionUV.y, intersectionUV.x, intersectionUV.y);
+    vec3 intersectionPosition = intersectionVertexA * intersectionBarycentrics.x + intersectionVertexB * intersectionBarycentrics.y + intersectionVertexC * intersectionBarycentrics.z;
+
+    transmissionDirection = refract(transmissionDirection, intersectionGeometricNormal, rasterMaterial.ior, 1.0);
+
+    rayQueryInitializeEXT(rayQuery, topLevelAS, gl_RayFlagsTerminateOnFirstHitEXT, 0xFF, intersectionPosition, 0.0001f, transmissionDirection, 1000.0f);
+
+    while (rayQueryProceedEXT(rayQuery));
+
     if (rayQueryGetIntersectionTypeEXT(rayQuery, true) != gl_RayQueryCommittedIntersectionNoneEXT) {
-      int intersectionInstanceIndex = rayQueryGetIntersectionInstanceIdEXT(rayQuery, true);
-      int intersectionPrimitiveIndex = rayQueryGetIntersectionPrimitiveIndexEXT(rayQuery, true);
+      intersectionInstanceIndex = rayQueryGetIntersectionInstanceIdEXT(rayQuery, true);
+      intersectionPrimitiveIndex = rayQueryGetIntersectionPrimitiveIndexEXT(rayQuery, true);
 
-      Material newMaterial = getMaterialFromPrimitive(intersectionInstanceIndex, intersectionPrimitiveIndex);
+      Material intersectionMaterial = getMaterialFromPrimitive(intersectionInstanceIndex, intersectionPrimitiveIndex);
 
-      directColor = vec3(1.0);
+      directColor = intersectionMaterial.diffuse;
     }
   }
 
