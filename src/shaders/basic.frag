@@ -192,8 +192,7 @@ vec3 shade(uint instanceIndex, uint primitiveIndex, vec3 position, vec3 normal, 
         else {
           if (intersectionMaterial.dissolve < 1.0) {
             diffuse = vec3(material.diffuse * lightMaterial.diffuse * dot(-normal, positionToLightDirection));
-            specular = vec3(material.specular * lightMaterial.specular * max(0, pow(dot(reflectedPositionToLightDirection, surfaceToCamera), material.shininess)));
-            color += lightMaterial.emission * lightAttenuation * lightIntensity * (diffuse + specular);
+            color += lightMaterial.emission * lightAttenuation * lightIntensity * diffuse;
           }
         }
       }
