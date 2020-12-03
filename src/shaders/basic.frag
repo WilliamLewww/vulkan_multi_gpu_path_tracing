@@ -116,6 +116,14 @@ float getLightAttenuation(float distance, float c, float l, float q) {
   return 1.0 / (c + (l * distance) + (q * distance * distance));
 }
 
+vec3 refract(vec3 incidentDirection, vec3 normal, float firstIOR, float secondIOR) {
+  float n = firstIOR / secondIOR;
+  float c1 = dot(normal, incidentDirection);
+  float c2 = sqrt(1.0 - (pow(n, 2) * (1.0 - pow(c1, 2))));
+
+  return n * (incidentDirection + (c1 * normal)) - (normal * c2);
+}
+
 void main() {
   vec3 directColor = vec3(0.0, 0.0, 0.0);
 
@@ -202,6 +210,28 @@ void main() {
           }
         }
       }
+    }
+  }
+
+  float previousIOR = 1.0;
+
+  if (rasterMaterial.dissolve < 1) {
+    vec3 cameraToSurface = normalize(interpolatedPosition - camera.position.xyz);
+
+    vec3 transmissionDirection = refract(cameraToSurface, geometricNormal, previousIOR, rasterMaterial.ior);
+
+    rayQueryEXT rayQuery;
+    rayQueryInitializeEXT(rayQuery, topLevelAS, gl_RayFlagsTerminateOnFirstHitEXT, 0xFF, interpolatedPosition, 0.0001f, transmissionDirection, 1000.0f);
+
+    while (rayQueryProceedEXT(rayQuery));
+
+    if (rayQueryGetIntersectionTypeEXT(rayQuery, true) != gl_RayQueryCommittedIntersectionNoneEXT) {
+      int intersectionInstanceIndex = rayQueryGetIntersectionInstanceIdEXT(rayQuery, true);
+      int intersectionPrimitiveIndex = rayQueryGetIntersectionPrimitiveIndexEXT(rayQuery, true);
+
+      Material newMaterial = getMaterialFromPrimitive(intersectionInstanceIndex, intersectionPrimitiveIndex);
+
+      directColor = vec3(1.0);
     }
   }
 
