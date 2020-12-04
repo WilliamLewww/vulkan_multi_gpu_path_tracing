@@ -117,20 +117,11 @@ float getLightAttenuation(float distance, float c, float l, float q) {
 }
 
 vec3 refract(vec3 incidentDirection, vec3 normal, float firstIOR, float secondIOR) {
-  float cosi = clamp(-1, 1, dot(incidentDirection, normal)); 
-  float etai = firstIOR, etat = secondIOR; 
-  vec3 n = normal; 
-  if (cosi < 0) { 
-    cosi = -cosi; 
-  } 
-  else { 
-    etai = secondIOR;
-    etat = firstIOR;
-    n= -normal; 
-  } 
-  float eta = etai / etat; 
-  float k = 1 - eta * eta * (1 - cosi * cosi); 
-  return k < 0 ? vec3(0) : eta * incidentDirection + (eta * cosi - sqrt(k)) * n; 
+  float n = firstIOR / secondIOR;
+  float cosI = -dot(normal, incidentDirection);
+  float sinT2 = n * n * (1.0 - cosI * cosI);
+  float cosT = sqrt(1.0 - sinT2);
+  return n * incidentDirection + (n * cosI - cosT) * normal;
 }
 
 vec3 shade(uint instanceIndex, uint primitiveIndex, vec3 position, vec3 normal, Material material) {
@@ -252,7 +243,7 @@ vec3 shadeRefraction(vec3 position, vec3 normal, Material material) {
 
   vec3 intersectionVertexA, intersectionVertexB, intersectionVertexC;
   getVertexFromIndices(intersectionInstanceIndex, intersectionPrimitiveIndex, intersectionVertexA, intersectionVertexB, intersectionVertexC);
-  vec3 intersectionGeometricNormal = normalize(cross(intersectionVertexB - intersectionVertexA, intersectionVertexC - intersectionVertexA));
+  vec3 intersectionGeometricNormal = -normalize(cross(intersectionVertexB - intersectionVertexA, intersectionVertexC - intersectionVertexA));
 
   vec2 intersectionUV = rayQueryGetIntersectionBarycentricsEXT(rayQuery, true);
   
@@ -278,11 +269,6 @@ vec3 shadeRefraction(vec3 position, vec3 normal, Material material) {
     intersectionBarycentrics = vec3(1.0 - intersectionUV.x - intersectionUV.y, intersectionUV.x, intersectionUV.y);
     intersectionPosition = intersectionVertexA * intersectionBarycentrics.x + intersectionVertexB * intersectionBarycentrics.y + intersectionVertexC * intersectionBarycentrics.z;
   
-    color = shade(intersectionInstanceIndex, intersectionPrimitiveIndex, intersectionPosition, intersectionGeometricNormal, intersectionMaterial);
-  }
-  else {
-    Material intersectionMaterial = getMaterialFromPrimitive(intersectionInstanceIndex, intersectionPrimitiveIndex);
-
     color = shade(intersectionInstanceIndex, intersectionPrimitiveIndex, intersectionPosition, intersectionGeometricNormal, intersectionMaterial);
   }
 
