@@ -176,7 +176,7 @@ vec3 shade(uint instanceIndex, uint primitiveIndex, vec3 position, vec3 normal, 
         float lightAttenuation = getLightAttenuation(length(lightPosition - position), 1, 0.05, 0.03);
 
         vec3 surfaceToCamera = normalize(camera.position.xyz - position);
-        vec3 reflectedPositionToLightDirection = (2 * normal * dot(positionToLightDirection, normal)) - positionToLightDirection;
+        vec3 reflectedPositionToLightDirection = reflect(-positionToLightDirection, normal);
 
         vec3 diffuse = vec3(material.diffuse * lightMaterial.diffuse * dot(normal, positionToLightDirection));
         vec3 specular = vec3(material.specular * lightMaterial.specular * max(0, pow(dot(reflectedPositionToLightDirection, surfaceToCamera), material.shininess)));
