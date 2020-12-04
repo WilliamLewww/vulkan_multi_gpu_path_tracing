@@ -27,7 +27,7 @@ Renderer::Renderer(VkInstance vulkanInstance, VkSurfaceKHR surface, ModelCollect
 
   std::map<Model*, std::vector<Matrix4x4>> modelFrequencyMap = {
     {
-      modelCollection->getModel(3), 
+      modelCollection->getModel(5), 
       {
         createTranslateMatrix4x4(0, 0, 0)
       }
