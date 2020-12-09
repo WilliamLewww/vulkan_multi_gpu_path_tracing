@@ -87,15 +87,20 @@ void Camera::update() {
     isCameraMoved = 1;
   }
 
-  this->uniform.position[0] = this->position[0]; this->uniform.position[1] = this->position[1]; this->uniform.position[2] = this->position[2];
+  this->uniform.position[0] = this->position[0]; 
+  this->uniform.position[1] = this->position[1]; 
+  this->uniform.position[2] = this->position[2]; 
+  this->uniform.position[3] = 1.0;
 
   this->uniform.forward[0] = cosf(this->pitch) * cosf(-this->yaw - (M_PI / 2.0));
   this->uniform.forward[1] = sinf(this->pitch);
   this->uniform.forward[2] = cosf(this->pitch) * sinf(-this->yaw - (M_PI / 2.0));
+  this->uniform.forward[3] = 0.0f;
 
   this->uniform.right[0] = this->uniform.forward[1] * this->uniform.up[2] - this->uniform.forward[2] * this->uniform.up[1];
   this->uniform.right[1] = this->uniform.forward[2] * this->uniform.up[0] - this->uniform.forward[0] * this->uniform.up[2];
   this->uniform.right[2] = this->uniform.forward[0] * this->uniform.up[1] - this->uniform.forward[1] * this->uniform.up[0];
+  this->uniform.right[3] = 0.0f;
 
   if (isCameraMoved == 1) {
     this->uniform.frameCount = 0;
