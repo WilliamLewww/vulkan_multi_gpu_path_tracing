@@ -175,14 +175,14 @@ vec3 shade(uint instanceIndex, uint primitiveIndex, vec3 position, vec3 normal, 
         if (dot(positionToLightDirection, normal) > 0.0001) {
           if (intersectionMaterial.dissolve < 1.0) {
             vec3 directColor = lightMaterial.emission * lightAttenuation * lightIntensity * (diffuse + specular);
-            color = (intersectionMaterial.diffuse * intersectionMaterial.dissolve) + (directColor * (1.0 - intersectionMaterial.dissolve));
+            color = (intersectionMaterial.diffuse * directColor);
           }
           else {
             color += lightMaterial.emission * lightAttenuation * lightIntensity * (diffuse + specular);
           }
         }
         else {
-          if (intersectionMaterial.dissolve < 1.0) {
+          if (dot(positionToLightDirection, normal) < -0.0001 && intersectionMaterial.dissolve < 1.0) {
             diffuse = vec3(material.diffuse * lightMaterial.diffuse * dot(-normal, positionToLightDirection));
             color += lightMaterial.emission * lightAttenuation * lightIntensity * diffuse;
           }
