@@ -124,6 +124,19 @@ vec3 refract(vec3 incidentDirection, vec3 normal, float firstIOR, float secondIO
   return n * incidentDirection + (n * cosI - cosT) * normal;
 }
 
+float reflectance(vec3 incidentDirection, vec3 normal, float firstIOR, float secondIOR) {
+  float n = firstIOR / secondIOR;
+  float cosI = -dot(normal, incidentDirection);
+  float sinT2 = n * n * (1.0 - cosI * cosI);
+  if (sinT2 > 1.0) {
+    return 1.0;
+  }
+  float cosT = sqrt(1.0 - sinT2);
+  float rOrth = (firstIOR * cosI - secondIOR * cosT) / (firstIOR * cosI + secondIOR * cosT);
+  float rPar = (secondIOR * cosI - firstIOR * cosT) / (secondIOR * cosI + firstIOR * cosT);
+  return (rOrth * rOrth + rPar * rPar) / 2.0;
+}
+
 vec3 shade(uint instanceIndex, uint primitiveIndex, vec3 position, vec3 normal, Material material) {
   vec3 color = vec3(0.0, 0.0, 0.0);
 
@@ -231,6 +244,7 @@ vec3 shadeRefraction(vec3 position, vec3 normal, Material material) {
 
   vec3 cameraToSurface = normalize(position - camera.position.xyz);
 
+  float transmittance = 1.0 - reflectance(cameraToSurface, normal, 1.0, material.ior);
   vec3 transmissionDirection = refract(cameraToSurface, normal, 1.0, material.ior);
 
   rayQueryEXT rayQuery;
@@ -267,7 +281,39 @@ vec3 shadeRefraction(vec3 position, vec3 normal, Material material) {
     intersectionBarycentrics = vec3(1.0 - intersectionUV.x - intersectionUV.y, intersectionUV.x, intersectionUV.y);
     intersectionPosition = intersectionVertexA * intersectionBarycentrics.x + intersectionVertexB * intersectionBarycentrics.y + intersectionVertexC * intersectionBarycentrics.z;
   
-    color = shade(intersectionInstanceIndex, intersectionPrimitiveIndex, intersectionPosition, intersectionGeometricNormal, intersectionMaterial);
+    color = transmittance * shade(intersectionInstanceIndex, intersectionPrimitiveIndex, intersectionPosition, intersectionGeometricNormal, intersectionMaterial);
+  }
+
+  return color;
+}
+
+vec3 shadeReflection(vec3 position, vec3 normal, Material material) {
+  vec3 color = vec3(0.0, 0.0, 0.0);
+
+  vec3 cameraToSurface = normalize(position - camera.position.xyz);
+
+  float reflectivity = reflectance(cameraToSurface, normal, 1.0, material.ior);
+  vec3 reflectionDirection = vec3(reflect(cameraToSurface, normal));
+
+  rayQueryEXT rayQuery;
+  rayQueryInitializeEXT(rayQuery, topLevelAS, gl_RayFlagsTerminateOnFirstHitEXT, 0xFF, position, 0.0001f, reflectionDirection, 1000.0f);
+
+  while (rayQueryProceedEXT(rayQuery));
+
+  if (rayQueryGetIntersectionTypeEXT(rayQuery, true) != gl_RayQueryCommittedIntersectionNoneEXT) {
+    int intersectionInstanceIndex = rayQueryGetIntersectionInstanceIdEXT(rayQuery, true);
+    int intersectionPrimitiveIndex = rayQueryGetIntersectionPrimitiveIndexEXT(rayQuery, true);
+
+    vec3 intersectionVertexA, intersectionVertexB, intersectionVertexC;
+    getVertexFromIndices(intersectionInstanceIndex, intersectionPrimitiveIndex, intersectionVertexA, intersectionVertexB, intersectionVertexC);
+    vec3 intersectionGeometricNormal = normalize(cross(intersectionVertexB - intersectionVertexA, intersectionVertexC - intersectionVertexA));
+    Material intersectionMaterial = getMaterialFromPrimitive(intersectionInstanceIndex, intersectionPrimitiveIndex);
+
+    vec2 intersectionUV = rayQueryGetIntersectionBarycentricsEXT(rayQuery, true);
+    vec3 intersectionBarycentrics = vec3(1.0 - intersectionUV.x - intersectionUV.y, intersectionUV.x, intersectionUV.y);
+    vec3 intersectionPosition = intersectionVertexA * intersectionBarycentrics.x + intersectionVertexB * intersectionBarycentrics.y + intersectionVertexC * intersectionBarycentrics.z;
+    
+    color = reflectivity * shade(intersectionInstanceIndex, intersectionPrimitiveIndex, intersectionPosition, intersectionGeometricNormal, intersectionMaterial);
   }
 
   return color;
@@ -284,9 +330,10 @@ void main() {
   directColor = shade(rasterInstanceIndex, gl_PrimitiveID, interpolatedPosition, geometricNormal, rasterMaterial);
 
   if (rasterMaterial.dissolve < 1.0) {
-    vec3 refractedDirectColor = shadeRefraction(interpolatedPosition, geometricNormal, rasterMaterial);
+    vec3 refractedColor = shadeRefraction(interpolatedPosition, geometricNormal, rasterMaterial);
+    vec3 reflectedColor = shadeReflection(interpolatedPosition, geometricNormal, rasterMaterial);
 
-    directColor = (directColor * rasterMaterial.dissolve) + (refractedDirectColor * (1.0 - rasterMaterial.dissolve));
+    directColor = directColor + refractedColor + reflectedColor;
   }
 
   vec4 color = vec4(directColor, 1.0);
