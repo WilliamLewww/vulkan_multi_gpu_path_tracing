@@ -272,17 +272,17 @@ vec3 shadeRefraction(vec3 position, vec3 normal, Material material) {
     return vec3(0.0, 0.0, 0.0);
   }
   while (isIntersection) {
-    int intersectionInstanceIndex = rayQueryGetIntersectionInstanceIdEXT(rayQuery, true);
-    int intersectionPrimitiveIndex = rayQueryGetIntersectionPrimitiveIndexEXT(rayQuery, true);
+    intersectionInstanceIndex = rayQueryGetIntersectionInstanceIdEXT(rayQuery, true);
+    intersectionPrimitiveIndex = rayQueryGetIntersectionPrimitiveIndexEXT(rayQuery, true);
 
-    vec3 intersectionVertexA, intersectionVertexB, intersectionVertexC;
+    intersectionVertexA, intersectionVertexB, intersectionVertexC;
     getVertexFromIndices(intersectionInstanceIndex, intersectionPrimitiveIndex, intersectionVertexA, intersectionVertexB, intersectionVertexC);
-    vec3 intersectionGeometricNormal = normalize(cross(intersectionVertexB - intersectionVertexA, intersectionVertexC - intersectionVertexA));
+    intersectionGeometricNormal = normalize(cross(intersectionVertexB - intersectionVertexA, intersectionVertexC - intersectionVertexA));
     Material intersectionMaterial = getMaterialFromPrimitive(intersectionInstanceIndex, intersectionPrimitiveIndex);
 
-    vec2 intersectionUV = rayQueryGetIntersectionBarycentricsEXT(rayQuery, true);
-    vec3 intersectionBarycentrics = vec3(1.0 - intersectionUV.x - intersectionUV.y, intersectionUV.x, intersectionUV.y);
-    vec3 intersectionPosition = intersectionVertexA * intersectionBarycentrics.x + intersectionVertexB * intersectionBarycentrics.y + intersectionVertexC * intersectionBarycentrics.z;
+    intersectionUV = rayQueryGetIntersectionBarycentricsEXT(rayQuery, true);
+    intersectionBarycentrics = vec3(1.0 - intersectionUV.x - intersectionUV.y, intersectionUV.x, intersectionUV.y);
+    intersectionPosition = intersectionVertexA * intersectionBarycentrics.x + intersectionVertexB * intersectionBarycentrics.y + intersectionVertexC * intersectionBarycentrics.z;
 
     if (intersectionMaterial.dissolve < 1.0) {
       transmissionDirection = refract(transmissionDirection, intersectionGeometricNormal, 1.0, material.ior);
@@ -291,16 +291,16 @@ vec3 shadeRefraction(vec3 position, vec3 normal, Material material) {
 
       while (rayQueryProceedEXT(rayQuery));
 
-      int intersectionInstanceIndex = rayQueryGetIntersectionInstanceIdEXT(rayQuery, true);
-      int intersectionPrimitiveIndex = rayQueryGetIntersectionPrimitiveIndexEXT(rayQuery, true);
+      intersectionInstanceIndex = rayQueryGetIntersectionInstanceIdEXT(rayQuery, true);
+      intersectionPrimitiveIndex = rayQueryGetIntersectionPrimitiveIndexEXT(rayQuery, true);
 
-      vec3 intersectionVertexA, intersectionVertexB, intersectionVertexC;
+      intersectionVertexA, intersectionVertexB, intersectionVertexC;
       getVertexFromIndices(intersectionInstanceIndex, intersectionPrimitiveIndex, intersectionVertexA, intersectionVertexB, intersectionVertexC);
-      vec3 intersectionGeometricNormal = normalize(cross(intersectionVertexB - intersectionVertexA, intersectionVertexC - intersectionVertexA));
+      intersectionGeometricNormal = normalize(cross(intersectionVertexB - intersectionVertexA, intersectionVertexC - intersectionVertexA));
 
-      vec2 intersectionUV = rayQueryGetIntersectionBarycentricsEXT(rayQuery, true);
-      vec3 intersectionBarycentrics = vec3(1.0 - intersectionUV.x - intersectionUV.y, intersectionUV.x, intersectionUV.y);
-      vec3 intersectionPosition = intersectionVertexA * intersectionBarycentrics.x + intersectionVertexB * intersectionBarycentrics.y + intersectionVertexC * intersectionBarycentrics.z;
+      intersectionUV = rayQueryGetIntersectionBarycentricsEXT(rayQuery, true);
+      intersectionBarycentrics = vec3(1.0 - intersectionUV.x - intersectionUV.y, intersectionUV.x, intersectionUV.y);
+      intersectionPosition = intersectionVertexA * intersectionBarycentrics.x + intersectionVertexB * intersectionBarycentrics.y + intersectionVertexC * intersectionBarycentrics.z;
 
       transmissionDirection = refract(transmissionDirection, -intersectionGeometricNormal, material.ior, 1.0);
 
