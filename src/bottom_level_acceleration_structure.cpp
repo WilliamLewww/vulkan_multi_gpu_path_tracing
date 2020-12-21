@@ -10,18 +10,37 @@ BottomLevelAccelerationStructure::BottomLevelAccelerationStructure(Model* model,
 
   PFN_vkGetAccelerationStructureBuildSizesKHR pvkGetAccelerationStructureBuildSizesKHR = (PFN_vkGetAccelerationStructureBuildSizesKHR)vkGetDeviceProcAddr(logicalDevice, "vkGetAccelerationStructureBuildSizesKHR");
   PFN_vkCreateAccelerationStructureKHR pvkCreateAccelerationStructureKHR = (PFN_vkCreateAccelerationStructureKHR)vkGetDeviceProcAddr(logicalDevice, "vkCreateAccelerationStructureKHR");
+  PFN_vkGetBufferDeviceAddressKHR pvkGetBufferDeviceAddressKHR = (PFN_vkGetBufferDeviceAddressKHR)vkGetDeviceProcAddr(logicalDevice, "vkGetBufferDeviceAddressKHR");
   PFN_vkCmdBuildAccelerationStructuresKHR pvkCmdBuildAccelerationStructuresKHR = (PFN_vkCmdBuildAccelerationStructuresKHR)vkGetDeviceProcAddr(logicalDevice, "vkCmdBuildAccelerationStructuresKHR");
+
+  VkBufferDeviceAddressInfo vertexBufferDeviceAddressInfo = {};
+  vertexBufferDeviceAddressInfo.sType = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO;
+  vertexBufferDeviceAddressInfo.buffer = vertexBuffer;
+
+  VkDeviceAddress vertexBufferAddress = pvkGetBufferDeviceAddressKHR(logicalDevice, &vertexBufferDeviceAddressInfo);
+
+  VkDeviceOrHostAddressConstKHR vertexDeviceOrHostAddressConst = {};
+  vertexDeviceOrHostAddressConst.deviceAddress = vertexBufferAddress;
+
+  VkBufferDeviceAddressInfo indexBufferDeviceAddressInfo = {};
+  indexBufferDeviceAddressInfo.sType = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO;
+  indexBufferDeviceAddressInfo.buffer = indexBuffer;
+
+  VkDeviceAddress indexBufferAddress = pvkGetBufferDeviceAddressKHR(logicalDevice, &indexBufferDeviceAddressInfo);
+
+  VkDeviceOrHostAddressConstKHR indexDeviceOrHostAddressConst = {};
+  indexDeviceOrHostAddressConst.deviceAddress = indexBufferAddress;
 
   VkAccelerationStructureGeometryTrianglesDataKHR accelerationStructureGeometryTrianglesData = {
     .sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_TRIANGLES_DATA_KHR,
     .pNext = NULL,
     .vertexFormat = VK_FORMAT_R32G32B32_SFLOAT,
-    .vertexData = {},
+    .vertexData = vertexDeviceOrHostAddressConst,
     .vertexStride = sizeof(float) * 3,
     .maxVertex = model->getVertexCount(),
     .indexType = VK_INDEX_TYPE_UINT32,
-    .indexData = {},
-    .transformData = {}
+    .indexData = indexDeviceOrHostAddressConst,
+    .transformData = (VkDeviceOrHostAddressConstKHR){}
   };
 
   VkAccelerationStructureGeometryDataKHR accelerationStructureGeometryData = {
@@ -82,6 +101,17 @@ BottomLevelAccelerationStructure::BottomLevelAccelerationStructure(Model* model,
                               &scratchBuffer, 
                               &scratchBufferMemory);
 
+  VkBufferDeviceAddressInfo scratchBufferDeviceAddressInfo = {};
+  scratchBufferDeviceAddressInfo.sType = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO;
+  scratchBufferDeviceAddressInfo.buffer = scratchBuffer;
+
+  VkDeviceAddress scratchBufferAddress = pvkGetBufferDeviceAddressKHR(logicalDevice, &scratchBufferDeviceAddressInfo);
+
+  VkDeviceOrHostAddressKHR scratchDeviceOrHostAddress = {};
+  scratchDeviceOrHostAddress.deviceAddress = scratchBufferAddress;
+
+  accelerationStructureBuildGeometryInfo.scratchData = scratchDeviceOrHostAddress;
+
   VkAccelerationStructureCreateInfoKHR accelerationStructureCreateInfo = {
     .sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_CREATE_INFO_KHR,
     .pNext = NULL,
@@ -94,6 +124,8 @@ BottomLevelAccelerationStructure::BottomLevelAccelerationStructure(Model* model,
   };
 
   pvkCreateAccelerationStructureKHR(logicalDevice, &accelerationStructureCreateInfo, NULL, &this->accelerationStructure);
+
+  accelerationStructureBuildGeometryInfo.dstAccelerationStructure = this->accelerationStructure;
 
   VkAccelerationStructureBuildRangeInfoKHR accelerationStructureBuildRangeInfo = {
     .primitiveCount = model->getPrimitiveCount(),
