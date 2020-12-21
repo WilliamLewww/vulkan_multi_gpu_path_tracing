@@ -68,18 +68,20 @@ void Device::createLogicalDevice(std::vector<const char*> extensions) {
     .bufferDeviceAddressMultiDevice = VK_FALSE
   };
 
-  VkPhysicalDeviceRayTracingFeaturesKHR rayTracingFeatures = {
-    .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_FEATURES_KHR,
+  VkPhysicalDeviceRayQueryFeaturesKHR rayQueryFeatures = {
+    .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_QUERY_FEATURES_KHR,
     .pNext = &bufferDeviceAddressFeatures,
-    .rayTracing = VK_TRUE,
-    .rayTracingShaderGroupHandleCaptureReplay = VK_FALSE,
-    .rayTracingShaderGroupHandleCaptureReplayMixed = VK_FALSE,
-    .rayTracingAccelerationStructureCaptureReplay = VK_FALSE,
-    .rayTracingIndirectTraceRays = VK_FALSE,
-    .rayTracingIndirectAccelerationStructureBuild = VK_FALSE,
-    .rayTracingHostAccelerationStructureCommands = VK_FALSE,
-    .rayQuery = VK_TRUE,
-    .rayTracingPrimitiveCulling = VK_FALSE
+    .rayQuery = VK_TRUE
+  };
+
+  VkPhysicalDeviceAccelerationStructureFeaturesKHR accelerationStructureFeatures = {
+    .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ACCELERATION_STRUCTURE_FEATURES_KHR,
+    .pNext = &rayQueryFeatures,
+    .accelerationStructure = VK_TRUE,
+    .accelerationStructureCaptureReplay = VK_TRUE,
+    .accelerationStructureIndirectBuild = VK_FALSE,
+    .accelerationStructureHostCommands = VK_FALSE,
+    .descriptorBindingAccelerationStructureUpdateAfterBind = VK_FALSE
   };
 
   // incomplete listing due to large amount of data members
@@ -90,7 +92,7 @@ void Device::createLogicalDevice(std::vector<const char*> extensions) {
 
   VkDeviceCreateInfo deviceCreateInfo = {
     .sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
-    .pNext = &rayTracingFeatures,
+    .pNext = &accelerationStructureFeatures,
     .flags = 0,
     .queueCreateInfoCount = deviceQueueCreateInfoCount,
     .pQueueCreateInfos = deviceQueueCreateInfoList.data(),

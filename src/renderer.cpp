@@ -8,7 +8,10 @@ Renderer::Renderer(VkInstance vulkanInstance, VkSurfaceKHR surface, ModelCollect
 
   std::vector<const char*> deviceExtensionList {
     VK_KHR_SWAPCHAIN_EXTENSION_NAME, 
-    "VK_KHR_ray_tracing",
+    "VK_KHR_ray_query",
+    "VK_KHR_acceleration_structure",
+    "VK_KHR_spirv_1_4",
+    "VK_KHR_shader_float_controls",
     "VK_KHR_get_memory_requirements2",
     "VK_EXT_descriptor_indexing",
     "VK_KHR_buffer_device_address",
