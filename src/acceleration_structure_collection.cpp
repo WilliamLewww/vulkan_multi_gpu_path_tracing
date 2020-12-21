@@ -50,7 +50,7 @@ void AccelerationStructureCollection::addBottomLevelAccelerationStructureInstanc
     .instanceCustomIndex = modelInstance->getInstanceIndex(),
     .mask = 0xFF,
     .instanceShaderBindingTableRecordOffset = 0,
-    .flags = VK_GEOMETRY_INSTANCE_TRIANGLE_FACING_CULL_DISABLE_BIT_KHR,
+    .flags = 0,
     .accelerationStructureReference = accelerationStructureDeviceAddress
   };
 
