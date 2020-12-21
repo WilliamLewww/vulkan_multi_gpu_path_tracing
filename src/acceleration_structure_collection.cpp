@@ -6,14 +6,14 @@ AccelerationStructureCollection::AccelerationStructureCollection(std::map<Model*
                                                                  VkCommandPool commandPool,
                                                                  VkQueue queue) {
   
-  // for (std::pair<Model*, std::vector<ModelInstance*>> modelInstancePair : modelInstanceMap) {
-  //   this->bottomLevelAccelerationStructureList.push_back(new BottomLevelAccelerationStructure(modelInstancePair.first,
-  //                                                                                             modelInstancePair.second[0]->getVertexBuffer(),
-  //                                                                                             modelInstancePair.second[0]->getIndexBuffer(),
-  //                                                                                             logicalDevice,
-  //                                                                                             physicalDeviceMemoryProperties,
-  //                                                                                             commandPool,
-  //                                                                                             queue));
+  for (std::pair<Model*, std::vector<ModelInstance*>> modelInstancePair : modelInstanceMap) {
+    this->bottomLevelAccelerationStructureList.push_back(new BottomLevelAccelerationStructure(modelInstancePair.first,
+                                                                                              modelInstancePair.second[0]->getVertexBuffer(),
+                                                                                              modelInstancePair.second[0]->getIndexBuffer(),
+                                                                                              logicalDevice,
+                                                                                              physicalDeviceMemoryProperties,
+                                                                                              commandPool,
+                                                                                              queue));
 
   //   for (int x = 0; x < modelInstancePair.second.size(); x++) {
   //     this->addBottomLevelAccelerationStructureInstance(this->bottomLevelAccelerationStructureList.back(), modelInstancePair.second[x], logicalDevice);
@@ -27,7 +27,7 @@ AccelerationStructureCollection::AccelerationStructureCollection(std::map<Model*
   //   .pNext = NULL,
   //   .accelerationStructureCount = 1,
   //   .pAccelerationStructures = this->topLevelAccelerationStructure->getAccelerationStructurePointer()
-  // };
+  };
 }
   
 AccelerationStructureCollection::~AccelerationStructureCollection() {
