@@ -15,19 +15,19 @@ AccelerationStructureCollection::AccelerationStructureCollection(std::map<Model*
                                                                                               commandPool,
                                                                                               queue));
 
-  //   for (int x = 0; x < modelInstancePair.second.size(); x++) {
-  //     this->addBottomLevelAccelerationStructureInstance(this->bottomLevelAccelerationStructureList.back(), modelInstancePair.second[x], logicalDevice);
-  //   }
-  // }
+    for (int x = 0; x < modelInstancePair.second.size(); x++) {
+      this->addBottomLevelAccelerationStructureInstance(this->bottomLevelAccelerationStructureList.back(), modelInstancePair.second[x], logicalDevice);
+    }
+  }
 
-  // this->topLevelAccelerationStructure = new TopLevelAccelerationStructure(this->bottomLevelAccelerationStructureInstanceList, logicalDevice, physicalDeviceMemoryProperties, commandPool, queue);
+  this->topLevelAccelerationStructure = new TopLevelAccelerationStructure(this->bottomLevelAccelerationStructureInstanceList, logicalDevice, physicalDeviceMemoryProperties, commandPool, queue);
 
   // this->writeDescriptorSetAccelerationStructure = {
   //   .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR,
   //   .pNext = NULL,
   //   .accelerationStructureCount = 1,
   //   .pAccelerationStructures = this->topLevelAccelerationStructure->getAccelerationStructurePointer()
-  };
+  // };
 }
   
 AccelerationStructureCollection::~AccelerationStructureCollection() {
