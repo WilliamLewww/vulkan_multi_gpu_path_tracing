@@ -83,7 +83,7 @@ TopLevelAccelerationStructure::TopLevelAccelerationStructure(std::vector<VkAccel
     .sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_GEOMETRY_INFO_KHR,
     .pNext = NULL,
     .type = VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR,
-    .flags = VK_BUILD_ACCELERATION_STRUCTURE_PREFER_FAST_TRACE_BIT_KHR,
+    .flags = 0,
     .mode = VK_BUILD_ACCELERATION_STRUCTURE_MODE_BUILD_KHR,
     .srcAccelerationStructure = VK_NULL_HANDLE,
     .dstAccelerationStructure = VK_NULL_HANDLE,
