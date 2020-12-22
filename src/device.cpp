@@ -42,7 +42,7 @@ void Device::initializeDeviceQueue(VkSurfaceKHR surface) {
 void Device::createLogicalDevice(std::vector<const char*> extensions) {
   std::map<uint32_t, uint32_t> queueFrequencyMap = this->deviceQueue->getQueueFrequencyMap();
 
-  float queuePriority = 1.0f;
+  std::vector<float> queuePriorityList = {1.0f, 1.0f};
   uint32_t deviceQueueCreateInfoCount = queueFrequencyMap.size();
 
   std::vector<VkDeviceQueueCreateInfo> deviceQueueCreateInfoList;
@@ -54,7 +54,7 @@ void Device::createLogicalDevice(std::vector<const char*> extensions) {
       .flags = 0,
       .queueFamilyIndex = pair.first,
       .queueCount = pair.second,
-      .pQueuePriorities = &queuePriority
+      .pQueuePriorities = queuePriorityList.data()
     };
 
     deviceQueueCreateInfoList.push_back(deviceQueueCreateInfo);
