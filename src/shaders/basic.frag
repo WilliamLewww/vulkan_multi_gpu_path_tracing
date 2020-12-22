@@ -164,7 +164,7 @@ vec3 shade(uint instanceIndex, uint primitiveIndex, vec3 position, vec3 normal, 
       float shadowRayDistance = length(lightPosition - position) - 0.0001f;
 
       rayQueryEXT rayQuery;
-      rayQueryInitializeEXT(rayQuery, topLevelAS, gl_RayFlagsTerminateOnFirstHitEXT, 0xFF, position, 0.0001f, positionToLightDirection, shadowRayDistance);
+      rayQueryInitializeEXT(rayQuery, topLevelAS, gl_RayFlagsNoneEXT, 0xFF, position, 0.0001f, positionToLightDirection, shadowRayDistance);
   
       while (rayQueryProceedEXT(rayQuery));
 
@@ -246,7 +246,7 @@ vec3 shadeRefraction(vec3 position, vec3 normal, Material material) {
   vec3 transmissionDirection = refract(cameraToSurface, normal, 1.0, material.ior);
 
   rayQueryEXT rayQuery;
-  rayQueryInitializeEXT(rayQuery, topLevelAS, gl_RayFlagsTerminateOnFirstHitEXT, 0xFF, position, 0.0001f, transmissionDirection, 1000.0f);
+  rayQueryInitializeEXT(rayQuery, topLevelAS, gl_RayFlagsNoneEXT, 0xFF, position, 0.0001f, transmissionDirection, 1000.0f);
 
   while (rayQueryProceedEXT(rayQuery));
 
@@ -263,7 +263,7 @@ vec3 shadeRefraction(vec3 position, vec3 normal, Material material) {
 
   transmissionDirection = refract(transmissionDirection, -intersectionGeometricNormal, material.ior, 1.0);
 
-  rayQueryInitializeEXT(rayQuery, topLevelAS, gl_RayFlagsTerminateOnFirstHitEXT, 0xFF, intersectionPosition, 0.0001f, transmissionDirection, 1000.0f);
+  rayQueryInitializeEXT(rayQuery, topLevelAS, gl_RayFlagsNoneEXT, 0xFF, intersectionPosition, 0.0001f, transmissionDirection, 1000.0f);
 
   while (rayQueryProceedEXT(rayQuery));
 
@@ -287,7 +287,7 @@ vec3 shadeRefraction(vec3 position, vec3 normal, Material material) {
     if (intersectionMaterial.dissolve < 1.0) {
       transmissionDirection = refract(transmissionDirection, intersectionGeometricNormal, 1.0, material.ior);
 
-      rayQueryInitializeEXT(rayQuery, topLevelAS, gl_RayFlagsTerminateOnFirstHitEXT, 0xFF, intersectionPosition, 0.0001f, transmissionDirection, 1000.0f);
+      rayQueryInitializeEXT(rayQuery, topLevelAS, gl_RayFlagsNoneEXT, 0xFF, intersectionPosition, 0.0001f, transmissionDirection, 1000.0f);
 
       while (rayQueryProceedEXT(rayQuery));
 
@@ -304,7 +304,7 @@ vec3 shadeRefraction(vec3 position, vec3 normal, Material material) {
 
       transmissionDirection = refract(transmissionDirection, -intersectionGeometricNormal, material.ior, 1.0);
 
-      rayQueryInitializeEXT(rayQuery, topLevelAS, gl_RayFlagsTerminateOnFirstHitEXT, 0xFF, intersectionPosition, 0.0001f, transmissionDirection, 1000.0f);
+      rayQueryInitializeEXT(rayQuery, topLevelAS, gl_RayFlagsNoneEXT, 0xFF, intersectionPosition, 0.0001f, transmissionDirection, 1000.0f);
 
       while (rayQueryProceedEXT(rayQuery));
     }
@@ -323,7 +323,7 @@ vec3 shadeReflection(vec3 position, vec3 normal, Material material) {
   vec3 reflectionDirection = vec3(reflect(cameraToSurface, normal));
 
   rayQueryEXT rayQuery;
-  rayQueryInitializeEXT(rayQuery, topLevelAS, gl_RayFlagsTerminateOnFirstHitEXT, 0xFF, position, 0.0001f, reflectionDirection, 1000.0f);
+  rayQueryInitializeEXT(rayQuery, topLevelAS, gl_RayFlagsNoneEXT, 0xFF, position, 0.0001f, reflectionDirection, 1000.0f);
 
   while (rayQueryProceedEXT(rayQuery));
 
