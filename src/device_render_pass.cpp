@@ -35,7 +35,7 @@ DeviceRenderPass::DeviceRenderPass(VkDevice logicalDevice, VkFormat swapchainIma
     .layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
   };
 
-  VkSubpassDescription subpass = {
+  VkSubpassDescription firstSubpass = {
     .flags = 0,
     .pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS,
     .inputAttachmentCount = 0,
@@ -48,7 +48,22 @@ DeviceRenderPass::DeviceRenderPass(VkDevice logicalDevice, VkFormat swapchainIma
     .pPreserveAttachments = NULL
   };
 
-  VkSubpassDependency dependency = {
+  VkSubpassDescription secondSubpass = {
+    .flags = 0,
+    .pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS,
+    .inputAttachmentCount = 0,
+    .pInputAttachments = NULL,
+    .colorAttachmentCount = 1,
+    .pColorAttachments = &colorAttachmentRef,
+    .pResolveAttachments = NULL,
+    .pDepthStencilAttachment = &depthAttachmentRef,
+    .preserveAttachmentCount = 0,
+    .pPreserveAttachments = NULL
+  };
+
+  std::vector<VkSubpassDescription> subpassList = {firstSubpass, secondSubpass};
+
+  VkSubpassDependency firstDependency = {
     .srcSubpass = VK_SUBPASS_EXTERNAL,
     .dstSubpass = 0,
     .srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
@@ -58,6 +73,18 @@ DeviceRenderPass::DeviceRenderPass(VkDevice logicalDevice, VkFormat swapchainIma
     .dependencyFlags = 0
   };
 
+  VkSubpassDependency secondDependency = {
+    .srcSubpass = 0,
+    .dstSubpass = 1,
+    .srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+    .dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+    .srcAccessMask = 0,
+    .dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+    .dependencyFlags = 0
+  };
+
+  std::vector<VkSubpassDependency> dependencyList = {firstDependency, secondDependency};
+
   VkAttachmentDescription attachments[2] = {colorAttachment, depthAttachment};
 
   VkRenderPassCreateInfo renderPassInfo = {
@@ -66,10 +93,10 @@ DeviceRenderPass::DeviceRenderPass(VkDevice logicalDevice, VkFormat swapchainIma
     .flags = 0,
     .attachmentCount = 2,
     .pAttachments = attachments,
-    .subpassCount = 1,
-    .pSubpasses = &subpass,
-    .dependencyCount = 1,
-    .pDependencies = &dependency
+    .subpassCount = (uint32_t)subpassList.size(),
+    .pSubpasses = subpassList.data(),
+    .dependencyCount = (uint32_t)dependencyList.size(),
+    .pDependencies = dependencyList.data()
   };
 
   if (vkCreateRenderPass(logicalDevice, &renderPassInfo, NULL, &this->renderPass) != VK_SUCCESS) {
