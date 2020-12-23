@@ -8,15 +8,15 @@ Renderer::Renderer(VkInstance vulkanInstance, VkSurfaceKHR surface, ModelCollect
 
   std::vector<const char*> deviceExtensionList {
     VK_KHR_SWAPCHAIN_EXTENSION_NAME, 
-    "VK_KHR_ray_query",
-    "VK_KHR_acceleration_structure",
+    // "VK_KHR_ray_query",
+    // "VK_KHR_acceleration_structure",
     "VK_KHR_spirv_1_4",
     "VK_KHR_shader_float_controls",
     "VK_KHR_get_memory_requirements2",
     "VK_EXT_descriptor_indexing",
-    "VK_KHR_buffer_device_address",
-    "VK_KHR_deferred_host_operations",
-    "VK_KHR_pipeline_library",
+    // "VK_KHR_buffer_device_address",
+    // "VK_KHR_deferred_host_operations",
+    // "VK_KHR_pipeline_library",
     "VK_KHR_maintenance3",
     "VK_KHR_maintenance1"
   };
@@ -44,13 +44,13 @@ Renderer::Renderer(VkInstance vulkanInstance, VkSurfaceKHR surface, ModelCollect
   };
   this->displayDevice->createUniformBufferCollection(bufferMap);
 
-  this->displayDevice->createAccelerationStructureCollection(this->displayDevice->getModelInstanceCollectionPointer()->getModelInstanceMap());
+  // this->displayDevice->createAccelerationStructureCollection(this->displayDevice->getModelInstanceCollectionPointer()->getModelInstanceMap());
 
   std::vector<std::vector<DeviceDescriptor*>> separatedDeviceDescriptorList = {
     {
       new DeviceDescriptor(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, (VkShaderStageFlagBits)(VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT), NULL, this->displayDevice->getDeviceUniformBufferCollection()->getDescriptorBufferInfoPointer(0), NULL, NULL),
       new DeviceDescriptor(1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, (VkShaderStageFlagBits)(VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT), NULL, this->displayDevice->getDeviceUniformBufferCollection()->getDescriptorBufferInfoPointer(1), NULL, NULL),
-      new DeviceDescriptor(2, VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR, (VkShaderStageFlagBits)(VK_SHADER_STAGE_FRAGMENT_BIT), NULL, NULL, NULL, this->displayDevice->getAccelerationStructureCollection()->getWriteDescriptorSetAccelerationStructurePointer()),
+      // new DeviceDescriptor(2, VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR, (VkShaderStageFlagBits)(VK_SHADER_STAGE_FRAGMENT_BIT), NULL, NULL, NULL, this->displayDevice->getAccelerationStructureCollection()->getWriteDescriptorSetAccelerationStructurePointer()),
       new DeviceDescriptor(3, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, (VkShaderStageFlagBits)(VK_SHADER_STAGE_FRAGMENT_BIT), this->displayDevice->getDeviceTextures()->getDescriptorRayTraceImageInfoPointer(), NULL, NULL, NULL),
     },
     {
