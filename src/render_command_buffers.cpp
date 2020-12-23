@@ -8,6 +8,7 @@ RenderCommandBuffers::RenderCommandBuffers(VkDevice logicalDevice,
                                          std::vector<VkFramebuffer> framebufferList,
                                          std::vector<VkImage> swapchainImageList,
                                          VkImage rayTraceImage,
+                                         VkPipeline depthPipeline,
                                          VkPipeline pipeline,
                                          VkPipelineLayout pipelineLayout,
                                          std::vector<VkDescriptorSet> descriptorSetList,
@@ -58,7 +59,7 @@ RenderCommandBuffers::RenderCommandBuffers(VkDevice logicalDevice,
 
     vkCmdBeginRenderPass(this->commandBufferList[x], &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-    vkCmdBindPipeline(this->commandBufferList[x], VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
+    vkCmdBindPipeline(this->commandBufferList[x], VK_PIPELINE_BIND_POINT_GRAPHICS, depthPipeline);
     vkCmdBindDescriptorSets(this->commandBufferList[x], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 2, descriptorSetList.data(), 0, 0);
     for (int y = 0; y < modelInstanceList.size(); y++) {
       VkDeviceSize offset = 0;

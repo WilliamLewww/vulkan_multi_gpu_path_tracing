@@ -43,6 +43,7 @@ private:
   DeviceUniformBufferCollection* deviceUniformBufferCollection;
   AccelerationStructureCollection* accelerationStructureCollection;
   DeviceDescriptorSetCollection* deviceDescriptorSetCollection;
+  GraphicsPipeline* depthGraphicsPipeline;
   GraphicsPipeline* graphicsPipeline;
   RenderCommandBuffers* renderCommandBuffers;
   SynchronizationObjects* synchronizationObjects;
