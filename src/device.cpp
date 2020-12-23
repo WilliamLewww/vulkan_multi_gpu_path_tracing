@@ -164,6 +164,7 @@ void Device::createDescriptorSetCollection(std::vector<std::vector<DeviceDescrip
 }
 
 void Device::createGraphicsPipeline(std::string vertexShaderFile, std::string fragmentShaderFile) {
+  this->depthGraphicsPipeline = new GraphicsPipeline(vertexShaderFile, this->deviceDescriptorSetCollection->getDescriptorSetLayoutList(), this->logicalDevice, this->deviceSwapchain->getSwapchainExtent(), this->deviceRenderPass->getRenderPass()); 
   this->graphicsPipeline = new GraphicsPipeline(vertexShaderFile, fragmentShaderFile, this->deviceDescriptorSetCollection->getDescriptorSetLayoutList(), this->logicalDevice, this->deviceSwapchain->getSwapchainExtent(), this->deviceRenderPass->getRenderPass());
 }
 
@@ -176,6 +177,7 @@ void Device::createRenderCommandBuffers() {
                                                         this->deviceFramebuffers->getFramebufferList(),
                                                         this->deviceSwapchain->getSwapchainImageList(),
                                                         this->deviceTextures->getRayTraceImage(),
+                                                        this->depthGraphicsPipeline->getGraphicsPipeline(),
                                                         this->graphicsPipeline->getGraphicsPipeline(),
                                                         this->graphicsPipeline->getPipelineLayout(),
                                                         this->deviceDescriptorSetCollection->getDescriptorSetList(),
