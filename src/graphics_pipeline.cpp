@@ -371,7 +371,7 @@ GraphicsPipeline::GraphicsPipeline(std::string vertexShaderFile, std::string fra
     .pNext = NULL,
     .flags = 0,
     .depthTestEnable = VK_TRUE,
-    .depthWriteEnable = VK_TRUE,
+    .depthWriteEnable = VK_FALSE,
     .depthCompareOp = VK_COMPARE_OP_LESS_OR_EQUAL,
     .depthBoundsTestEnable = VK_FALSE,
     .stencilTestEnable = VK_FALSE,
