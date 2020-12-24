@@ -16,6 +16,8 @@ struct Material {
   float ior;
 };
 
+layout(early_fragment_tests) in;
+
 layout(location = 0) in vec3 interpolatedPosition;
 flat layout(location = 1) in uint rasterInstanceIndex;
 
