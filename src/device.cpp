@@ -60,29 +60,29 @@ void Device::createLogicalDevice(std::vector<const char*> extensions) {
     deviceQueueCreateInfoList.push_back(deviceQueueCreateInfo);
   }
 
-  // VkPhysicalDeviceBufferDeviceAddressFeaturesEXT bufferDeviceAddressFeatures = {
-  //   .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES_EXT,
-  //   .pNext = NULL,
-  //   .bufferDeviceAddress = VK_TRUE,
-  //   .bufferDeviceAddressCaptureReplay = VK_FALSE,
-  //   .bufferDeviceAddressMultiDevice = VK_FALSE
-  // };
+  VkPhysicalDeviceBufferDeviceAddressFeaturesEXT bufferDeviceAddressFeatures = {
+    .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES_EXT,
+    .pNext = NULL,
+    .bufferDeviceAddress = VK_TRUE,
+    .bufferDeviceAddressCaptureReplay = VK_FALSE,
+    .bufferDeviceAddressMultiDevice = VK_FALSE
+  };
 
-  // VkPhysicalDeviceRayQueryFeaturesKHR rayQueryFeatures = {
-  //   .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_QUERY_FEATURES_KHR,
-  //   .pNext = &bufferDeviceAddressFeatures,
-  //   .rayQuery = VK_TRUE
-  // };
+  VkPhysicalDeviceRayQueryFeaturesKHR rayQueryFeatures = {
+    .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_QUERY_FEATURES_KHR,
+    .pNext = &bufferDeviceAddressFeatures,
+    .rayQuery = VK_TRUE
+  };
 
-  // VkPhysicalDeviceAccelerationStructureFeaturesKHR accelerationStructureFeatures = {
-  //   .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ACCELERATION_STRUCTURE_FEATURES_KHR,
-  //   .pNext = &rayQueryFeatures,
-  //   .accelerationStructure = VK_TRUE,
-  //   .accelerationStructureCaptureReplay = VK_TRUE,
-  //   .accelerationStructureIndirectBuild = VK_FALSE,
-  //   .accelerationStructureHostCommands = VK_FALSE,
-  //   .descriptorBindingAccelerationStructureUpdateAfterBind = VK_FALSE
-  // };
+  VkPhysicalDeviceAccelerationStructureFeaturesKHR accelerationStructureFeatures = {
+    .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ACCELERATION_STRUCTURE_FEATURES_KHR,
+    .pNext = &rayQueryFeatures,
+    .accelerationStructure = VK_TRUE,
+    .accelerationStructureCaptureReplay = VK_TRUE,
+    .accelerationStructureIndirectBuild = VK_FALSE,
+    .accelerationStructureHostCommands = VK_FALSE,
+    .descriptorBindingAccelerationStructureUpdateAfterBind = VK_FALSE
+  };
 
   // incomplete listing due to large amount of data members
   VkPhysicalDeviceFeatures deviceFeatures = {
@@ -92,7 +92,7 @@ void Device::createLogicalDevice(std::vector<const char*> extensions) {
 
   VkDeviceCreateInfo deviceCreateInfo = {
     .sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
-    .pNext = NULL,
+    .pNext = &accelerationStructureFeatures,
     .flags = 0,
     .queueCreateInfoCount = deviceQueueCreateInfoCount,
     .pQueueCreateInfos = deviceQueueCreateInfoList.data(),
