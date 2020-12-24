@@ -68,6 +68,23 @@ RenderCommandBuffers::RenderCommandBuffers(VkDevice logicalDevice,
       vkCmdDrawIndexed(this->commandBufferList[x], modelInstanceList[y]->getModel()->getPrimitiveCount() * 3, 1, 0, 0, y);
     }
 
+    VkClearAttachment clearAttachment = {
+      .aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT,
+      .colorAttachment = 0,
+      .clearValue = {1.0f}
+    };
+
+    VkClearRect clearRect = {
+      .rect = {
+        .offset = {0, 0},
+        .extent = {800, 600}
+      },
+      .baseArrayLayer = 0,
+      .layerCount = 1,
+    };
+
+    vkCmdClearAttachments(this->commandBufferList[x], 1, &clearAttachment, 1, &clearRect);
+
     vkCmdNextSubpass(this->commandBufferList[x], VK_SUBPASS_CONTENTS_INLINE);
     vkCmdBindPipeline(this->commandBufferList[x], VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
     vkCmdBindDescriptorSets(this->commandBufferList[x], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 2, descriptorSetList.data(), 0, 0);
