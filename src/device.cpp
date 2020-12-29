@@ -163,9 +163,12 @@ void Device::createDescriptorSetCollection(std::vector<std::vector<DeviceDescrip
   this->deviceDescriptorSetCollection = new DeviceDescriptorSetCollection(separatedDeviceDescriptorList, this->logicalDevice);
 }
 
+void Device::createGraphicsPipeline(std::string vertexShaderFile) {
+  this->graphicsPipelineList.push_back(new GraphicsPipeline(vertexShaderFile, this->deviceDescriptorSetCollection->getDescriptorSetLayoutList(), this->logicalDevice, this->deviceSwapchain->getSwapchainExtent(), this->deviceRenderPass->getRenderPass()));
+}
+
 void Device::createGraphicsPipeline(std::string vertexShaderFile, std::string fragmentShaderFile) {
-  this->depthGraphicsPipeline = new GraphicsPipeline(vertexShaderFile, this->deviceDescriptorSetCollection->getDescriptorSetLayoutList(), this->logicalDevice, this->deviceSwapchain->getSwapchainExtent(), this->deviceRenderPass->getRenderPass()); 
-  this->graphicsPipeline = new GraphicsPipeline(vertexShaderFile, fragmentShaderFile, this->deviceDescriptorSetCollection->getDescriptorSetLayoutList(), this->logicalDevice, this->deviceSwapchain->getSwapchainExtent(), this->deviceRenderPass->getRenderPass());
+  this->graphicsPipelineList.push_back(new GraphicsPipeline(vertexShaderFile, fragmentShaderFile, this->deviceDescriptorSetCollection->getDescriptorSetLayoutList(), this->logicalDevice, this->deviceSwapchain->getSwapchainExtent(), this->deviceRenderPass->getRenderPass()));
 }
 
 void Device::createRenderCommandBuffers() {
@@ -177,9 +180,9 @@ void Device::createRenderCommandBuffers() {
                                                         this->deviceFramebuffers->getFramebufferList(),
                                                         this->deviceSwapchain->getSwapchainImageList(),
                                                         this->deviceTextures->getRayTraceImage(),
-                                                        this->depthGraphicsPipeline->getGraphicsPipeline(),
-                                                        this->graphicsPipeline->getGraphicsPipeline(),
-                                                        this->graphicsPipeline->getPipelineLayout(),
+                                                        this->graphicsPipelineList[0]->getGraphicsPipeline(),
+                                                        this->graphicsPipelineList[1]->getGraphicsPipeline(),
+                                                        this->graphicsPipelineList[1]->getPipelineLayout(),
                                                         this->deviceDescriptorSetCollection->getDescriptorSetList(),
                                                         this->modelInstanceCollection->getModelInstanceList());
 }

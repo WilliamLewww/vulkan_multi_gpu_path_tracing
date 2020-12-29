@@ -63,6 +63,7 @@ Renderer::Renderer(VkInstance vulkanInstance, VkSurfaceKHR surface, ModelCollect
   };
   this->displayDevice->createDescriptorSetCollection(separatedDeviceDescriptorList);
 
+  this->displayDevice->createGraphicsPipeline("bin/basic.vert.spv");
   this->displayDevice->createGraphicsPipeline("bin/basic.vert.spv", "bin/basic.frag.spv");
   this->displayDevice->createRenderCommandBuffers();
 

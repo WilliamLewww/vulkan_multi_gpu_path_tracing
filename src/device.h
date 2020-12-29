@@ -32,6 +32,8 @@ private:
 
   VkDevice logicalDevice;
 
+  std::vector<GraphicsPipeline*> graphicsPipelineList;
+
   DeviceQueue* deviceQueue;
   DeviceCommandPool* deviceCommandPool;
   DeviceSwapchain* deviceSwapchain;
@@ -43,8 +45,6 @@ private:
   DeviceUniformBufferCollection* deviceUniformBufferCollection;
   AccelerationStructureCollection* accelerationStructureCollection;
   DeviceDescriptorSetCollection* deviceDescriptorSetCollection;
-  GraphicsPipeline* depthGraphicsPipeline;
-  GraphicsPipeline* graphicsPipeline;
   RenderCommandBuffers* renderCommandBuffers;
   SynchronizationObjects* synchronizationObjects;
 public:
@@ -69,6 +69,7 @@ public:
   void createUniformBufferCollection(std::map<void*, uint32_t> bufferMap);
   void createAccelerationStructureCollection(std::map<Model*, std::vector<ModelInstance*>> modelInstanceMap);
   void createDescriptorSetCollection(std::vector<std::vector<DeviceDescriptor*>> separatedDeviceDescriptorList);
+  void createGraphicsPipeline(std::string vertexShaderFile);
   void createGraphicsPipeline(std::string vertexShaderFile, std::string fragmentShaderFile);
   void createRenderCommandBuffers();
   void createSynchronizationObjects();
