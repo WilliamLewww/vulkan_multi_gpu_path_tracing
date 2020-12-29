@@ -287,7 +287,7 @@ vec3 shadeRefraction(vec3 position, vec3 normal, Material material) {
     intersectionPosition = intersectionVertexA * intersectionBarycentrics.x + intersectionVertexB * intersectionBarycentrics.y + intersectionVertexC * intersectionBarycentrics.z;
 
     if (intersectionMaterial.dissolve < 1.0) {
-      transmissionDirection = refract(transmissionDirection, intersectionGeometricNormal, 1.0, material.ior);
+      transmissionDirection = refract(transmissionDirection, intersectionGeometricNormal, 1.0, intersectionMaterial.ior);
 
       rayQueryInitializeEXT(rayQuery, topLevelAS, gl_RayFlagsNoneEXT, 0xFF, intersectionPosition, 0.0001f, transmissionDirection, 1000.0f);
 
@@ -304,7 +304,7 @@ vec3 shadeRefraction(vec3 position, vec3 normal, Material material) {
       intersectionBarycentrics = vec3(1.0 - intersectionUV.x - intersectionUV.y, intersectionUV.x, intersectionUV.y);
       intersectionPosition = intersectionVertexA * intersectionBarycentrics.x + intersectionVertexB * intersectionBarycentrics.y + intersectionVertexC * intersectionBarycentrics.z;
 
-      transmissionDirection = refract(transmissionDirection, -intersectionGeometricNormal, material.ior, 1.0);
+      transmissionDirection = refract(transmissionDirection, -intersectionGeometricNormal, intersectionMaterial.ior, 1.0);
 
       rayQueryInitializeEXT(rayQuery, topLevelAS, gl_RayFlagsNoneEXT, 0xFF, intersectionPosition, 0.0001f, transmissionDirection, 1000.0f);
 
