@@ -23,6 +23,7 @@ public:
   uint32_t getVertexCount();
   std::vector<float> getVertices();
 
+  uint32_t getNormalCount();
   std::vector<float> getNormals();
 
   uint32_t getTotalIndexCount();

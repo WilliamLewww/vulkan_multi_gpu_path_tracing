@@ -4,7 +4,8 @@
 layout(location = 0) in vec3 inPosition;
 
 layout(location = 0) out vec3 interpolatedPosition;
-layout(location = 1) out uint instanceIndex;
+layout(location = 1) out vec3 interpolatedNormal;
+layout(location = 2) out uint instanceIndex;
 
 layout(binding = 0, set = 0) uniform Camera {
   vec4 position;
@@ -18,11 +19,15 @@ layout(binding = 0, set = 0) uniform Camera {
 layout(binding = 1, set = 0) uniform InstanceDescriptionContainer {
   uint instanceCount;
   uint vertexOffsets[8];
+  uint normalOffsets[8];
   uint indexOffsets[8];
   uint materialIndexOffsets[8];
   uint materialOffsets[8];
   mat4 transformMatrix[8];
 } instanceDescriptionContainer;
+
+layout(binding = 2, set = 1) buffer NormalIndexBuffer { uint data[]; } normalIndexBuffer;
+layout(binding = 3, set = 1) buffer NormalBuffer { float data[]; } normalBuffer;
 
 void main() {
   vec4 positionVector = camera.position - vec4(0.0, 0.0, 0.0, 1.0);

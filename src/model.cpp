@@ -39,6 +39,10 @@ std::vector<float> Model::getVertices() {
   return this->attrib.vertices;
 }
 
+uint32_t Model::getNormalCount() {
+  return this->attrib.normals.size();
+}
+
 std::vector<float> Model::getNormals() {
   return this->attrib.normals;
 }

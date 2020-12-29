@@ -28,13 +28,14 @@ private:
   };
 
   struct InstanceUniform {
-    float buffer[260];
+    float buffer[292];
   };
 
   std::map<Model*, std::vector<ModelInstance*>> modelInstanceMap;
 
   std::vector<ModelInstance*> modelInstanceList;
   std::vector<uint32_t> vertexOffsetList;
+  std::vector<uint32_t> normalOffsetList;
   std::vector<uint32_t> indexOffsetList;
   std::vector<uint32_t> materialIndexOffsetList;
   std::vector<uint32_t> materialOffsetList;

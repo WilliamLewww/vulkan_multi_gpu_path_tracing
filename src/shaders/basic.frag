@@ -19,7 +19,8 @@ struct Material {
 layout(early_fragment_tests) in;
 
 layout(location = 0) in vec3 interpolatedPosition;
-flat layout(location = 1) in uint rasterInstanceIndex;
+layout(location = 1) in vec3 interpolatedNormal;
+flat layout(location = 2) in uint rasterInstanceIndex;
 
 layout(location = 0) out vec4 outColor;
 
@@ -35,6 +36,7 @@ layout(binding = 0, set = 0) uniform Camera {
 layout(binding = 1, set = 0) uniform InstanceDescriptionContainer {
   uint instanceCount;
   uint vertexOffsets[8];
+  uint normalOffsets[8];
   uint indexOffsets[8];
   uint materialIndexOffsets[8];
   uint materialOffsets[8];
@@ -104,6 +106,38 @@ void getVertexFromIndices(uint instanceIndex, uint primitiveIndex, out vec3 vert
   vertexC = (transformMatrix * vec4(vertexBuffer.data[3 * indices.z + 0 + vertexOffset], 
              vertexBuffer.data[3 * indices.z + 1 + vertexOffset], 
              vertexBuffer.data[3 * indices.z + 2 + vertexOffset], 
+             1.0)).xyz;
+}
+
+ivec3 getNormalIndicesFromPrimitive(uint instanceIndex, uint primitiveIndex) {
+  uint indexOffset = instanceDescriptionContainer.indexOffsets[instanceIndex];
+
+  ivec3 indices = ivec3(normalIndexBuffer.data[3 * primitiveIndex + 0 + indexOffset], 
+                        normalIndexBuffer.data[3 * primitiveIndex + 1 + indexOffset], 
+                        normalIndexBuffer.data[3 * primitiveIndex + 2 + indexOffset]);
+
+  return indices;
+};
+
+void getNormalFromIndices(uint instanceIndex, uint primitiveIndex, out vec3 normalA, out vec3 normalB, out vec3 normalC) {
+  uint normalOffset = instanceDescriptionContainer.normalOffsets[instanceIndex];
+  mat4 transformMatrix = instanceDescriptionContainer.transformMatrix[instanceIndex];
+
+  ivec3 indices = getNormalIndicesFromPrimitive(instanceIndex, primitiveIndex);
+
+  normalA = (transformMatrix * vec4(normalBuffer.data[3 * indices.x + 0 + normalOffset], 
+             normalBuffer.data[3 * indices.x + 1 + normalOffset], 
+             normalBuffer.data[3 * indices.x + 2 + normalOffset], 
+             1.0)).xyz;
+
+  normalB = (transformMatrix * vec4(normalBuffer.data[3 * indices.y + 0 + normalOffset], 
+             normalBuffer.data[3 * indices.y + 1 + normalOffset], 
+             normalBuffer.data[3 * indices.y + 2 + normalOffset], 
+             1.0)).xyz;
+  
+  normalC = (transformMatrix * vec4(normalBuffer.data[3 * indices.z + 0 + normalOffset], 
+             normalBuffer.data[3 * indices.z + 1 + normalOffset], 
+             normalBuffer.data[3 * indices.z + 2 + normalOffset], 
              1.0)).xyz;
 }
 
@@ -355,17 +389,21 @@ void main() {
 
   vec3 vertexA, vertexB, vertexC;
   getVertexFromIndices(rasterInstanceIndex, gl_PrimitiveID, vertexA, vertexB, vertexC);
-  vec3 geometricNormal = normalize(cross(vertexB - vertexA, vertexC - vertexA));
+
+  vec3 normalA, normalB, normalC;
+  getNormalFromIndices(rasterInstanceIndex, gl_PrimitiveID, normalA, normalB, normalC);
   Material rasterMaterial = getMaterialFromPrimitive(rasterInstanceIndex, gl_PrimitiveID);
 
-  directColor = shade(rasterInstanceIndex, gl_PrimitiveID, interpolatedPosition, geometricNormal, rasterMaterial);
+  // directColor = shade(rasterInstanceIndex, gl_PrimitiveID, interpolatedPosition, geometricNormal, rasterMaterial);
 
-  if (rasterMaterial.dissolve < 1.0) {
-    vec3 refractedColor = shadeRefraction(interpolatedPosition, geometricNormal, rasterMaterial);
-    vec3 reflectedColor = shadeReflection(interpolatedPosition, geometricNormal, rasterMaterial);
+  // if (rasterMaterial.dissolve < 1.0) {
+  //   vec3 refractedColor = shadeRefraction(interpolatedPosition, geometricNormal, rasterMaterial);
+  //   vec3 reflectedColor = shadeReflection(interpolatedPosition, geometricNormal, rasterMaterial);
 
-    directColor = directColor + refractedColor + reflectedColor;
-  }
+  //   directColor = directColor + refractedColor + reflectedColor;
+  // }
+
+  directColor = normalA;
 
   vec4 color = vec4(directColor, 1.0);
   if (camera.frameCount > 0) {
