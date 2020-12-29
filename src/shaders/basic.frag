@@ -307,13 +307,16 @@ vec3 shadeRefraction(vec3 position, vec3 normal, Material material) {
 
   vec3 intersectionVertexA, intersectionVertexB, intersectionVertexC;
   getVertexFromIndices(intersectionInstanceIndex, intersectionPrimitiveIndex, intersectionVertexA, intersectionVertexB, intersectionVertexC);
-  vec3 intersectionGeometricNormal = normalize(cross(intersectionVertexB - intersectionVertexA, intersectionVertexC - intersectionVertexA));
+
+  vec3 intersectionNormalA, intersectionNormalB, intersectionNormalC;
+  getNormalFromIndices(intersectionInstanceIndex, intersectionPrimitiveIndex, intersectionNormalA, intersectionNormalB, intersectionNormalC);
 
   vec2 intersectionUV = rayQueryGetIntersectionBarycentricsEXT(rayQuery, true);
   vec3 intersectionBarycentrics = vec3(1.0 - intersectionUV.x - intersectionUV.y, intersectionUV.x, intersectionUV.y);
   vec3 intersectionPosition = intersectionVertexA * intersectionBarycentrics.x + intersectionVertexB * intersectionBarycentrics.y + intersectionVertexC * intersectionBarycentrics.z;
+  vec3 intersectionNormal = intersectionNormalA * intersectionBarycentrics.x + intersectionNormalB * intersectionBarycentrics.y + intersectionNormalC * intersectionBarycentrics.z;
 
-  transmissionDirection = refract(transmissionDirection, -intersectionGeometricNormal, material.ior, 1.0);
+  transmissionDirection = refract(transmissionDirection, -intersectionNormal, material.ior, 1.0);
 
   rayQueryInitializeEXT(rayQuery, topLevelAS, gl_RayFlagsNoneEXT, 0xFF, intersectionPosition, 0.0001f, transmissionDirection, 1000.0f);
 
@@ -327,17 +330,18 @@ vec3 shadeRefraction(vec3 position, vec3 normal, Material material) {
     intersectionInstanceIndex = rayQueryGetIntersectionInstanceIdEXT(rayQuery, true);
     intersectionPrimitiveIndex = rayQueryGetIntersectionPrimitiveIndexEXT(rayQuery, true);
 
-    intersectionVertexA, intersectionVertexB, intersectionVertexC;
-    getVertexFromIndices(intersectionInstanceIndex, intersectionPrimitiveIndex, intersectionVertexA, intersectionVertexB, intersectionVertexC);
-    intersectionGeometricNormal = normalize(cross(intersectionVertexB - intersectionVertexA, intersectionVertexC - intersectionVertexA));
     Material intersectionMaterial = getMaterialFromPrimitive(intersectionInstanceIndex, intersectionPrimitiveIndex);
+
+    getVertexFromIndices(intersectionInstanceIndex, intersectionPrimitiveIndex, intersectionVertexA, intersectionVertexB, intersectionVertexC);
+    getNormalFromIndices(intersectionInstanceIndex, intersectionPrimitiveIndex, intersectionNormalA, intersectionNormalB, intersectionNormalC);
 
     intersectionUV = rayQueryGetIntersectionBarycentricsEXT(rayQuery, true);
     intersectionBarycentrics = vec3(1.0 - intersectionUV.x - intersectionUV.y, intersectionUV.x, intersectionUV.y);
     intersectionPosition = intersectionVertexA * intersectionBarycentrics.x + intersectionVertexB * intersectionBarycentrics.y + intersectionVertexC * intersectionBarycentrics.z;
+    intersectionNormal = intersectionNormalA * intersectionBarycentrics.x + intersectionNormalB * intersectionBarycentrics.y + intersectionNormalC * intersectionBarycentrics.z;
 
     if (intersectionMaterial.dissolve < 1.0) {
-      transmissionDirection = refract(transmissionDirection, intersectionGeometricNormal, 1.0, intersectionMaterial.ior);
+      transmissionDirection = refract(transmissionDirection, intersectionNormal, 1.0, intersectionMaterial.ior);
 
       rayQueryInitializeEXT(rayQuery, topLevelAS, gl_RayFlagsNoneEXT, 0xFF, intersectionPosition, 0.0001f, transmissionDirection, 1000.0f);
 
@@ -346,22 +350,22 @@ vec3 shadeRefraction(vec3 position, vec3 normal, Material material) {
       intersectionInstanceIndex = rayQueryGetIntersectionInstanceIdEXT(rayQuery, true);
       intersectionPrimitiveIndex = rayQueryGetIntersectionPrimitiveIndexEXT(rayQuery, true);
 
-      intersectionVertexA, intersectionVertexB, intersectionVertexC;
       getVertexFromIndices(intersectionInstanceIndex, intersectionPrimitiveIndex, intersectionVertexA, intersectionVertexB, intersectionVertexC);
-      intersectionGeometricNormal = normalize(cross(intersectionVertexB - intersectionVertexA, intersectionVertexC - intersectionVertexA));
+      getNormalFromIndices(intersectionInstanceIndex, intersectionPrimitiveIndex, intersectionNormalA, intersectionNormalB, intersectionNormalC);
 
       intersectionUV = rayQueryGetIntersectionBarycentricsEXT(rayQuery, true);
       intersectionBarycentrics = vec3(1.0 - intersectionUV.x - intersectionUV.y, intersectionUV.x, intersectionUV.y);
       intersectionPosition = intersectionVertexA * intersectionBarycentrics.x + intersectionVertexB * intersectionBarycentrics.y + intersectionVertexC * intersectionBarycentrics.z;
+      intersectionNormal = intersectionNormalA * intersectionBarycentrics.x + intersectionNormalB * intersectionBarycentrics.y + intersectionNormalC * intersectionBarycentrics.z;
 
-      transmissionDirection = refract(transmissionDirection, -intersectionGeometricNormal, intersectionMaterial.ior, 1.0);
+      transmissionDirection = refract(transmissionDirection, -intersectionNormal, intersectionMaterial.ior, 1.0);
 
       rayQueryInitializeEXT(rayQuery, topLevelAS, gl_RayFlagsNoneEXT, 0xFF, intersectionPosition, 0.0001f, transmissionDirection, 1000.0f);
 
       while (rayQueryProceedEXT(rayQuery));
     }
     else {
-      return transmittance * shade(intersectionInstanceIndex, intersectionPrimitiveIndex, intersectionPosition, intersectionGeometricNormal, intersectionMaterial);
+      return transmittance * shade(intersectionInstanceIndex, intersectionPrimitiveIndex, intersectionPosition, intersectionNormal, intersectionMaterial);
     }
   }
 }
@@ -383,16 +387,20 @@ vec3 shadeReflection(vec3 position, vec3 normal, Material material) {
     int intersectionInstanceIndex = rayQueryGetIntersectionInstanceIdEXT(rayQuery, true);
     int intersectionPrimitiveIndex = rayQueryGetIntersectionPrimitiveIndexEXT(rayQuery, true);
 
+    Material intersectionMaterial = getMaterialFromPrimitive(intersectionInstanceIndex, intersectionPrimitiveIndex);
+
     vec3 intersectionVertexA, intersectionVertexB, intersectionVertexC;
     getVertexFromIndices(intersectionInstanceIndex, intersectionPrimitiveIndex, intersectionVertexA, intersectionVertexB, intersectionVertexC);
-    vec3 intersectionGeometricNormal = normalize(cross(intersectionVertexB - intersectionVertexA, intersectionVertexC - intersectionVertexA));
-    Material intersectionMaterial = getMaterialFromPrimitive(intersectionInstanceIndex, intersectionPrimitiveIndex);
+
+    vec3 intersectionNormalA, intersectionNormalB, intersectionNormalC;
+    getNormalFromIndices(intersectionInstanceIndex, intersectionPrimitiveIndex, intersectionNormalA, intersectionNormalB, intersectionNormalC);
 
     vec2 intersectionUV = rayQueryGetIntersectionBarycentricsEXT(rayQuery, true);
     vec3 intersectionBarycentrics = vec3(1.0 - intersectionUV.x - intersectionUV.y, intersectionUV.x, intersectionUV.y);
     vec3 intersectionPosition = intersectionVertexA * intersectionBarycentrics.x + intersectionVertexB * intersectionBarycentrics.y + intersectionVertexC * intersectionBarycentrics.z;
-    
-    color = reflectivity * shade(intersectionInstanceIndex, intersectionPrimitiveIndex, intersectionPosition, intersectionGeometricNormal, intersectionMaterial);
+    vec3 intersectionNormal = intersectionNormalA * intersectionBarycentrics.x + intersectionNormalB * intersectionBarycentrics.y + intersectionNormalC * intersectionBarycentrics.z;
+
+    color = reflectivity * shade(intersectionInstanceIndex, intersectionPrimitiveIndex, intersectionPosition, intersectionNormal, intersectionMaterial);
   }
 
   return color;
@@ -400,6 +408,8 @@ vec3 shadeReflection(vec3 position, vec3 normal, Material material) {
 
 void main() {
   vec3 directColor = vec3(0.0, 0.0, 0.0);
+
+  Material rasterMaterial = getMaterialFromPrimitive(rasterInstanceIndex, gl_PrimitiveID);
 
   vec3 vertexA, vertexB, vertexC;
   getVertexFromIndices(rasterInstanceIndex, gl_PrimitiveID, vertexA, vertexB, vertexC);
@@ -409,7 +419,6 @@ void main() {
 
   vec3 normalA, normalB, normalC;
   getNormalFromIndices(rasterInstanceIndex, gl_PrimitiveID, normalA, normalB, normalC);
-  Material rasterMaterial = getMaterialFromPrimitive(rasterInstanceIndex, gl_PrimitiveID);
 
   vec3 interpolatedNormal = normalA * u + normalB * v + normalC * w;
 
