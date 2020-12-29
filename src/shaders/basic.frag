@@ -19,8 +19,7 @@ struct Material {
 layout(early_fragment_tests) in;
 
 layout(location = 0) in vec3 interpolatedPosition;
-layout(location = 1) in vec3 interpolatedNormal;
-flat layout(location = 2) in uint rasterInstanceIndex;
+flat layout(location = 1) in uint rasterInstanceIndex;
 
 layout(location = 0) out vec4 outColor;
 
@@ -75,6 +74,21 @@ vec3 alignHemisphereWithCoordinateSystem(vec3 hemisphere, vec3 up) {
   vec3 forward = cross(right, up);
 
   return hemisphere.x * right + hemisphere.y * up + hemisphere.z * forward;
+}
+
+void getBarycentricFromPoints(vec3 p, vec3 a, vec3 b, vec3 c, out float u, out float v, out float w) {
+  vec3 v0 = b - a; 
+  vec3 v1 = c - a; 
+  vec3 v2 = p - a;
+  float d00 = dot(v0, v0);
+  float d01 = dot(v0, v1);
+  float d11 = dot(v1, v1);
+  float d20 = dot(v2, v0);
+  float d21 = dot(v2, v1);
+  float denom = d00 * d11 - d01 * d01;
+  v = (d11 * d20 - d01 * d21) / denom;
+  w = (d00 * d21 - d01 * d20) / denom;
+  u = 1.0f - v - w;
 }
 
 ivec3 getIndicesFromPrimitive(uint instanceIndex, uint primitiveIndex) {
@@ -390,21 +404,23 @@ void main() {
   vec3 vertexA, vertexB, vertexC;
   getVertexFromIndices(rasterInstanceIndex, gl_PrimitiveID, vertexA, vertexB, vertexC);
 
+  float u, v, w;
+  getBarycentricFromPoints(interpolatedPosition, vertexA, vertexB, vertexC, u, v, w);
+
   vec3 normalA, normalB, normalC;
   getNormalFromIndices(rasterInstanceIndex, gl_PrimitiveID, normalA, normalB, normalC);
   Material rasterMaterial = getMaterialFromPrimitive(rasterInstanceIndex, gl_PrimitiveID);
 
-  // directColor = shade(rasterInstanceIndex, gl_PrimitiveID, interpolatedPosition, geometricNormal, rasterMaterial);
+  vec3 interpolatedNormal = normalA * u + normalB * v + normalC * w;
 
-  // if (rasterMaterial.dissolve < 1.0) {
-  //   vec3 refractedColor = shadeRefraction(interpolatedPosition, geometricNormal, rasterMaterial);
-  //   vec3 reflectedColor = shadeReflection(interpolatedPosition, geometricNormal, rasterMaterial);
+  directColor = shade(rasterInstanceIndex, gl_PrimitiveID, interpolatedPosition, interpolatedNormal, rasterMaterial);
 
-  //   directColor = directColor + refractedColor + reflectedColor;
-  // }
+  if (rasterMaterial.dissolve < 1.0) {
+    vec3 refractedColor = shadeRefraction(interpolatedPosition, interpolatedNormal, rasterMaterial);
+    vec3 reflectedColor = shadeReflection(interpolatedPosition, interpolatedNormal, rasterMaterial);
 
-  directColor = normalA;
-
+    directColor = directColor + refractedColor + reflectedColor;
+  }
   vec4 color = vec4(directColor, 1.0);
   if (camera.frameCount > 0) {
     vec4 previousColor = imageLoad(image, ivec2(gl_FragCoord.xy));
