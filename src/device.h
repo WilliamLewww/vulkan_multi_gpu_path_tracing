@@ -9,9 +9,8 @@
 #include "device_command_pool.h"
 #include "device_swapchain.h"
 #include "device_render_pass.h"
-#include "device_depth_resource.h"
-#include "device_framebuffers.h"
 #include "device_textures.h"
+#include "device_framebuffers.h"
 #include "model_instance_collection.h"
 #include "device_uniform_buffer_collection.h"
 #include "acceleration_structure_collection.h"
@@ -38,7 +37,6 @@ private:
   DeviceCommandPool* deviceCommandPool;
   DeviceSwapchain* deviceSwapchain;
   DeviceRenderPass* deviceRenderPass;
-  DeviceDepthResource* deviceDepthResource;
   DeviceFramebuffers* deviceFramebuffers;
   DeviceTextures* deviceTextures;
   ModelInstanceCollection* modelInstanceCollection;
@@ -62,9 +60,8 @@ public:
   void createCommandPool();
   void createSwapchain(VkSurfaceKHR surface);
   void createRenderPass();
-  void createDepthResource();
-  void createFramebuffers();
   void createTextures();
+  void createFramebuffers();
   void createModelInstances(std::map<Model*, std::vector<Matrix4x4>> modelFrequencyMap);
   void createUniformBufferCollection(std::map<void*, uint32_t> bufferMap);
   void createAccelerationStructureCollection(std::map<Model*, std::vector<ModelInstance*>> modelInstanceMap);

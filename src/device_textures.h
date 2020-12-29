@@ -6,6 +6,10 @@
 
 class DeviceTextures {
 private:
+  VkImage depthImage;
+  VkDeviceMemory depthImageMemory;
+  VkImageView depthImageView;
+
   VkImageView rayTraceImageView;
   VkImage rayTraceImage;
   VkDeviceMemory rayTraceImageMemory;
@@ -14,11 +18,14 @@ private:
 public:
   DeviceTextures(VkDevice logicalDevice, 
                  VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties, 
-                 VkFormat swapchainImageFormat, 
+                 VkFormat swapchainImageFormat,
+                 VkExtent2D swapchainExtent, 
                  VkCommandPool commandPool, 
                  VkQueue queue);
   
   ~DeviceTextures();
+
+  VkImageView getDepthImageView();
 
   VkImage getRayTraceImage();
   VkDescriptorImageInfo* getDescriptorRayTraceImageInfoPointer();

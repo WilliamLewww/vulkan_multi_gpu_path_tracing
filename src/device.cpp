@@ -122,8 +122,13 @@ void Device::createRenderPass() {
   this->deviceRenderPass = new DeviceRenderPass(this->logicalDevice, this->deviceSwapchain->getSwapchainImageFormat());
 }
 
-void Device::createDepthResource() {
-  this->deviceDepthResource = new DeviceDepthResource(this->logicalDevice, this->physicalDeviceMemoryProperties, this->deviceSwapchain->getSwapchainExtent());
+void Device::createTextures() {
+  this->deviceTextures = new DeviceTextures(this->logicalDevice, 
+                                            this->physicalDeviceMemoryProperties, 
+                                            this->deviceSwapchain->getSwapchainImageFormat(),
+                                            this->deviceSwapchain->getSwapchainExtent(),
+                                            this->deviceCommandPool->getCommandPool(), 
+                                            this->deviceQueue->getGraphicsQueue());
 }
 
 void Device::createFramebuffers() {
@@ -132,15 +137,7 @@ void Device::createFramebuffers() {
                                                     this->deviceSwapchain->getSwapchainExtent(),
                                                     this->deviceSwapchain->getSwapchainImageViewList(),
                                                     this->deviceRenderPass->getRenderPass(),
-                                                    this->deviceDepthResource->getDepthImageView());
-}
-
-void Device::createTextures() {
-  this->deviceTextures = new DeviceTextures(this->logicalDevice, 
-                                            this->physicalDeviceMemoryProperties, 
-                                            this->deviceSwapchain->getSwapchainImageFormat(), 
-                                            this->deviceCommandPool->getCommandPool(), 
-                                            this->deviceQueue->getGraphicsQueue());
+                                                    this->deviceTextures->getDepthImageView());
 }
 
 void Device::createModelInstances(std::map<Model*, std::vector<Matrix4x4>> modelFrequencyMap) {

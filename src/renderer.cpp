@@ -24,9 +24,8 @@ Renderer::Renderer(VkInstance vulkanInstance, VkSurfaceKHR surface, ModelCollect
   this->displayDevice->createCommandPool();
   this->displayDevice->createSwapchain(surface);
   this->displayDevice->createRenderPass();
-  this->displayDevice->createDepthResource();
-  this->displayDevice->createFramebuffers();
   this->displayDevice->createTextures();
+  this->displayDevice->createFramebuffers();
 
   std::map<Model*, std::vector<Matrix4x4>> modelFrequencyMap = {
     {
