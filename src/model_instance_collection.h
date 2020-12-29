@@ -50,8 +50,14 @@ private:
   VkBuffer totalVertexBuffer;
   VkDeviceMemory totalVertexBufferMemory;
 
+  VkBuffer totalNormalBuffer;
+  VkDeviceMemory totalNormalBufferMemory;
+
   VkBuffer totalIndexBuffer;
   VkDeviceMemory totalIndexBufferMemory;
+
+  VkBuffer totalNormalIndexBuffer;
+  VkDeviceMemory totalNormalIndexBufferMemory;
 
   VkBuffer totalMaterialIndexBuffer;
   VkDeviceMemory totalMaterialIndexBufferMemory;
@@ -63,7 +69,9 @@ private:
   VkDeviceMemory totalMaterialLightBufferMemory;
 
   VkDescriptorBufferInfo descriptorTotalVertexBufferInfo;
+  VkDescriptorBufferInfo descriptorTotalNormalBufferInfo;
   VkDescriptorBufferInfo descriptorTotalIndexBufferInfo;
+  VkDescriptorBufferInfo descriptorTotalNormalIndexBufferInfo;
   VkDescriptorBufferInfo descriptorTotalMaterialIndexBufferInfo;
   VkDescriptorBufferInfo descriptorTotalMaterialBufferInfo;
   VkDescriptorBufferInfo descriptorTotalMaterialLightBufferInfo;
@@ -73,14 +81,16 @@ private:
                           VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties, 
                           VkCommandPool commandPool,
                           VkQueue queue,
-                          std::vector<float>* totalVertexList = NULL);
+                          std::vector<float>* totalVertexList = NULL,
+                          std::vector<float>* totalNormalList = NULL);
 
   void createIndexBuffer(Model* model,
                          VkDevice logicalDevice, 
                          VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties, 
                          VkCommandPool commandPool,
                          VkQueue queue,
-                         std::vector<uint32_t>* totalIndexList = NULL);
+                         std::vector<uint32_t>* totalIndexList = NULL,
+                         std::vector<uint32_t>* totalNormalIndexList = NULL);
 
   void createMaterialBuffers(Model* model,
                              VkDevice logicalDevice, 
@@ -92,7 +102,9 @@ private:
                              LightContainer* totalMaterialLightList = NULL);
 
   void createTotalBuffers(std::vector<float> totalVertexList,
+                          std::vector<float> totalNormalList,
                           std::vector<uint32_t> totalIndexList,
+                          std::vector<uint32_t> totalNormalIndexList,
                           std::vector<uint32_t> totalMaterialIndexList,
                           std::vector<Material> totalMaterialList,
                           LightContainer totalMaterialLightList,
@@ -117,7 +129,9 @@ public:
   std::map<Model*, std::vector<ModelInstance*>> getModelInstanceMap();
 
   VkDescriptorBufferInfo* getDescriptorTotalVertexBufferInfoPointer();
+  VkDescriptorBufferInfo* getDescriptorTotalNormalBufferInfoPointer();
   VkDescriptorBufferInfo* getDescriptorTotalIndexBufferInfoPointer();
+  VkDescriptorBufferInfo* getDescriptorTotalNormalIndexBufferInfoPointer();
   VkDescriptorBufferInfo* getDescriptorTotalMaterialIndexBufferInfoPointer();
   VkDescriptorBufferInfo* getDescriptorTotalMaterialBufferInfoPointer();
   VkDescriptorBufferInfo* getDescriptorTotalMaterialLightBufferInfoPointer();

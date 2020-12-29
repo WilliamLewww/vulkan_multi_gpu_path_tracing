@@ -46,9 +46,11 @@ layout(binding = 3, set = 0, rgba32f) uniform image2D image;
 
 layout(binding = 0, set = 1) buffer IndexBuffer { uint data[]; } indexBuffer;
 layout(binding = 1, set = 1) buffer VertexBuffer { float data[]; } vertexBuffer;
-layout(binding = 2, set = 1) buffer MaterialIndexBuffer { uint data[]; } materialIndexBuffer;
-layout(binding = 3, set = 1) buffer MaterialBuffer { Material data[]; } materialBuffer;
-layout(binding = 4, set = 1) buffer MaterialLightBuffer { 
+layout(binding = 2, set = 1) buffer NormalIndexBuffer { uint data[]; } normalIndexBuffer;
+layout(binding = 3, set = 1) buffer NormalBuffer { float data[]; } normalBuffer;
+layout(binding = 4, set = 1) buffer MaterialIndexBuffer { uint data[]; } materialIndexBuffer;
+layout(binding = 5, set = 1) buffer MaterialBuffer { Material data[]; } materialBuffer;
+layout(binding = 6, set = 1) buffer MaterialLightBuffer { 
   uint count; 
   uint indicesPrimitive[64];
   uint indicesInstance[64];

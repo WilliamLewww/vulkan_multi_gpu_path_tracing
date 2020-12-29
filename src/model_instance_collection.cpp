@@ -9,7 +9,9 @@ ModelInstanceCollection::ModelInstanceCollection(std::map<Model*, std::vector<Ma
   int modelIndex = 0;
   int instanceIndex = 0;
   std::vector<float> totalVertexList;
+  std::vector<float> totalNormalList;
   std::vector<uint32_t> totalIndexList;
+  std::vector<uint32_t> totalNormalIndexList;
   std::vector<uint32_t> totalMaterialIndexList;
   std::vector<Material> totalMaterialList;
   LightContainer lightContainer = {
@@ -24,8 +26,8 @@ ModelInstanceCollection::ModelInstanceCollection(std::map<Model*, std::vector<Ma
   uint32_t cumulativeMaterialOffset = 0;
 
   for (std::pair<Model*, std::vector<Matrix4x4>> pair : modelFrequencyMap) {
-    this->createVertexBuffer(pair.first, logicalDevice, physicalDeviceMemoryProperties, commandPool, queue, &totalVertexList);
-    this->createIndexBuffer(pair.first, logicalDevice, physicalDeviceMemoryProperties, commandPool, queue, &totalIndexList);
+    this->createVertexBuffer(pair.first, logicalDevice, physicalDeviceMemoryProperties, commandPool, queue, &totalVertexList, &totalNormalList);
+    this->createIndexBuffer(pair.first, logicalDevice, physicalDeviceMemoryProperties, commandPool, queue, &totalIndexList, &totalNormalIndexList);
     this->createMaterialBuffers(pair.first, logicalDevice, physicalDeviceMemoryProperties, commandPool, queue, &totalMaterialIndexList, &totalMaterialList, &lightContainer);
 
     for (int x = 0; x < pair.second.size(); x++) {
@@ -73,7 +75,9 @@ ModelInstanceCollection::ModelInstanceCollection(std::map<Model*, std::vector<Ma
   memcpy(132 + (float*)&this->instanceUniform, totalTransformList.data(), sizeof(float) * totalTransformList.size());
 
   createTotalBuffers(totalVertexList,
+                     totalNormalList,
                      totalIndexList,
+                     totalNormalIndexList,
                      totalMaterialIndexList,
                      totalMaterialList,
                      lightContainer,
@@ -88,8 +92,20 @@ ModelInstanceCollection::ModelInstanceCollection(std::map<Model*, std::vector<Ma
     .range = VK_WHOLE_SIZE
   };
 
+  this->descriptorTotalNormalBufferInfo = {
+    .buffer = this->totalNormalBuffer,
+    .offset = 0,
+    .range = VK_WHOLE_SIZE
+  };
+
   this->descriptorTotalIndexBufferInfo = {
     .buffer = this->totalIndexBuffer,
+    .offset = 0,
+    .range = VK_WHOLE_SIZE
+  };
+
+  this->descriptorTotalNormalIndexBufferInfo = {
+    .buffer = this->totalNormalIndexBuffer,
     .offset = 0,
     .range = VK_WHOLE_SIZE
   };
@@ -124,12 +140,15 @@ void ModelInstanceCollection::createVertexBuffer(Model* model,
                                                  VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties, 
                                                  VkCommandPool commandPool,
                                                  VkQueue queue,
-                                                 std::vector<float>* totalVertexList) {
+                                                 std::vector<float>* totalVertexList,
+                                                 std::vector<float>* totalNormalList) {
 
   VkDeviceSize bufferSize = sizeof(float) * model->getVertexCount();
 
   std::vector<float> vertexList = model->getVertices();
+  std::vector<float> normalList = model->getNormals();
   std::copy(vertexList.begin(), vertexList.end(), std::back_inserter(*totalVertexList));
+  std::copy(normalList.begin(), normalList.end(), std::back_inserter(*totalNormalList));
   
   VkBuffer stagingBuffer;
   VkDeviceMemory stagingBufferMemory;
@@ -165,14 +184,16 @@ void ModelInstanceCollection::createIndexBuffer(Model* model,
                                                 VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties, 
                                                 VkCommandPool commandPool,
                                                 VkQueue queue,
-                                                std::vector<uint32_t>* totalIndexList) {
+                                                std::vector<uint32_t>* totalIndexList,
+                                                std::vector<uint32_t>* totalNormalIndexList) {
 
   VkDeviceSize bufferSize = sizeof(uint32_t) * model->getTotalIndexCount();
 
   std::vector<uint32_t> positionIndexList(model->getTotalIndexCount());
   for (int x = 0; x < model->getTotalIndexCount(); x++) {
     positionIndexList[x] = model->getTotalIndex(x).vertex_index;
-    totalIndexList->push_back(positionIndexList[x]);
+    totalIndexList->push_back(model->getTotalIndex(x).vertex_index);
+    totalNormalIndexList->push_back(model->getTotalIndex(x).normal_index);
   }
   
   VkBuffer stagingBuffer;
@@ -242,7 +263,9 @@ void ModelInstanceCollection::createMaterialBuffers(Model* model,
 }
 
 void ModelInstanceCollection::createTotalBuffers(std::vector<float> totalVertexList,
+                                                 std::vector<float> totalNormalList,
                                                  std::vector<uint32_t> totalIndexList,
+                                                 std::vector<uint32_t> totalNormalIndexList,
                                                  std::vector<uint32_t> totalMaterialIndexList,
                                                  std::vector<Material> totalMaterialList,
                                                  LightContainer lightContainer,
@@ -281,6 +304,36 @@ void ModelInstanceCollection::createTotalBuffers(std::vector<float> totalVertexL
   vkDestroyBuffer(logicalDevice, totalVertexStagingBuffer, NULL);
   vkFreeMemory(logicalDevice, totalVertexStagingBufferMemory, NULL);
 
+  VkDeviceSize totalNormalBufferSize = sizeof(float) * totalNormalList.size();
+  
+  VkBuffer totalNormalStagingBuffer;
+  VkDeviceMemory totalNormalStagingBufferMemory;
+  BufferFactory::createBuffer(logicalDevice,
+                              physicalDeviceMemoryProperties,
+                              totalNormalBufferSize, 
+                              VK_BUFFER_USAGE_TRANSFER_SRC_BIT, 
+                              VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, 
+                              &totalNormalStagingBuffer, 
+                              &totalNormalStagingBufferMemory);
+
+  void* totalNormalData;
+  vkMapMemory(logicalDevice, totalNormalStagingBufferMemory, 0, totalNormalBufferSize, 0, &totalNormalData);
+  memcpy(totalNormalData, totalNormalList.data(), totalNormalBufferSize);
+  vkUnmapMemory(logicalDevice, totalNormalStagingBufferMemory);
+
+  BufferFactory::createBuffer(logicalDevice, 
+                              physicalDeviceMemoryProperties,
+                              totalNormalBufferSize, 
+                              VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT, 
+                              VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 
+                              &this->totalNormalBuffer, 
+                              &this->totalNormalBufferMemory);  
+
+  BufferFactory::copyBuffer(logicalDevice, commandPool, queue, totalNormalStagingBuffer, this->totalNormalBuffer, totalNormalBufferSize);
+
+  vkDestroyBuffer(logicalDevice, totalNormalStagingBuffer, NULL);
+  vkFreeMemory(logicalDevice, totalNormalStagingBufferMemory, NULL);
+
   VkDeviceSize totalIndexBufferSize = sizeof(uint32_t) * totalIndexList.size();
   
   VkBuffer totalIndexStagingBuffer;
@@ -310,6 +363,36 @@ void ModelInstanceCollection::createTotalBuffers(std::vector<float> totalVertexL
 
   vkDestroyBuffer(logicalDevice, totalIndexStagingBuffer, NULL);
   vkFreeMemory(logicalDevice, totalIndexStagingBufferMemory, NULL);
+
+  VkDeviceSize totalNormalIndexBufferSize = sizeof(uint32_t) * totalNormalIndexList.size();
+  
+  VkBuffer totalNormalIndexStagingBuffer;
+  VkDeviceMemory totalNormalIndexStagingBufferMemory;
+  BufferFactory::createBuffer(logicalDevice,
+                              physicalDeviceMemoryProperties,
+                              totalNormalIndexBufferSize, 
+                              VK_BUFFER_USAGE_TRANSFER_SRC_BIT, 
+                              VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, 
+                              &totalNormalIndexStagingBuffer, 
+                              &totalNormalIndexStagingBufferMemory);
+
+  void* totalNormalIndexData;
+  vkMapMemory(logicalDevice, totalNormalIndexStagingBufferMemory, 0, totalNormalIndexBufferSize, 0, &totalNormalIndexData);
+  memcpy(totalNormalIndexData, totalNormalIndexList.data(), totalNormalIndexBufferSize);
+  vkUnmapMemory(logicalDevice, totalNormalIndexStagingBufferMemory);
+
+  BufferFactory::createBuffer(logicalDevice, 
+                              physicalDeviceMemoryProperties,
+                              totalNormalIndexBufferSize, 
+                              VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT, 
+                              VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 
+                              &this->totalNormalIndexBuffer, 
+                              &this->totalNormalIndexBufferMemory);  
+
+  BufferFactory::copyBuffer(logicalDevice, commandPool, queue, totalNormalIndexStagingBuffer, this->totalNormalIndexBuffer, totalNormalIndexBufferSize);
+
+  vkDestroyBuffer(logicalDevice, totalNormalIndexStagingBuffer, NULL);
+  vkFreeMemory(logicalDevice, totalNormalIndexStagingBufferMemory, NULL);
 
   VkDeviceSize totalMaterialIndexBufferSize = sizeof(uint32_t) * totalMaterialIndexList.size();
   
@@ -427,8 +510,16 @@ VkDescriptorBufferInfo* ModelInstanceCollection::getDescriptorTotalVertexBufferI
   return &this->descriptorTotalVertexBufferInfo;
 }
 
+VkDescriptorBufferInfo* ModelInstanceCollection::getDescriptorTotalNormalBufferInfoPointer() {
+  return &this->descriptorTotalNormalBufferInfo;
+}
+
 VkDescriptorBufferInfo* ModelInstanceCollection::getDescriptorTotalIndexBufferInfoPointer() {
   return &this->descriptorTotalIndexBufferInfo;
+}
+
+VkDescriptorBufferInfo* ModelInstanceCollection::getDescriptorTotalNormalIndexBufferInfoPointer() {
+  return &this->descriptorTotalNormalIndexBufferInfo;
 }
 
 VkDescriptorBufferInfo* ModelInstanceCollection::getDescriptorTotalMaterialIndexBufferInfoPointer() {

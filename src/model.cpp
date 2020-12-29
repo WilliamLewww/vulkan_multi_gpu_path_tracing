@@ -39,6 +39,10 @@ std::vector<float> Model::getVertices() {
   return this->attrib.vertices;
 }
 
+std::vector<float> Model::getNormals() {
+  return this->attrib.normals;
+}
+
 uint32_t Model::getTotalIndexCount() {
   uint32_t indexCount = 0;
   for (int x = 0; x < this->shapes.size(); x++) {
