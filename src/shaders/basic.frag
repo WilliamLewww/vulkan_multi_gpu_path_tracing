@@ -430,6 +430,7 @@ void main() {
 
     directColor = directColor + refractedColor + reflectedColor;
   }
+  
   vec4 color = vec4(directColor, 1.0);
   if (camera.frameCount > 0) {
     vec4 previousColor = imageLoad(image, ivec2(gl_FragCoord.xy));
