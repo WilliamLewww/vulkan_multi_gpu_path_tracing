@@ -1,6 +1,6 @@
-#include "device_swapchain.h"
+#include "swapchain.h"
 
-DeviceSwapchain::DeviceSwapchain(VkDevice logicalDevice, VkPhysicalDevice physicalDevice, VkSurfaceKHR surface, uint32_t graphicsQueueIndex, uint32_t presentQueueIndex) {
+Swapchain::Swapchain(VkDevice logicalDevice, VkPhysicalDevice physicalDevice, VkSurfaceKHR surface, uint32_t graphicsQueueIndex, uint32_t presentQueueIndex) {
   VkSurfaceCapabilitiesKHR surfaceCapabilities;
   vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &surfaceCapabilities);
   
@@ -97,30 +97,30 @@ DeviceSwapchain::DeviceSwapchain(VkDevice logicalDevice, VkPhysicalDevice physic
   }
 }
 
-DeviceSwapchain::~DeviceSwapchain() {
+Swapchain::~Swapchain() {
 
 }
 
-uint32_t DeviceSwapchain::getSwapchainImageCount() {
+uint32_t Swapchain::getSwapchainImageCount() {
   return this->swapchainImageCount;
 }
 
-VkFormat DeviceSwapchain::getSwapchainImageFormat() {
+VkFormat Swapchain::getSwapchainImageFormat() {
   return this->swapchainImageFormat;
 }
 
-VkExtent2D DeviceSwapchain::getSwapchainExtent() {
+VkExtent2D Swapchain::getSwapchainExtent() {
   return this->swapchainExtent;
 }
 
-VkSwapchainKHR DeviceSwapchain::getSwapchain() {
+VkSwapchainKHR Swapchain::getSwapchain() {
   return this->swapchain;
 }
 
-std::vector<VkImageView> DeviceSwapchain::getSwapchainImageViewList() {
+std::vector<VkImageView> Swapchain::getSwapchainImageViewList() {
   return this->swapchainImageViewList;
 }
 
-std::vector<VkImage> DeviceSwapchain::getSwapchainImageList() {
+std::vector<VkImage> Swapchain::getSwapchainImageList() {
   return this->swapchainImageList;
 }

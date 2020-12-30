@@ -1,6 +1,6 @@
-#include "device_render_pass.h"
+#include "render_pass.h"
 
-DeviceRenderPass::DeviceRenderPass(VkDevice logicalDevice, VkFormat swapchainImageFormat) {
+RenderPass::RenderPass(VkDevice logicalDevice, VkFormat swapchainImageFormat) {
   VkAttachmentDescription colorAttachment = {
     .flags = 0,
     .format = swapchainImageFormat,
@@ -104,10 +104,10 @@ DeviceRenderPass::DeviceRenderPass(VkDevice logicalDevice, VkFormat swapchainIma
   }
 }
 
-DeviceRenderPass::~DeviceRenderPass() {
+RenderPass::~RenderPass() {
 
 }
 
-VkRenderPass DeviceRenderPass::getRenderPass() {
+VkRenderPass RenderPass::getRenderPass() {
   return this->renderPass;
 }

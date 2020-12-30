@@ -6,9 +6,9 @@
 #include <stdio.h>
 
 #include "device_queue.h"
-#include "device_command_pool.h"
-#include "device_swapchain.h"
-#include "device_render_pass.h"
+#include "command_pool.h"
+#include "swapchain.h"
+#include "render_pass.h"
 #include "device_textures.h"
 #include "device_framebuffers.h"
 #include "model_instance_collection.h"
@@ -34,9 +34,9 @@ private:
   std::vector<GraphicsPipeline*> graphicsPipelineList;
 
   DeviceQueue* deviceQueue;
-  DeviceCommandPool* deviceCommandPool;
-  DeviceSwapchain* deviceSwapchain;
-  DeviceRenderPass* deviceRenderPass;
+  CommandPool* commandPool;
+  Swapchain* swapchain;
+  RenderPass* renderPass;
   DeviceFramebuffers* deviceFramebuffers;
   DeviceTextures* deviceTextures;
   ModelInstanceCollection* modelInstanceCollection;

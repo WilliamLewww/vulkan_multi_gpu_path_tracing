@@ -3,12 +3,12 @@
 #include <vulkan/vulkan.h>
 #include <stdio.h>
 
-class DeviceCommandPool {
+class CommandPool {
 private:
   VkCommandPool commandPool;
 public:
-  DeviceCommandPool(VkDevice logicalDevice, uint32_t queueIndex);
-  ~DeviceCommandPool();
+  CommandPool(VkDevice logicalDevice, uint32_t queueIndex);
+  ~CommandPool();
 
   VkCommandPool getCommandPool();
 };

@@ -111,32 +111,32 @@ void Device::createLogicalDevice(std::vector<const char*> extensions) {
 }
 
 void Device::createCommandPool() {
-  this->deviceCommandPool = new DeviceCommandPool(this->logicalDevice, this->deviceQueue->getGraphicsQueueIndex());
+  this->commandPool = new CommandPool(this->logicalDevice, this->deviceQueue->getGraphicsQueueIndex());
 }
 
 void Device::createSwapchain(VkSurfaceKHR surface) {
-  this->deviceSwapchain = new DeviceSwapchain(this->logicalDevice, this->physicalDevice, surface, this->deviceQueue->getGraphicsQueueIndex(), this->deviceQueue->getPresentQueueIndex());
+  this->swapchain = new Swapchain(this->logicalDevice, this->physicalDevice, surface, this->deviceQueue->getGraphicsQueueIndex(), this->deviceQueue->getPresentQueueIndex());
 }
 
 void Device::createRenderPass() {
-  this->deviceRenderPass = new DeviceRenderPass(this->logicalDevice, this->deviceSwapchain->getSwapchainImageFormat());
+  this->renderPass = new RenderPass(this->logicalDevice, this->swapchain->getSwapchainImageFormat());
 }
 
 void Device::createTextures() {
   this->deviceTextures = new DeviceTextures(this->logicalDevice, 
                                             this->physicalDeviceMemoryProperties, 
-                                            this->deviceSwapchain->getSwapchainImageFormat(),
-                                            this->deviceSwapchain->getSwapchainExtent(),
-                                            this->deviceCommandPool->getCommandPool(), 
+                                            this->swapchain->getSwapchainImageFormat(),
+                                            this->swapchain->getSwapchainExtent(),
+                                            this->commandPool->getCommandPool(), 
                                             this->deviceQueue->getGraphicsQueue());
 }
 
 void Device::createFramebuffers() {
   this->deviceFramebuffers = new DeviceFramebuffers(this->logicalDevice, 
-                                                    this->deviceSwapchain->getSwapchainImageCount(), 
-                                                    this->deviceSwapchain->getSwapchainExtent(),
-                                                    this->deviceSwapchain->getSwapchainImageViewList(),
-                                                    this->deviceRenderPass->getRenderPass(),
+                                                    this->swapchain->getSwapchainImageCount(), 
+                                                    this->swapchain->getSwapchainExtent(),
+                                                    this->swapchain->getSwapchainImageViewList(),
+                                                    this->renderPass->getRenderPass(),
                                                     this->deviceTextures->getDepthImageView());
 }
 
@@ -144,7 +144,7 @@ void Device::createModelInstances(std::map<Model*, std::vector<Matrix4x4>> model
   this->modelInstanceCollection = new ModelInstanceCollection(modelFrequencyMap,
                                                               this->logicalDevice, 
                                                               this->physicalDeviceMemoryProperties, 
-                                                              this->deviceCommandPool->getCommandPool(),
+                                                              this->commandPool->getCommandPool(),
                                                               this->deviceQueue->getGraphicsQueue());
 }
 
@@ -153,7 +153,7 @@ void Device::createUniformBufferCollection(std::map<void*, uint32_t> bufferMap) 
 }
 
 void Device::createAccelerationStructureCollection(std::map<Model*, std::vector<ModelInstance*>> modelInstanceMap) {
-  this->accelerationStructureCollection = new AccelerationStructureCollection(modelInstanceMap, this->logicalDevice, this->physicalDeviceMemoryProperties, this->deviceCommandPool->getCommandPool(), this->deviceQueue->getComputeQueue());
+  this->accelerationStructureCollection = new AccelerationStructureCollection(modelInstanceMap, this->logicalDevice, this->physicalDeviceMemoryProperties, this->commandPool->getCommandPool(), this->deviceQueue->getComputeQueue());
 }
 
 void Device::createDescriptorSetCollection(std::vector<std::vector<DeviceDescriptor*>> separatedDeviceDescriptorList) {
@@ -161,21 +161,21 @@ void Device::createDescriptorSetCollection(std::vector<std::vector<DeviceDescrip
 }
 
 void Device::createGraphicsPipeline(std::string vertexShaderFile) {
-  this->graphicsPipelineList.push_back(new GraphicsPipeline(vertexShaderFile, this->deviceDescriptorSetCollection->getDescriptorSetLayoutList(), this->logicalDevice, this->deviceSwapchain->getSwapchainExtent(), this->deviceRenderPass->getRenderPass()));
+  this->graphicsPipelineList.push_back(new GraphicsPipeline(vertexShaderFile, this->deviceDescriptorSetCollection->getDescriptorSetLayoutList(), this->logicalDevice, this->swapchain->getSwapchainExtent(), this->renderPass->getRenderPass()));
 }
 
 void Device::createGraphicsPipeline(std::string vertexShaderFile, std::string fragmentShaderFile) {
-  this->graphicsPipelineList.push_back(new GraphicsPipeline(vertexShaderFile, fragmentShaderFile, this->deviceDescriptorSetCollection->getDescriptorSetLayoutList(), this->logicalDevice, this->deviceSwapchain->getSwapchainExtent(), this->deviceRenderPass->getRenderPass()));
+  this->graphicsPipelineList.push_back(new GraphicsPipeline(vertexShaderFile, fragmentShaderFile, this->deviceDescriptorSetCollection->getDescriptorSetLayoutList(), this->logicalDevice, this->swapchain->getSwapchainExtent(), this->renderPass->getRenderPass()));
 }
 
 void Device::createRenderCommandBuffers() {
   this->renderCommandBuffers = new RenderCommandBuffers(this->logicalDevice, 
-                                                        this->deviceSwapchain->getSwapchainImageCount(), 
-                                                        this->deviceSwapchain->getSwapchainExtent(), 
-                                                        this->deviceCommandPool->getCommandPool(), 
-                                                        this->deviceRenderPass->getRenderPass(), 
+                                                        this->swapchain->getSwapchainImageCount(), 
+                                                        this->swapchain->getSwapchainExtent(), 
+                                                        this->commandPool->getCommandPool(), 
+                                                        this->renderPass->getRenderPass(), 
                                                         this->deviceFramebuffers->getFramebufferList(),
-                                                        this->deviceSwapchain->getSwapchainImageList(),
+                                                        this->swapchain->getSwapchainImageList(),
                                                         this->deviceTextures->getRayTraceImage(),
                                                         this->graphicsPipelineList[0]->getGraphicsPipeline(),
                                                         this->graphicsPipelineList[1]->getGraphicsPipeline(),
@@ -185,7 +185,7 @@ void Device::createRenderCommandBuffers() {
 }
 
 void Device::createSynchronizationObjects() {
-  this->synchronizationObjects = new SynchronizationObjects(this->logicalDevice, this->framesInFlight, this->deviceSwapchain->getSwapchainImageCount());
+  this->synchronizationObjects = new SynchronizationObjects(this->logicalDevice, this->framesInFlight, this->swapchain->getSwapchainImageCount());
 }
 
 void Device::drawFrame() {
@@ -197,7 +197,7 @@ void Device::drawFrame() {
   vkWaitForFences(this->logicalDevice, 1, &inFlightFence, VK_TRUE, UINT64_MAX);
     
   uint32_t imageIndex;
-  vkAcquireNextImageKHR(this->logicalDevice, this->deviceSwapchain->getSwapchain(), UINT64_MAX, imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
+  vkAcquireNextImageKHR(this->logicalDevice, this->swapchain->getSwapchain(), UINT64_MAX, imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
     
   if (imageInFlight != VK_NULL_HANDLE) {
     vkWaitForFences(this->logicalDevice, 1, &imageInFlight, VK_TRUE, UINT64_MAX);
@@ -226,7 +226,7 @@ void Device::drawFrame() {
     printf("failed to submit draw command buffer\n");
   }
 
-  VkSwapchainKHR swapchains[1] = {this->deviceSwapchain->getSwapchain()};
+  VkSwapchainKHR swapchains[1] = {this->swapchain->getSwapchain()};
 
   VkPresentInfoKHR presentInfo = {
     .sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,

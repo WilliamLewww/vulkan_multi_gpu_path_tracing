@@ -4,12 +4,12 @@
 #include <vector>
 #include <stdio.h>
 
-class DeviceRenderPass {
+class RenderPass {
 private:
   VkRenderPass renderPass;
 public:
-  DeviceRenderPass(VkDevice logicalDevice, VkFormat swapchainImageFormat);
-  ~DeviceRenderPass();
+  RenderPass(VkDevice logicalDevice, VkFormat swapchainImageFormat);
+  ~RenderPass();
 
   VkRenderPass getRenderPass();
 };

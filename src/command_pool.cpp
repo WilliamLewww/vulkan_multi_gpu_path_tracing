@@ -1,6 +1,6 @@
-#include "device_command_pool.h"
+#include "command_pool.h"
 
-DeviceCommandPool::DeviceCommandPool(VkDevice logicalDevice, uint32_t queueIndex) {
+CommandPool::CommandPool(VkDevice logicalDevice, uint32_t queueIndex) {
   VkCommandPoolCreateInfo commandPoolCreateInfo = {
     .sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
     .pNext = NULL,
@@ -13,10 +13,10 @@ DeviceCommandPool::DeviceCommandPool(VkDevice logicalDevice, uint32_t queueIndex
   }
 }
 
-DeviceCommandPool::~DeviceCommandPool() {
+CommandPool::~CommandPool() {
 
 }
 
-VkCommandPool DeviceCommandPool::getCommandPool() {
+VkCommandPool CommandPool::getCommandPool() {
   return this->commandPool;
 }
