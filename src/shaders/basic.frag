@@ -135,24 +135,23 @@ ivec3 getNormalIndicesFromPrimitive(uint instanceIndex, uint primitiveIndex) {
 
 void getNormalFromIndices(uint instanceIndex, uint primitiveIndex, out vec3 normalA, out vec3 normalB, out vec3 normalC) {
   uint normalOffset = instanceDescriptionContainer.normalOffsets[instanceIndex];
-  mat4 transformMatrix = instanceDescriptionContainer.transformMatrix[instanceIndex];
 
   ivec3 indices = getNormalIndicesFromPrimitive(instanceIndex, primitiveIndex);
 
-  normalA = (transformMatrix * vec4(normalBuffer.data[3 * indices.x + 0 + normalOffset], 
+  normalA = vec4(normalBuffer.data[3 * indices.x + 0 + normalOffset], 
              normalBuffer.data[3 * indices.x + 1 + normalOffset], 
              normalBuffer.data[3 * indices.x + 2 + normalOffset], 
-             1.0)).xyz;
+             1.0).xyz;
 
-  normalB = (transformMatrix * vec4(normalBuffer.data[3 * indices.y + 0 + normalOffset], 
+  normalB =  vec4(normalBuffer.data[3 * indices.y + 0 + normalOffset], 
              normalBuffer.data[3 * indices.y + 1 + normalOffset], 
              normalBuffer.data[3 * indices.y + 2 + normalOffset], 
-             1.0)).xyz;
+             1.0).xyz;
   
-  normalC = (transformMatrix * vec4(normalBuffer.data[3 * indices.z + 0 + normalOffset], 
+  normalC =  vec4(normalBuffer.data[3 * indices.z + 0 + normalOffset], 
              normalBuffer.data[3 * indices.z + 1 + normalOffset], 
              normalBuffer.data[3 * indices.z + 2 + normalOffset], 
-             1.0)).xyz;
+             1.0).xyz;
 }
 
 Material getMaterialFromPrimitive(uint instanceIndex, uint primitiveIndex) {

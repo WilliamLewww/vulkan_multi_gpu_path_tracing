@@ -39,6 +39,12 @@ Renderer::Renderer(VkInstance vulkanInstance, VkSurfaceKHR surface, ModelCollect
       {
         createTranslateMatrix4x4(0, 0, 0)
       }
+    },
+    {
+      modelCollection->getModel(2), 
+      {
+        createTranslateMatrix4x4(0, 0, 3)
+      }
     }
   };
   this->displayDevice->createModelInstances(modelFrequencyMap);
