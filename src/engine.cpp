@@ -3,7 +3,7 @@
 Engine::Engine() {
   this->camera = new Camera();
 
-  std::vector<std::string> modelFileNameList {"cube_scene.obj", "transparent.obj"};
+  std::vector<std::string> modelFileNameList {"transparent.obj"};
   this->modelCollection = new ModelCollection(modelFileNameList);
 
   this->window = new Window(800, 600);
