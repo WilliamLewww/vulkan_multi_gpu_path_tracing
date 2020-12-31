@@ -18,9 +18,8 @@ public:
                       std::vector<VkFramebuffer> framebufferList,
                       std::vector<VkImage> swapchainImageList,
                       VkImage rayTraceImage,
-                      VkPipeline depthPipeline,
-                      VkPipeline pipeline,
-                      VkPipelineLayout pipelineLayout,
+                      std::vector<VkPipeline> pipelineList,
+                      std::vector<VkPipelineLayout> pipelineLayoutList,
                       std::vector<VkDescriptorSet> descriptorSetList,
                       std::vector<ModelInstance*> modelInstanceList);
 

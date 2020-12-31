@@ -173,9 +173,8 @@ void Device::createRenderCommandBuffers() {
                                                         this->framebuffers->getFramebufferList(),
                                                         this->swapchain->getSwapchainImageList(),
                                                         this->textures->getRayTraceImage(),
-                                                        this->graphicsPipelineCollection->getGraphicsPipeline(0),
-                                                        this->graphicsPipelineCollection->getGraphicsPipeline(1),
-                                                        this->graphicsPipelineCollection->getPipelineLayout(1),
+                                                        this->graphicsPipelineCollection->getGraphicsPipelineList(),
+                                                        this->graphicsPipelineCollection->getPipelineLayoutList(),
                                                         this->descriptorSetCollection->getDescriptorSetList(),
                                                         this->modelInstanceCollection->getModelInstanceList());
 }

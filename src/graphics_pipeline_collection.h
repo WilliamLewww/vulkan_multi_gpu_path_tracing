@@ -13,6 +13,6 @@ public:
                              VkRenderPass renderPass);
   ~GraphicsPipelineCollection();
 
-  VkPipelineLayout getPipelineLayout(int index);
-  VkPipeline getGraphicsPipeline(int index);
+  std::vector<VkPipelineLayout> getPipelineLayoutList();
+  std::vector<VkPipeline> getGraphicsPipelineList();
 };

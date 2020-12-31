@@ -8,9 +8,8 @@ RenderCommandBuffers::RenderCommandBuffers(VkDevice logicalDevice,
                                          std::vector<VkFramebuffer> framebufferList,
                                          std::vector<VkImage> swapchainImageList,
                                          VkImage rayTraceImage,
-                                         VkPipeline depthPipeline,
-                                         VkPipeline pipeline,
-                                         VkPipelineLayout pipelineLayout,
+                                         std::vector<VkPipeline> pipelineList,
+                                         std::vector<VkPipelineLayout> pipelineLayoutList,
                                          std::vector<VkDescriptorSet> descriptorSetList,
                                          std::vector<ModelInstance*> modelInstanceList) {
 
@@ -58,8 +57,8 @@ RenderCommandBuffers::RenderCommandBuffers(VkDevice logicalDevice,
     }
 
     vkCmdBeginRenderPass(this->commandBufferList[x], &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
-    vkCmdBindPipeline(this->commandBufferList[x], VK_PIPELINE_BIND_POINT_GRAPHICS, depthPipeline);
-    vkCmdBindDescriptorSets(this->commandBufferList[x], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, descriptorSetList.size(), descriptorSetList.data(), 0, 0);
+    vkCmdBindPipeline(this->commandBufferList[x], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineList[0]);
+    vkCmdBindDescriptorSets(this->commandBufferList[x], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayoutList[0], 0, descriptorSetList.size(), descriptorSetList.data(), 0, 0);
     for (int y = 0; y < modelInstanceList.size(); y++) {
       VkDeviceSize offset = 0;
       std::vector<VkBuffer> vertexBufferList = {modelInstanceList[y]->getVertexBuffer()};
@@ -69,8 +68,8 @@ RenderCommandBuffers::RenderCommandBuffers(VkDevice logicalDevice,
     }
 
     vkCmdNextSubpass(this->commandBufferList[x], VK_SUBPASS_CONTENTS_INLINE);
-    vkCmdBindPipeline(this->commandBufferList[x], VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
-    vkCmdBindDescriptorSets(this->commandBufferList[x], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, descriptorSetList.size(), descriptorSetList.data(), 0, 0);
+    vkCmdBindPipeline(this->commandBufferList[x], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineList[1]);
+    vkCmdBindDescriptorSets(this->commandBufferList[x], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayoutList[1], 0, descriptorSetList.size(), descriptorSetList.data(), 0, 0);
     for (int y = 0; y < modelInstanceList.size(); y++) {
       VkDeviceSize offset = 0;
       std::vector<VkBuffer> vertexBufferList = {modelInstanceList[y]->getVertexBuffer()};

@@ -32,10 +32,22 @@ GraphicsPipelineCollection::~GraphicsPipelineCollection() {
 
 }
 
-VkPipelineLayout GraphicsPipelineCollection::getPipelineLayout(int index) {
-  return this->graphicsPipelineList[index]->getPipelineLayout();
+std::vector<VkPipelineLayout> GraphicsPipelineCollection::getPipelineLayoutList() {
+  std::vector<VkPipelineLayout> pipelineLayoutList;
+
+  for (int x = 0; x < this->graphicsPipelineList.size(); x++) {
+    pipelineLayoutList.push_back(this->graphicsPipelineList[x]->getPipelineLayout());
+  }
+
+  return pipelineLayoutList;
 }
 
-VkPipeline GraphicsPipelineCollection::getGraphicsPipeline(int index) {
-  return this->graphicsPipelineList[index]->getGraphicsPipeline();
+std::vector<VkPipeline> GraphicsPipelineCollection::getGraphicsPipelineList() {
+  std::vector<VkPipeline> pipelineList;
+
+  for (int x = 0; x < this->graphicsPipelineList.size(); x++) {
+    pipelineList.push_back(this->graphicsPipelineList[x]->getGraphicsPipeline());
+  }
+
+  return pipelineList;
 }
