@@ -15,7 +15,7 @@
 #include "uniform_buffer_collection.h"
 #include "acceleration_structure_collection.h"
 #include "descriptor_set_collection.h"
-#include "graphics_pipeline.h"
+#include "graphics_pipeline_collection.h"
 #include "render_command_buffers.h"
 #include "synchronization_objects.h"
 
@@ -31,8 +31,6 @@ private:
 
   VkDevice logicalDevice;
 
-  std::vector<GraphicsPipeline*> graphicsPipelineList;
-
   DeviceQueue* deviceQueue;
   CommandPool* commandPool;
   Swapchain* swapchain;
@@ -43,6 +41,7 @@ private:
   UniformBufferCollection* uniformBufferCollection;
   AccelerationStructureCollection* accelerationStructureCollection;
   DescriptorSetCollection* descriptorSetCollection;
+  GraphicsPipelineCollection* graphicsPipelineCollection;
   RenderCommandBuffers* renderCommandBuffers;
   SynchronizationObjects* synchronizationObjects;
 public:
@@ -66,8 +65,7 @@ public:
   void createUniformBufferCollection(std::map<void*, uint32_t> bufferMap);
   void createAccelerationStructureCollection(std::map<Model*, std::vector<ModelInstance*>> modelInstanceMap);
   void createDescriptorSetCollection(std::vector<std::vector<Descriptor*>> separatedDescriptorList);
-  void createGraphicsPipeline(std::string vertexShaderFile);
-  void createGraphicsPipeline(std::string vertexShaderFile, std::string fragmentShaderFile);
+  void createGraphicsPipeline(std::vector<std::vector<std::string>> shaderList);
   void createRenderCommandBuffers();
   void createSynchronizationObjects();
 

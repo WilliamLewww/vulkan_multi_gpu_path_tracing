@@ -160,12 +160,8 @@ void Device::createDescriptorSetCollection(std::vector<std::vector<Descriptor*>>
   this->descriptorSetCollection = new DescriptorSetCollection(separatedDescriptorList, this->logicalDevice);
 }
 
-void Device::createGraphicsPipeline(std::string vertexShaderFile) {
-  this->graphicsPipelineList.push_back(new GraphicsPipeline(vertexShaderFile, this->descriptorSetCollection->getDescriptorSetLayoutList(), this->logicalDevice, this->swapchain->getSwapchainExtent(), this->renderPass->getRenderPass()));
-}
-
-void Device::createGraphicsPipeline(std::string vertexShaderFile, std::string fragmentShaderFile) {
-  this->graphicsPipelineList.push_back(new GraphicsPipeline(vertexShaderFile, fragmentShaderFile, this->descriptorSetCollection->getDescriptorSetLayoutList(), this->logicalDevice, this->swapchain->getSwapchainExtent(), this->renderPass->getRenderPass()));
+void Device::createGraphicsPipeline(std::vector<std::vector<std::string>> shaderList) {
+  this->graphicsPipelineCollection = new GraphicsPipelineCollection(shaderList, this->descriptorSetCollection->getDescriptorSetLayoutList(), this->logicalDevice, this->swapchain->getSwapchainExtent(), this->renderPass->getRenderPass());
 }
 
 void Device::createRenderCommandBuffers() {
@@ -177,9 +173,9 @@ void Device::createRenderCommandBuffers() {
                                                         this->framebuffers->getFramebufferList(),
                                                         this->swapchain->getSwapchainImageList(),
                                                         this->textures->getRayTraceImage(),
-                                                        this->graphicsPipelineList[0]->getGraphicsPipeline(),
-                                                        this->graphicsPipelineList[1]->getGraphicsPipeline(),
-                                                        this->graphicsPipelineList[1]->getPipelineLayout(),
+                                                        this->graphicsPipelineCollection->getGraphicsPipeline(0),
+                                                        this->graphicsPipelineCollection->getGraphicsPipeline(1),
+                                                        this->graphicsPipelineCollection->getPipelineLayout(1),
                                                         this->descriptorSetCollection->getDescriptorSetList(),
                                                         this->modelInstanceCollection->getModelInstanceList());
 }
