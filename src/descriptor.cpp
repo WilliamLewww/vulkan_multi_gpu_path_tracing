@@ -1,6 +1,6 @@
-#include "device_descriptor.h"
+#include "descriptor.h"
 
-DeviceDescriptor::DeviceDescriptor(uint32_t binding,
+Descriptor::Descriptor(uint32_t binding,
                                    VkDescriptorType descriptorType, 
                                    VkShaderStageFlagBits stageFlags,
                                    VkDescriptorImageInfo* pImageInfo, 
@@ -30,22 +30,22 @@ DeviceDescriptor::DeviceDescriptor(uint32_t binding,
   };
 }
 
-DeviceDescriptor::~DeviceDescriptor() {
+Descriptor::~Descriptor() {
 
 }
 
-VkDescriptorType DeviceDescriptor::getDescriptorType() {
+VkDescriptorType Descriptor::getDescriptorType() {
   return this->descriptorSetLayoutBinding.descriptorType;
 }
 
-void DeviceDescriptor::setDestinationDescriptorSet(VkDescriptorSet descriptorSet) {
+void Descriptor::setDestinationDescriptorSet(VkDescriptorSet descriptorSet) {
   this->writeDescriptorSet.dstSet = descriptorSet;
 }
 
-VkDescriptorSetLayoutBinding DeviceDescriptor::getDescriptorSetLayoutBinding() {
+VkDescriptorSetLayoutBinding Descriptor::getDescriptorSetLayoutBinding() {
   return this->descriptorSetLayoutBinding;
 }
 
-VkWriteDescriptorSet DeviceDescriptor::getWriteDescriptorSet() {
+VkWriteDescriptorSet Descriptor::getWriteDescriptorSet() {
   return this->writeDescriptorSet;
 }

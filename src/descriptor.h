@@ -2,12 +2,12 @@
 
 #include <vulkan/vulkan.h>
 
-class DeviceDescriptor {
+class Descriptor {
 private:
   VkDescriptorSetLayoutBinding descriptorSetLayoutBinding;
   VkWriteDescriptorSet writeDescriptorSet;
 public:
-  DeviceDescriptor(uint32_t binding,
+  Descriptor(uint32_t binding,
                    VkDescriptorType descriptorType, 
                    VkShaderStageFlagBits stageFlags,
                    VkDescriptorImageInfo* pImageInfo = NULL, 
@@ -15,7 +15,7 @@ public:
                    VkBufferView* pTexelBufferView = NULL,
                    void* pNext = NULL);
 
-  ~DeviceDescriptor();
+  ~Descriptor();
 
   VkDescriptorType getDescriptorType();
   VkDescriptorSetLayoutBinding getDescriptorSetLayoutBinding();

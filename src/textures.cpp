@@ -1,6 +1,6 @@
-#include "device_textures.h"
+#include "textures.h"
 
-DeviceTextures::DeviceTextures(VkDevice logicalDevice, 
+Textures::Textures(VkDevice logicalDevice, 
                                VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties, 
                                VkFormat swapchainImageFormat,
                                VkExtent2D swapchainExtent, 
@@ -133,18 +133,18 @@ DeviceTextures::DeviceTextures(VkDevice logicalDevice,
   };
 }
 
-DeviceTextures::~DeviceTextures() {
+Textures::~Textures() {
 
 }
 
-VkImageView DeviceTextures::getDepthImageView() {
+VkImageView Textures::getDepthImageView() {
   return this->depthImageView;
 }
 
-VkImage DeviceTextures::getRayTraceImage() {
+VkImage Textures::getRayTraceImage() {
   return this->rayTraceImage;
 }
 
-VkDescriptorImageInfo* DeviceTextures::getDescriptorRayTraceImageInfoPointer() {
+VkDescriptorImageInfo* Textures::getDescriptorRayTraceImageInfoPointer() {
   return &this->descriptorRayTraceImageInfo;
 }

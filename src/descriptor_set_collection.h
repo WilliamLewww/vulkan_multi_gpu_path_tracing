@@ -4,17 +4,17 @@
 #include <vector>
 #include <stdio.h>
 
-#include "device_descriptor_set.h"
+#include "descriptor_set.h"
 
-class DeviceDescriptorSetCollection {
+class DescriptorSetCollection {
 private:
   VkDescriptorPool descriptorPool;
   std::vector<VkDescriptorPoolSize> descriptorPoolSizeList;
 
-  std::vector<DeviceDescriptorSet*> deviceDescriptorSetList;
+  std::vector<DescriptorSet*> descriptorSetList;
 public:
-  DeviceDescriptorSetCollection(std::vector<std::vector<DeviceDescriptor*>> separatedDeviceDescriptorList, VkDevice logicalDevice);
-  ~DeviceDescriptorSetCollection();
+  DescriptorSetCollection(std::vector<std::vector<Descriptor*>> separatedDescriptorList, VkDevice logicalDevice);
+  ~DescriptorSetCollection();
 
   std::vector<VkDescriptorSetLayout> getDescriptorSetLayoutList();
   std::vector<VkDescriptorSet> getDescriptorSetList();

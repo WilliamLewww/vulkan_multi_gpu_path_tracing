@@ -19,16 +19,16 @@ ModelInstanceCollection* Device::getModelInstanceCollectionPointer() {
   return this->modelInstanceCollection;
 }
 
-DeviceUniformBufferCollection* Device::getDeviceUniformBufferCollection() {
-  return this->deviceUniformBufferCollection;
+UniformBufferCollection* Device::getUniformBufferCollection() {
+  return this->uniformBufferCollection;
 }
 
 AccelerationStructureCollection* Device::getAccelerationStructureCollection() {
   return this->accelerationStructureCollection;
 }
 
-DeviceTextures* Device::getDeviceTextures() {
-  return this->deviceTextures;
+Textures* Device::getTextures() {
+  return this->textures;
 }
 
 ModelInstanceCollection* Device::getModelInstanceCollection() {
@@ -123,7 +123,7 @@ void Device::createRenderPass() {
 }
 
 void Device::createTextures() {
-  this->deviceTextures = new DeviceTextures(this->logicalDevice, 
+  this->textures = new Textures(this->logicalDevice, 
                                             this->physicalDeviceMemoryProperties, 
                                             this->swapchain->getSwapchainImageFormat(),
                                             this->swapchain->getSwapchainExtent(),
@@ -132,12 +132,12 @@ void Device::createTextures() {
 }
 
 void Device::createFramebuffers() {
-  this->deviceFramebuffers = new DeviceFramebuffers(this->logicalDevice, 
+  this->framebuffers = new Framebuffers(this->logicalDevice, 
                                                     this->swapchain->getSwapchainImageCount(), 
                                                     this->swapchain->getSwapchainExtent(),
                                                     this->swapchain->getSwapchainImageViewList(),
                                                     this->renderPass->getRenderPass(),
-                                                    this->deviceTextures->getDepthImageView());
+                                                    this->textures->getDepthImageView());
 }
 
 void Device::createModelInstances(std::map<Model*, std::vector<Matrix4x4>> modelFrequencyMap) {
@@ -149,23 +149,23 @@ void Device::createModelInstances(std::map<Model*, std::vector<Matrix4x4>> model
 }
 
 void Device::createUniformBufferCollection(std::map<void*, uint32_t> bufferMap) {
-  this->deviceUniformBufferCollection = new DeviceUniformBufferCollection(bufferMap, this->logicalDevice, this->physicalDeviceMemoryProperties);
+  this->uniformBufferCollection = new UniformBufferCollection(bufferMap, this->logicalDevice, this->physicalDeviceMemoryProperties);
 }
 
 void Device::createAccelerationStructureCollection(std::map<Model*, std::vector<ModelInstance*>> modelInstanceMap) {
   this->accelerationStructureCollection = new AccelerationStructureCollection(modelInstanceMap, this->logicalDevice, this->physicalDeviceMemoryProperties, this->commandPool->getCommandPool(), this->deviceQueue->getComputeQueue());
 }
 
-void Device::createDescriptorSetCollection(std::vector<std::vector<DeviceDescriptor*>> separatedDeviceDescriptorList) {
-  this->deviceDescriptorSetCollection = new DeviceDescriptorSetCollection(separatedDeviceDescriptorList, this->logicalDevice);
+void Device::createDescriptorSetCollection(std::vector<std::vector<Descriptor*>> separatedDescriptorList) {
+  this->descriptorSetCollection = new DescriptorSetCollection(separatedDescriptorList, this->logicalDevice);
 }
 
 void Device::createGraphicsPipeline(std::string vertexShaderFile) {
-  this->graphicsPipelineList.push_back(new GraphicsPipeline(vertexShaderFile, this->deviceDescriptorSetCollection->getDescriptorSetLayoutList(), this->logicalDevice, this->swapchain->getSwapchainExtent(), this->renderPass->getRenderPass()));
+  this->graphicsPipelineList.push_back(new GraphicsPipeline(vertexShaderFile, this->descriptorSetCollection->getDescriptorSetLayoutList(), this->logicalDevice, this->swapchain->getSwapchainExtent(), this->renderPass->getRenderPass()));
 }
 
 void Device::createGraphicsPipeline(std::string vertexShaderFile, std::string fragmentShaderFile) {
-  this->graphicsPipelineList.push_back(new GraphicsPipeline(vertexShaderFile, fragmentShaderFile, this->deviceDescriptorSetCollection->getDescriptorSetLayoutList(), this->logicalDevice, this->swapchain->getSwapchainExtent(), this->renderPass->getRenderPass()));
+  this->graphicsPipelineList.push_back(new GraphicsPipeline(vertexShaderFile, fragmentShaderFile, this->descriptorSetCollection->getDescriptorSetLayoutList(), this->logicalDevice, this->swapchain->getSwapchainExtent(), this->renderPass->getRenderPass()));
 }
 
 void Device::createRenderCommandBuffers() {
@@ -174,13 +174,13 @@ void Device::createRenderCommandBuffers() {
                                                         this->swapchain->getSwapchainExtent(), 
                                                         this->commandPool->getCommandPool(), 
                                                         this->renderPass->getRenderPass(), 
-                                                        this->deviceFramebuffers->getFramebufferList(),
+                                                        this->framebuffers->getFramebufferList(),
                                                         this->swapchain->getSwapchainImageList(),
-                                                        this->deviceTextures->getRayTraceImage(),
+                                                        this->textures->getRayTraceImage(),
                                                         this->graphicsPipelineList[0]->getGraphicsPipeline(),
                                                         this->graphicsPipelineList[1]->getGraphicsPipeline(),
                                                         this->graphicsPipelineList[1]->getPipelineLayout(),
-                                                        this->deviceDescriptorSetCollection->getDescriptorSetList(),
+                                                        this->descriptorSetCollection->getDescriptorSetList(),
                                                         this->modelInstanceCollection->getModelInstanceList());
 }
 
@@ -245,5 +245,5 @@ void Device::drawFrame() {
 }
 
 void Device::updateUniformBuffer(int index, void* buffer, uint32_t bufferSize) {
-  this->deviceUniformBufferCollection->updateUniformBuffer(this->logicalDevice, index, buffer, bufferSize);
+  this->uniformBufferCollection->updateUniformBuffer(this->logicalDevice, index, buffer, bufferSize);
 }

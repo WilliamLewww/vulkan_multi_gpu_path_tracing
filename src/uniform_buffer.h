@@ -5,15 +5,15 @@
 
 #include "buffer_factory.h"
 
-class DeviceUniformBuffer {
+class UniformBuffer {
 private:
   VkBuffer uniformBuffer;
   VkDeviceMemory uniformBufferMemory;
 
   VkDescriptorBufferInfo descriptorBufferInfo;
 public:
-  DeviceUniformBuffer(VkDevice logicalDevice, VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties, void* buffer, uint32_t bufferSize);
-  ~DeviceUniformBuffer();
+  UniformBuffer(VkDevice logicalDevice, VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties, void* buffer, uint32_t bufferSize);
+  ~UniformBuffer();
 
   VkDeviceMemory getDeviceMemory();
   VkDescriptorBufferInfo* getDescriptorBufferInfoPointer();

@@ -1,6 +1,6 @@
-#include "device_framebuffers.h"
+#include "framebuffers.h"
 
-DeviceFramebuffers::DeviceFramebuffers(VkDevice logicalDevice, 
+Framebuffers::Framebuffers(VkDevice logicalDevice, 
                                        uint32_t swapchainImageCount, 
                                        VkExtent2D swapchainExtent,
                                        std::vector<VkImageView> swapchainImageViewList,
@@ -33,10 +33,10 @@ DeviceFramebuffers::DeviceFramebuffers(VkDevice logicalDevice,
   }
 }
 
-DeviceFramebuffers::~DeviceFramebuffers() {
+Framebuffers::~Framebuffers() {
 
 }
 
-std::vector<VkFramebuffer> DeviceFramebuffers::getFramebufferList() {
+std::vector<VkFramebuffer> Framebuffers::getFramebufferList() {
   return this->framebufferList;
 }

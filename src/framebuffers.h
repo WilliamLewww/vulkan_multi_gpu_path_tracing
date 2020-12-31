@@ -4,18 +4,18 @@
 #include <vector>
 #include <stdio.h>
 
-class DeviceFramebuffers {
+class Framebuffers {
 private:
   std::vector<VkFramebuffer> framebufferList;
 public:
-  DeviceFramebuffers(VkDevice logicalDevice, 
+  Framebuffers(VkDevice logicalDevice, 
                      uint32_t swapchainImageCount, 
                      VkExtent2D swapchainExtent,
                      std::vector<VkImageView> swapchainImageViewList,
                      VkRenderPass renderPass,
                      VkImageView depthImageView);
 
-  ~DeviceFramebuffers();
+  ~Framebuffers();
 
   std::vector<VkFramebuffer> getFramebufferList();
 };

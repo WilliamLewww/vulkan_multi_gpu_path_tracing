@@ -4,17 +4,17 @@
 #include <vector>
 #include <map>
 
-#include "device_descriptor.h"
+#include "descriptor.h"
 
-class DeviceDescriptorSet {
+class DescriptorSet {
 private:
   VkDescriptorSet descriptorSet;
   VkDescriptorSetLayout descriptorSetLayout;
 
-  std::vector<DeviceDescriptor*> deviceDescriptorList;
+  std::vector<Descriptor*> descriptorList;
 public:
-  DeviceDescriptorSet(std::vector<DeviceDescriptor*> deviceDescriptorList);
-  ~DeviceDescriptorSet();
+  DescriptorSet(std::vector<Descriptor*> descriptorList);
+  ~DescriptorSet();
 
   VkDescriptorSet& getDescriptorSet();
   VkDescriptorSetLayout& getDescriptorSetLayout();

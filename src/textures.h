@@ -4,7 +4,7 @@
 
 #include "image_factory.h"
 
-class DeviceTextures {
+class Textures {
 private:
   VkImage depthImage;
   VkDeviceMemory depthImageMemory;
@@ -16,14 +16,14 @@ private:
 
   VkDescriptorImageInfo descriptorRayTraceImageInfo;
 public:
-  DeviceTextures(VkDevice logicalDevice, 
+  Textures(VkDevice logicalDevice, 
                  VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties, 
                  VkFormat swapchainImageFormat,
                  VkExtent2D swapchainExtent, 
                  VkCommandPool commandPool, 
                  VkQueue queue);
   
-  ~DeviceTextures();
+  ~Textures();
 
   VkImageView getDepthImageView();
 

@@ -9,12 +9,12 @@
 #include "command_pool.h"
 #include "swapchain.h"
 #include "render_pass.h"
-#include "device_textures.h"
-#include "device_framebuffers.h"
+#include "textures.h"
+#include "framebuffers.h"
 #include "model_instance_collection.h"
-#include "device_uniform_buffer_collection.h"
+#include "uniform_buffer_collection.h"
 #include "acceleration_structure_collection.h"
-#include "device_descriptor_set_collection.h"
+#include "descriptor_set_collection.h"
 #include "graphics_pipeline.h"
 #include "render_command_buffers.h"
 #include "synchronization_objects.h"
@@ -37,12 +37,12 @@ private:
   CommandPool* commandPool;
   Swapchain* swapchain;
   RenderPass* renderPass;
-  DeviceFramebuffers* deviceFramebuffers;
-  DeviceTextures* deviceTextures;
+  Textures* textures;
+  Framebuffers* framebuffers;
   ModelInstanceCollection* modelInstanceCollection;
-  DeviceUniformBufferCollection* deviceUniformBufferCollection;
+  UniformBufferCollection* uniformBufferCollection;
   AccelerationStructureCollection* accelerationStructureCollection;
-  DeviceDescriptorSetCollection* deviceDescriptorSetCollection;
+  DescriptorSetCollection* descriptorSetCollection;
   RenderCommandBuffers* renderCommandBuffers;
   SynchronizationObjects* synchronizationObjects;
 public:
@@ -50,9 +50,9 @@ public:
   ~Device();
 
   ModelInstanceCollection* getModelInstanceCollectionPointer();
-  DeviceUniformBufferCollection* getDeviceUniformBufferCollection();
+  UniformBufferCollection* getUniformBufferCollection();
   AccelerationStructureCollection* getAccelerationStructureCollection();
-  DeviceTextures* getDeviceTextures();
+  Textures* getTextures();
   ModelInstanceCollection* getModelInstanceCollection();
 
   void initializeDeviceQueue(VkSurfaceKHR surface);
@@ -65,7 +65,7 @@ public:
   void createModelInstances(std::map<Model*, std::vector<Matrix4x4>> modelFrequencyMap);
   void createUniformBufferCollection(std::map<void*, uint32_t> bufferMap);
   void createAccelerationStructureCollection(std::map<Model*, std::vector<ModelInstance*>> modelInstanceMap);
-  void createDescriptorSetCollection(std::vector<std::vector<DeviceDescriptor*>> separatedDeviceDescriptorList);
+  void createDescriptorSetCollection(std::vector<std::vector<Descriptor*>> separatedDescriptorList);
   void createGraphicsPipeline(std::string vertexShaderFile);
   void createGraphicsPipeline(std::string vertexShaderFile, std::string fragmentShaderFile);
   void createRenderCommandBuffers();

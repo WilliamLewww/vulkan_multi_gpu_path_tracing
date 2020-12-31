@@ -1,6 +1,6 @@
-#include "device_uniform_buffer.h"
+#include "uniform_buffer.h"
 
-DeviceUniformBuffer::DeviceUniformBuffer(VkDevice logicalDevice, VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties, void* buffer, uint32_t bufferSize) {
+UniformBuffer::UniformBuffer(VkDevice logicalDevice, VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties, void* buffer, uint32_t bufferSize) {
   BufferFactory::createBuffer(logicalDevice,
                               physicalDeviceMemoryProperties,
                               bufferSize, 
@@ -21,19 +21,19 @@ DeviceUniformBuffer::DeviceUniformBuffer(VkDevice logicalDevice, VkPhysicalDevic
   };
 }
 
-DeviceUniformBuffer::~DeviceUniformBuffer() {
+UniformBuffer::~UniformBuffer() {
 
 }
 
-VkDeviceMemory DeviceUniformBuffer::getDeviceMemory() {
+VkDeviceMemory UniformBuffer::getDeviceMemory() {
   return this->uniformBufferMemory;
 }
 
-VkDescriptorBufferInfo* DeviceUniformBuffer::getDescriptorBufferInfoPointer() {
+VkDescriptorBufferInfo* UniformBuffer::getDescriptorBufferInfoPointer() {
   return &this->descriptorBufferInfo;
 }
 
-void DeviceUniformBuffer::updateUniformBuffer(VkDevice logicalDevice, void* buffer, uint32_t bufferSize) {
+void UniformBuffer::updateUniformBuffer(VkDevice logicalDevice, void* buffer, uint32_t bufferSize) {
   void* data;
   vkMapMemory(logicalDevice, this->uniformBufferMemory, 0, bufferSize, 0, &data);
   memcpy(data, buffer, bufferSize);
