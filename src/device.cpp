@@ -160,7 +160,7 @@ void Device::createDescriptorSetCollection(std::vector<std::vector<Descriptor*>>
   this->descriptorSetCollection = new DescriptorSetCollection(separatedDescriptorList, this->logicalDevice);
 }
 
-void Device::createGraphicsPipeline(std::vector<std::vector<std::string>> shaderList) {
+void Device::createGraphicsPipelineCollection(std::vector<std::vector<std::string>> shaderList) {
   this->graphicsPipelineCollection = new GraphicsPipelineCollection(shaderList, this->descriptorSetCollection->getDescriptorSetLayoutList(), this->logicalDevice, this->swapchain->getSwapchainExtent(), this->renderPass->getRenderPass());
 }
 

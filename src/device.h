@@ -65,7 +65,7 @@ public:
   void createUniformBufferCollection(std::map<void*, uint32_t> bufferMap);
   void createAccelerationStructureCollection(std::map<Model*, std::vector<ModelInstance*>> modelInstanceMap);
   void createDescriptorSetCollection(std::vector<std::vector<Descriptor*>> separatedDescriptorList);
-  void createGraphicsPipeline(std::vector<std::vector<std::string>> shaderList);
+  void createGraphicsPipelineCollection(std::vector<std::vector<std::string>> shaderList);
   void createRenderCommandBuffers();
   void createSynchronizationObjects();
 
