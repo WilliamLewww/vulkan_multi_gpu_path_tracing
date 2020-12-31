@@ -7,6 +7,7 @@
 #include "input.h"
 #include "renderer.h"
 #include "camera.h"
+#include "gui.h"
 
 class Engine {
 private:
@@ -16,6 +17,7 @@ private:
   VulkanInstance* vulkanInstance;
   Surface* surface;
   Renderer* renderer;
+  GUI* gui;
 public:
   Engine();
   ~Engine();

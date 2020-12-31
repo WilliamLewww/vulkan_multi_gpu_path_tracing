@@ -15,6 +15,38 @@ Device::~Device() {
 
 }
 
+VkPhysicalDevice Device::getPhysicalDevice() {
+  return this->physicalDevice;
+}
+
+VkDevice Device::getLogicalDevice() {
+  return this->logicalDevice;
+}
+
+uint32_t Device::getGraphicsQueueIndex() {
+  return this->deviceQueue->getGraphicsQueueIndex();
+}
+
+VkQueue Device::getGraphicsQueue() {
+  return this->deviceQueue->getGraphicsQueue();
+}
+
+VkDescriptorPool Device::getDescriptorPool() {
+  return this->descriptorSetCollection->getDescriptorPool();
+}
+
+uint32_t Device::getMinImageCount() {
+  return 2;
+}
+
+uint32_t Device::getImageCount() {
+  return this->swapchain->getSwapchainImageCount();
+}
+
+VkRenderPass Device::getRenderPass() {
+  return this->renderPass->getRenderPass();
+}
+
 ModelInstanceCollection* Device::getModelInstanceCollectionPointer() {
   return this->modelInstanceCollection;
 }

@@ -17,9 +17,21 @@ Engine::Engine() {
   this->surface = new Surface(this->vulkanInstance->getVulkanInstance(), this->window->getWindow());
 
   this->renderer = new Renderer(this->vulkanInstance->getVulkanInstance(), this->surface->getSurface(), this->modelCollection, this->camera);
+
+  this->gui = new GUI(this->window->getWindow(),
+                      this->vulkanInstance->getVulkanInstance(), 
+                      this->renderer->getPhysicalDevice(), 
+                      this->renderer->getLogicalDevice(), 
+                      this->renderer->getGraphicsQueueIndex(), 
+                      this->renderer->getGraphicsQueue(), 
+                      this->renderer->getDescriptorPool(),
+                      this->renderer->getMinImageCount(),
+                      this->renderer->getImageCount(),
+                      this->renderer->getRenderPass());
 }
 
 Engine::~Engine() {
+  delete this->gui;
   delete this->renderer;
   delete this->surface;
   delete this->vulkanInstance;

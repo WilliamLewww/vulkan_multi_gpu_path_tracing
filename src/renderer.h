@@ -14,6 +14,15 @@ public:
   Renderer(VkInstance vulkanInstance, VkSurfaceKHR surface, ModelCollection* modelCollection, Camera* camera);
   ~Renderer();
 
+  VkPhysicalDevice getPhysicalDevice(); 
+  VkDevice getLogicalDevice();
+  uint32_t getGraphicsQueueIndex(); 
+  VkQueue getGraphicsQueue(); 
+  VkDescriptorPool getDescriptorPool();
+  uint32_t getMinImageCount();
+  uint32_t getImageCount();
+  VkRenderPass getRenderPass();
+
   void render();
   void updateUniformBuffers(Camera* camera);
 };

@@ -16,6 +16,8 @@ public:
   DescriptorSetCollection(std::vector<std::vector<Descriptor*>> separatedDescriptorList, VkDevice logicalDevice);
   ~DescriptorSetCollection();
 
+  VkDescriptorPool getDescriptorPool();
+
   std::vector<VkDescriptorSetLayout> getDescriptorSetLayoutList();
   std::vector<VkDescriptorSet> getDescriptorSetList();
 };

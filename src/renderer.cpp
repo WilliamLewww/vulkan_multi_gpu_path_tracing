@@ -96,6 +96,38 @@ Renderer::~Renderer() {
   delete this->deviceCollection;
 }
 
+VkPhysicalDevice Renderer::getPhysicalDevice() {
+  return this->displayDevice->getPhysicalDevice();
+}
+
+VkDevice Renderer::getLogicalDevice() {
+  return this->displayDevice->getLogicalDevice();
+}
+
+uint32_t Renderer::getGraphicsQueueIndex() {
+  return this->displayDevice->getGraphicsQueueIndex();
+}
+
+VkQueue Renderer::getGraphicsQueue() {
+  return this->displayDevice->getGraphicsQueue();
+}
+
+VkDescriptorPool Renderer::getDescriptorPool() {
+  return this->displayDevice->getDescriptorPool();
+}
+
+uint32_t Renderer::getMinImageCount() {
+  return this->displayDevice->getMinImageCount();
+}
+
+uint32_t Renderer::getImageCount() {
+  return this->displayDevice->getImageCount();
+}
+
+VkRenderPass Renderer::getRenderPass() {
+  return this->displayDevice->getRenderPass();
+}
+
 void Renderer::render() {
   this->displayDevice->drawFrame();
 }

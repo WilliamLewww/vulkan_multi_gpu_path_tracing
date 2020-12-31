@@ -48,6 +48,15 @@ public:
   Device(VkPhysicalDevice physicalDevice);
   ~Device();
 
+  VkPhysicalDevice getPhysicalDevice(); 
+  VkDevice getLogicalDevice();
+  uint32_t getGraphicsQueueIndex(); 
+  VkQueue getGraphicsQueue(); 
+  VkDescriptorPool getDescriptorPool();
+  uint32_t getMinImageCount();
+  uint32_t getImageCount();
+  VkRenderPass getRenderPass();
+
   ModelInstanceCollection* getModelInstanceCollectionPointer();
   UniformBufferCollection* getUniformBufferCollection();
   AccelerationStructureCollection* getAccelerationStructureCollection();

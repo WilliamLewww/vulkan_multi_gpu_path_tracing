@@ -76,6 +76,10 @@ DescriptorSetCollection::~DescriptorSetCollection() {
 
 }
 
+VkDescriptorPool DescriptorSetCollection::getDescriptorPool() {
+  return this->descriptorPool;
+}
+
 std::vector<VkDescriptorSetLayout> DescriptorSetCollection::getDescriptorSetLayoutList() {
   std::vector<VkDescriptorSetLayout> descriptorSetLayoutList;
 
