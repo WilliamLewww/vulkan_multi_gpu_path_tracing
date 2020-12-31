@@ -57,25 +57,21 @@ RenderCommandBuffers::RenderCommandBuffers(VkDevice logicalDevice,
     }
 
     vkCmdBeginRenderPass(this->commandBufferList[x], &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
-    vkCmdBindPipeline(this->commandBufferList[x], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineList[0]);
-    vkCmdBindDescriptorSets(this->commandBufferList[x], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayoutList[0], 0, descriptorSetList.size(), descriptorSetList.data(), 0, 0);
-    for (int y = 0; y < modelInstanceList.size(); y++) {
-      VkDeviceSize offset = 0;
-      std::vector<VkBuffer> vertexBufferList = {modelInstanceList[y]->getVertexBuffer()};
-      vkCmdBindVertexBuffers(this->commandBufferList[x], 0, 1, vertexBufferList.data(), &offset);
-      vkCmdBindIndexBuffer(this->commandBufferList[x], modelInstanceList[y]->getIndexBuffer(), 0, VK_INDEX_TYPE_UINT32);
-      vkCmdDrawIndexed(this->commandBufferList[x], modelInstanceList[y]->getModel()->getPrimitiveCount() * 3, 1, 0, 0, y);
-    }
 
-    vkCmdNextSubpass(this->commandBufferList[x], VK_SUBPASS_CONTENTS_INLINE);
-    vkCmdBindPipeline(this->commandBufferList[x], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineList[1]);
-    vkCmdBindDescriptorSets(this->commandBufferList[x], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayoutList[1], 0, descriptorSetList.size(), descriptorSetList.data(), 0, 0);
-    for (int y = 0; y < modelInstanceList.size(); y++) {
-      VkDeviceSize offset = 0;
-      std::vector<VkBuffer> vertexBufferList = {modelInstanceList[y]->getVertexBuffer()};
-      vkCmdBindVertexBuffers(this->commandBufferList[x], 0, 1, vertexBufferList.data(), &offset);
-      vkCmdBindIndexBuffer(this->commandBufferList[x], modelInstanceList[y]->getIndexBuffer(), 0, VK_INDEX_TYPE_UINT32);
-      vkCmdDrawIndexed(this->commandBufferList[x], modelInstanceList[y]->getModel()->getPrimitiveCount() * 3, 1, 0, 0, y);
+    for (int z = 0; z < pipelineList.size(); z++) {
+      vkCmdBindPipeline(this->commandBufferList[x], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineList[z]);
+      vkCmdBindDescriptorSets(this->commandBufferList[x], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayoutList[z], 0, descriptorSetList.size(), descriptorSetList.data(), 0, 0);
+      for (int y = 0; y < modelInstanceList.size(); y++) {
+        VkDeviceSize offset = 0;
+        std::vector<VkBuffer> vertexBufferList = {modelInstanceList[y]->getVertexBuffer()};
+        vkCmdBindVertexBuffers(this->commandBufferList[x], 0, 1, vertexBufferList.data(), &offset);
+        vkCmdBindIndexBuffer(this->commandBufferList[x], modelInstanceList[y]->getIndexBuffer(), 0, VK_INDEX_TYPE_UINT32);
+        vkCmdDrawIndexed(this->commandBufferList[x], modelInstanceList[y]->getModel()->getPrimitiveCount() * 3, 1, 0, 0, y);
+      }
+      
+      if (z < pipelineList.size() - 1) {
+        vkCmdNextSubpass(this->commandBufferList[x], VK_SUBPASS_CONTENTS_INLINE);
+      }
     }
     
     vkCmdEndRenderPass(this->commandBufferList[x]);
