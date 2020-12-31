@@ -1,6 +1,6 @@
 #include "graphics_pipeline.h"
 
-GraphicsPipeline::GraphicsPipeline(std::string vertexShaderFile, std::vector<VkDescriptorSetLayout> descriptorSetLayoutList, VkDevice logicalDevice, VkExtent2D swapchainExtent, VkRenderPass renderPass) {
+GraphicsPipeline::GraphicsPipeline(std::string vertexShaderFile, std::vector<VkDescriptorSetLayout> descriptorSetLayoutList, VkDevice logicalDevice, VkExtent2D swapchainExtent, VkRenderPass renderPass, uint32_t subpassIndex) {
   FILE* vertexFile = fopen(vertexShaderFile.c_str(), "rb");
   fseek(vertexFile, 0, SEEK_END);
   uint32_t vertexFileSize = ftell(vertexFile);
@@ -187,7 +187,7 @@ GraphicsPipeline::GraphicsPipeline(std::string vertexShaderFile, std::vector<VkD
     .pDynamicState = NULL,
     .layout = this->pipelineLayout,
     .renderPass = renderPass,
-    .subpass = 0,
+    .subpass = subpassIndex,
     .basePipelineHandle = VK_NULL_HANDLE,
     .basePipelineIndex = 0
   };
@@ -201,7 +201,7 @@ GraphicsPipeline::GraphicsPipeline(std::string vertexShaderFile, std::vector<VkD
   free(vertexFileBuffer);
 }
 
-GraphicsPipeline::GraphicsPipeline(std::string vertexShaderFile, std::string fragmentShaderFile, std::vector<VkDescriptorSetLayout> descriptorSetLayoutList, VkDevice logicalDevice, VkExtent2D swapchainExtent, VkRenderPass renderPass) {
+GraphicsPipeline::GraphicsPipeline(std::string vertexShaderFile, std::string fragmentShaderFile, std::vector<VkDescriptorSetLayout> descriptorSetLayoutList, VkDevice logicalDevice, VkExtent2D swapchainExtent, VkRenderPass renderPass, uint32_t subpassIndex) {
   FILE* vertexFile = fopen(vertexShaderFile.c_str(), "rb");
   fseek(vertexFile, 0, SEEK_END);
   uint32_t vertexFileSize = ftell(vertexFile);
@@ -420,7 +420,7 @@ GraphicsPipeline::GraphicsPipeline(std::string vertexShaderFile, std::string fra
     .pDynamicState = NULL,
     .layout = this->pipelineLayout,
     .renderPass = renderPass,
-    .subpass = 1,
+    .subpass = subpassIndex,
     .basePipelineHandle = VK_NULL_HANDLE,
     .basePipelineIndex = 0
   };

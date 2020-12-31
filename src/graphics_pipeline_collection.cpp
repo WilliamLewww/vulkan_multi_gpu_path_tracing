@@ -12,7 +12,8 @@ GraphicsPipelineCollection::GraphicsPipelineCollection(std::vector<std::vector<s
                                                                 descriptorSetLayoutList, 
                                                                 logicalDevice, 
                                                                 swapchainExtent, 
-                                                                renderPass));
+                                                                renderPass,
+                                                                x));
     }
 
     if (shaderList[x].size() == 2) {
@@ -21,7 +22,8 @@ GraphicsPipelineCollection::GraphicsPipelineCollection(std::vector<std::vector<s
                                                                 descriptorSetLayoutList, 
                                                                 logicalDevice, 
                                                                 swapchainExtent, 
-                                                                renderPass));
+                                                                renderPass,
+                                                                x));
     }
   }
 }
