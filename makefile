@@ -3,7 +3,7 @@ VULKAN_SDK_PATH = /usr/local/vulkan/1.2.162.0/x86_64
 
 EXEC = vulkan-c.out
 
-SRCS := $(wildcard src/*.cpp)
+SRCS := $(wildcard src/*.cpp) $(wildcard src/imgui/*.cpp)
 OBJS := $(notdir $(SRCS:%.cpp=%.o))
 
 SHADER_SRCS := $(wildcard src/shaders/*)
@@ -20,6 +20,9 @@ $EXEC: $(OBJS) $(SHADER_OBJS)
 shaders: $(SHADER_OBJS)
 
 %.o: src/%.cpp
+	g++ $(CFLAGS) -c $^ -o build/$@
+
+%.o: src/imgui/%.cpp
 	g++ $(CFLAGS) -c $^ -o build/$@
 
 %.spv: src/shaders/%
