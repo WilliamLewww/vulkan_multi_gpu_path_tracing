@@ -7,6 +7,7 @@
 class Input {
 private:
   static std::vector<int> keyDownList;
+  static std::vector<int> keyPressList;
   static double cursorPositionX;
   static double cursorPositionY;
 public:
@@ -14,6 +15,7 @@ public:
   static void cursorPositionCallback(GLFWwindow* window, double xpos, double ypos);
 
   static bool checkKeyDown(int key);
+  static bool checkKeyPress(int key);
 
   static double getCursorPositionX();
   static double getCursorPositionY();
