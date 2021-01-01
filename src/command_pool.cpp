@@ -4,7 +4,7 @@ CommandPool::CommandPool(VkDevice logicalDevice, uint32_t queueIndex) {
   VkCommandPoolCreateInfo commandPoolCreateInfo = {
     .sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
     .pNext = NULL,
-    .flags = 0,
+    .flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
     .queueFamilyIndex = queueIndex
   };
 

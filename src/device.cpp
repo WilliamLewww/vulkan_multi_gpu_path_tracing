@@ -216,24 +216,19 @@ void Device::createSynchronizationObjects() {
 }
 
 void Device::drawFrame() {
-  VkSemaphore imageAvailableSemaphore = synchronizationObjects->getImageAvailableSemaphore(this->currentFrame);
-  VkSemaphore renderFinishedSemaphore = synchronizationObjects->getRenderFinishedSemaphore(this->currentFrame);
-  VkFence inFlightFence = synchronizationObjects->getInFlightFence(this->currentFrame);
-  VkFence imageInFlight = synchronizationObjects->getImageInFlight(this->currentFrame);
-
-  vkWaitForFences(this->logicalDevice, 1, &inFlightFence, VK_TRUE, UINT64_MAX);
+  vkWaitForFences(this->logicalDevice, 1, &this->synchronizationObjects->getInFlightFence(this->currentFrame), VK_TRUE, UINT64_MAX);
     
   uint32_t imageIndex;
-  vkAcquireNextImageKHR(this->logicalDevice, this->swapchain->getSwapchain(), UINT64_MAX, imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
+  vkAcquireNextImageKHR(this->logicalDevice, this->swapchain->getSwapchain(), UINT64_MAX, this->synchronizationObjects->getImageAvailableSemaphore(this->currentFrame), VK_NULL_HANDLE, &imageIndex);
     
-  if (imageInFlight != VK_NULL_HANDLE) {
-    vkWaitForFences(this->logicalDevice, 1, &imageInFlight, VK_TRUE, UINT64_MAX);
+  if (this->synchronizationObjects->getImageInFlight(imageIndex) != VK_NULL_HANDLE) {
+    vkWaitForFences(this->logicalDevice, 1, &this->synchronizationObjects->getImageInFlight(imageIndex), VK_TRUE, UINT64_MAX);
   }
-  imageInFlight = inFlightFence;
+  this->synchronizationObjects->getImageInFlight(imageIndex) = this->synchronizationObjects->getInFlightFence(this->currentFrame);
 
-  VkSemaphore waitSemaphores[1] = {imageAvailableSemaphore};
+  VkSemaphore waitSemaphores[1] = {this->synchronizationObjects->getImageAvailableSemaphore(this->currentFrame)};
   VkPipelineStageFlags waitStages[1] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
-  VkSemaphore signalSemaphores[1] = {renderFinishedSemaphore};
+  VkSemaphore signalSemaphores[1] = {this->synchronizationObjects->getRenderFinishedSemaphore(this->currentFrame)};
    
   VkSubmitInfo submitInfo = {
     .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
@@ -247,7 +242,7 @@ void Device::drawFrame() {
     .pSignalSemaphores = signalSemaphores,
   };
 
-  vkResetFences(this->logicalDevice, 1, &inFlightFence);
+  vkResetFences(this->logicalDevice, 1, &this->synchronizationObjects->getInFlightFence(this->currentFrame));
 
   {
     VkCommandBufferBeginInfo commandBufferBeginCreateInfo = {};
@@ -256,7 +251,7 @@ void Device::drawFrame() {
     VkRenderPassBeginInfo renderPassBeginInfo = {};
     renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
     renderPassBeginInfo.renderPass = this->renderPass->getRenderPass();
-    renderPassBeginInfo.framebuffer = this->framebuffers->getFramebufferList()[this->currentFrame];
+    renderPassBeginInfo.framebuffer = this->framebuffers->getFramebufferList()[imageIndex];
     VkOffset2D renderAreaOffset = {0, 0};
     renderPassBeginInfo.renderArea.offset = renderAreaOffset;
     renderPassBeginInfo.renderArea.extent = this->swapchain->getSwapchainExtent();
@@ -276,32 +271,32 @@ void Device::drawFrame() {
     subresourceRange.baseArrayLayer = 0;
     subresourceRange.layerCount = 1;
 
-    if (vkBeginCommandBuffer(this->renderCommandBuffers->getCommandBufferList()[this->currentFrame], &commandBufferBeginCreateInfo) != VK_SUCCESS) {
-      printf("failed to begin recording command buffer for image #%d\n", this->currentFrame);
+    if (vkBeginCommandBuffer(this->renderCommandBuffers->getCommandBufferList()[imageIndex], &commandBufferBeginCreateInfo) != VK_SUCCESS) {
+      printf("failed to begin recording command buffer for image #%d\n", imageIndex);
     }
 
-    vkCmdBeginRenderPass(this->renderCommandBuffers->getCommandBufferList()[this->currentFrame], &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+    vkCmdBeginRenderPass(this->renderCommandBuffers->getCommandBufferList()[imageIndex], &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 
     for (int z = 0; z < this->graphicsPipelineCollection->getGraphicsPipelineList().size(); z++) {
-      vkCmdBindPipeline(this->renderCommandBuffers->getCommandBufferList()[this->currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, this->graphicsPipelineCollection->getGraphicsPipelineList()[z]);
-      vkCmdBindDescriptorSets(this->renderCommandBuffers->getCommandBufferList()[this->currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, this->graphicsPipelineCollection->getPipelineLayoutList()[z], 0, this->descriptorSetCollection->getDescriptorSetList().size(), this->descriptorSetCollection->getDescriptorSetList().data(), 0, 0);
+      vkCmdBindPipeline(this->renderCommandBuffers->getCommandBufferList()[imageIndex], VK_PIPELINE_BIND_POINT_GRAPHICS, this->graphicsPipelineCollection->getGraphicsPipelineList()[z]);
+      vkCmdBindDescriptorSets(this->renderCommandBuffers->getCommandBufferList()[imageIndex], VK_PIPELINE_BIND_POINT_GRAPHICS, this->graphicsPipelineCollection->getPipelineLayoutList()[z], 0, this->descriptorSetCollection->getDescriptorSetList().size(), this->descriptorSetCollection->getDescriptorSetList().data(), 0, 0);
       for (int y = 0; y < this->modelInstanceCollection->getModelInstanceList().size(); y++) {
         VkDeviceSize offset = 0;
         std::vector<VkBuffer> vertexBufferList = {this->modelInstanceCollection->getModelInstanceList()[y]->getVertexBuffer()};
-        vkCmdBindVertexBuffers(this->renderCommandBuffers->getCommandBufferList()[this->currentFrame], 0, 1, vertexBufferList.data(), &offset);
-        vkCmdBindIndexBuffer(this->renderCommandBuffers->getCommandBufferList()[this->currentFrame], this->modelInstanceCollection->getModelInstanceList()[y]->getIndexBuffer(), 0, VK_INDEX_TYPE_UINT32);
-        vkCmdDrawIndexed(this->renderCommandBuffers->getCommandBufferList()[this->currentFrame], this->modelInstanceCollection->getModelInstanceList()[y]->getModel()->getPrimitiveCount() * 3, 1, 0, 0, y);
+        vkCmdBindVertexBuffers(this->renderCommandBuffers->getCommandBufferList()[imageIndex], 0, 1, vertexBufferList.data(), &offset);
+        vkCmdBindIndexBuffer(this->renderCommandBuffers->getCommandBufferList()[imageIndex], this->modelInstanceCollection->getModelInstanceList()[y]->getIndexBuffer(), 0, VK_INDEX_TYPE_UINT32);
+        vkCmdDrawIndexed(this->renderCommandBuffers->getCommandBufferList()[imageIndex], this->modelInstanceCollection->getModelInstanceList()[y]->getModel()->getPrimitiveCount() * 3, 1, 0, 0, y);
       }
       
       if (z < this->graphicsPipelineCollection->getGraphicsPipelineList().size() - 1) {
-        vkCmdNextSubpass(this->renderCommandBuffers->getCommandBufferList()[this->currentFrame], VK_SUBPASS_CONTENTS_INLINE);
+        vkCmdNextSubpass(this->renderCommandBuffers->getCommandBufferList()[imageIndex], VK_SUBPASS_CONTENTS_INLINE);
       }
     }
 
     ImDrawData* draw_data = ImGui::GetDrawData();
-    ImGui_ImplVulkan_RenderDrawData(draw_data, this->renderCommandBuffers->getCommandBufferList()[this->currentFrame]);
+    ImGui_ImplVulkan_RenderDrawData(draw_data, this->renderCommandBuffers->getCommandBufferList()[imageIndex]);
     
-    vkCmdEndRenderPass(this->renderCommandBuffers->getCommandBufferList()[this->currentFrame]);
+    vkCmdEndRenderPass(this->renderCommandBuffers->getCommandBufferList()[imageIndex]);
 
     // { 
     //   VkImageMemoryBarrier imageMemoryBarrier = {};
@@ -309,12 +304,12 @@ void Device::drawFrame() {
     //   imageMemoryBarrier.pNext = NULL;
     //   imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
     //   imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-    //   imageMemoryBarrier.image = swapchainImageList[this->currentFrame];
+    //   imageMemoryBarrier.image = swapchainImageList[imageIndex];
     //   imageMemoryBarrier.subresourceRange = subresourceRange;
     //   imageMemoryBarrier.srcAccessMask = 0;
     //   imageMemoryBarrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
 
-    //   vkCmdPipelineBarrier(this->renderCommandBuffers->getCommandBufferList()[this->currentFrame], VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0, NULL, 0, NULL, 1, &imageMemoryBarrier);
+    //   vkCmdPipelineBarrier(this->renderCommandBuffers->getCommandBufferList()[imageIndex], VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0, NULL, 0, NULL, 1, &imageMemoryBarrier);
     // }
 
     // { 
@@ -328,7 +323,7 @@ void Device::drawFrame() {
     //   imageMemoryBarrier.srcAccessMask = 0;
     //   imageMemoryBarrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
 
-    //   vkCmdPipelineBarrier(this->renderCommandBuffers->getCommandBufferList()[this->currentFrame], VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0, NULL, 0, NULL, 1, &imageMemoryBarrier);
+    //   vkCmdPipelineBarrier(this->renderCommandBuffers->getCommandBufferList()[imageIndex], VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0, NULL, 0, NULL, 1, &imageMemoryBarrier);
     // }
 
     // {
@@ -355,7 +350,7 @@ void Device::drawFrame() {
     //   imageCopy.dstOffset = offset;
     //   imageCopy.extent = extent;
   
-    //   vkCmdCopyImage(this->renderCommandBuffers->getCommandBufferList()[this->currentFrame], swapchainImageList[this->currentFrame], VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, rayTraceImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &imageCopy);
+    //   vkCmdCopyImage(this->renderCommandBuffers->getCommandBufferList()[imageIndex], swapchainImageList[imageIndex], VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, rayTraceImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &imageCopy);
     // }
 
     // { 
@@ -371,12 +366,12 @@ void Device::drawFrame() {
     //   imageMemoryBarrier.pNext = NULL;
     //   imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
     //   imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-    //   imageMemoryBarrier.image = swapchainImageList[this->currentFrame];
+    //   imageMemoryBarrier.image = swapchainImageList[imageIndex];
     //   imageMemoryBarrier.subresourceRange = subresourceRange;
     //   imageMemoryBarrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
     //   imageMemoryBarrier.dstAccessMask = 0;
 
-    //   vkCmdPipelineBarrier(this->renderCommandBuffers->getCommandBufferList()[this->currentFrame], VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0, NULL, 0, NULL, 1, &imageMemoryBarrier);
+    //   vkCmdPipelineBarrier(this->renderCommandBuffers->getCommandBufferList()[imageIndex], VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0, NULL, 0, NULL, 1, &imageMemoryBarrier);
     // }
 
     // { 
@@ -397,15 +392,15 @@ void Device::drawFrame() {
     //   imageMemoryBarrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
     //   imageMemoryBarrier.dstAccessMask = 0;
 
-    //   vkCmdPipelineBarrier(this->renderCommandBuffers->getCommandBufferList()[this->currentFrame], VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0, NULL, 0, NULL, 1, &imageMemoryBarrier);
+    //   vkCmdPipelineBarrier(this->renderCommandBuffers->getCommandBufferList()[imageIndex], VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0, NULL, 0, NULL, 1, &imageMemoryBarrier);
     // }
 
-    if (vkEndCommandBuffer(this->renderCommandBuffers->getCommandBufferList()[this->currentFrame]) != VK_SUCCESS) {
-      printf("failed to end recording command buffer for image #%d\n", this->currentFrame);
+    if (vkEndCommandBuffer(this->renderCommandBuffers->getCommandBufferList()[imageIndex]) != VK_SUCCESS) {
+      printf("failed to end recording command buffer for image #%d\n", imageIndex);
     }
   }
 
-  if (vkQueueSubmit(this->deviceQueue->getGraphicsQueue(), 1, &submitInfo, inFlightFence) != VK_SUCCESS) {
+  if (vkQueueSubmit(this->deviceQueue->getGraphicsQueue(), 1, &submitInfo, this->synchronizationObjects->getInFlightFence(this->currentFrame)) != VK_SUCCESS) {
     printf("failed to submit draw command buffer\n");
   }
 
