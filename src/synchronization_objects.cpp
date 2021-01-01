@@ -22,8 +22,8 @@ SynchronizationObjects::SynchronizationObjects(VkDevice logicalDevice, uint32_t 
   };
 
   for (int x = 0; x < framesInFlight; x++) {
-    if (vkCreateSemaphore(logicalDevice, &semaphoreCreateInfo, NULL, &this->imageAvailableSemaphoreList[x]) == VK_SUCCESS &&
-        vkCreateSemaphore(logicalDevice, &semaphoreCreateInfo, NULL, &this->renderFinishedSemaphoreList[x]) == VK_SUCCESS &&
+    if (vkCreateSemaphore(logicalDevice, &semaphoreCreateInfo, NULL, &this->imageAvailableSemaphoreList[x]) != VK_SUCCESS ||
+        vkCreateSemaphore(logicalDevice, &semaphoreCreateInfo, NULL, &this->renderFinishedSemaphoreList[x]) != VK_SUCCESS ||
         vkCreateFence(logicalDevice, &fenceCreateInfo, NULL, &this->inFlightFenceList[x]) != VK_SUCCESS) {
       printf("failed to create synchronization objects for frame #%d\n", x);
     }
@@ -34,18 +34,18 @@ SynchronizationObjects::~SynchronizationObjects() {
 
 }
 
-VkSemaphore SynchronizationObjects::getImageAvailableSemaphore(int index) {
+VkSemaphore& SynchronizationObjects::getImageAvailableSemaphore(int index) {
   return this->imageAvailableSemaphoreList[index];
 }
 
-VkSemaphore SynchronizationObjects::getRenderFinishedSemaphore(int index) {
+VkSemaphore& SynchronizationObjects::getRenderFinishedSemaphore(int index) {
   return this->renderFinishedSemaphoreList[index];
 }
 
-VkFence SynchronizationObjects::getInFlightFence(int index) {
+VkFence& SynchronizationObjects::getInFlightFence(int index) {
   return this->inFlightFenceList[index];
 }
 
-VkFence SynchronizationObjects::getImageInFlight(int index) {
+VkFence& SynchronizationObjects::getImageInFlight(int index) {
   return this->imageInFlightList[index];
 }

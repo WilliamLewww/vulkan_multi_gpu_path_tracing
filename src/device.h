@@ -19,6 +19,10 @@
 #include "render_command_buffers.h"
 #include "synchronization_objects.h"
 
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_glfw.h"
+#include "imgui/imgui_impl_vulkan.h"
+
 class Device {
 private:
   uint32_t currentFrame;

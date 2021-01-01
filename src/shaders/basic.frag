@@ -431,12 +431,12 @@ void main() {
   }
   
   vec4 color = vec4(directColor, 1.0);
-  if (camera.frameCount > 0) {
-    vec4 previousColor = imageLoad(image, ivec2(gl_FragCoord.xy));
-    previousColor *= camera.frameCount;
+  // if (camera.frameCount > 0) {
+  //   vec4 previousColor = imageLoad(image, ivec2(gl_FragCoord.xy));
+  //   previousColor *= camera.frameCount;
 
-    color += previousColor;
-    color /= (camera.frameCount + 1);
-  }
+  //   color += previousColor;
+  //   color /= (camera.frameCount + 1);
+  // }
   outColor = color;
 }

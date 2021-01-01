@@ -45,7 +45,7 @@ void Engine::start() {
     glfwPollEvents();
     this->camera->update();
     this->renderer->updateUniformBuffers(camera);
-    this->renderer->render();
     this->gui->render();
+    this->renderer->render();
   }
 }

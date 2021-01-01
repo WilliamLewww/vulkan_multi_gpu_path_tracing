@@ -249,6 +249,162 @@ void Device::drawFrame() {
 
   vkResetFences(this->logicalDevice, 1, &inFlightFence);
 
+  {
+    VkCommandBufferBeginInfo commandBufferBeginCreateInfo = {};
+    commandBufferBeginCreateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+
+    VkRenderPassBeginInfo renderPassBeginInfo = {};
+    renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+    renderPassBeginInfo.renderPass = this->renderPass->getRenderPass();
+    renderPassBeginInfo.framebuffer = this->framebuffers->getFramebufferList()[this->currentFrame];
+    VkOffset2D renderAreaOffset = {0, 0};
+    renderPassBeginInfo.renderArea.offset = renderAreaOffset;
+    renderPassBeginInfo.renderArea.extent = this->swapchain->getSwapchainExtent();
+
+    VkClearValue clearValues[2] = {
+      {.color = {0.0f, 0.0f, 0.0f, 1.0f}},
+      {.depthStencil = {1.0f, 0}}
+    };
+
+    renderPassBeginInfo.clearValueCount = 2;
+    renderPassBeginInfo.pClearValues = clearValues;
+
+    VkImageSubresourceRange subresourceRange = {};
+    subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    subresourceRange.baseMipLevel = 0;
+    subresourceRange.levelCount = 1;
+    subresourceRange.baseArrayLayer = 0;
+    subresourceRange.layerCount = 1;
+
+    if (vkBeginCommandBuffer(this->renderCommandBuffers->getCommandBufferList()[this->currentFrame], &commandBufferBeginCreateInfo) != VK_SUCCESS) {
+      printf("failed to begin recording command buffer for image #%d\n", this->currentFrame);
+    }
+
+    vkCmdBeginRenderPass(this->renderCommandBuffers->getCommandBufferList()[this->currentFrame], &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+    for (int z = 0; z < this->graphicsPipelineCollection->getGraphicsPipelineList().size(); z++) {
+      vkCmdBindPipeline(this->renderCommandBuffers->getCommandBufferList()[this->currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, this->graphicsPipelineCollection->getGraphicsPipelineList()[z]);
+      vkCmdBindDescriptorSets(this->renderCommandBuffers->getCommandBufferList()[this->currentFrame], VK_PIPELINE_BIND_POINT_GRAPHICS, this->graphicsPipelineCollection->getPipelineLayoutList()[z], 0, this->descriptorSetCollection->getDescriptorSetList().size(), this->descriptorSetCollection->getDescriptorSetList().data(), 0, 0);
+      for (int y = 0; y < this->modelInstanceCollection->getModelInstanceList().size(); y++) {
+        VkDeviceSize offset = 0;
+        std::vector<VkBuffer> vertexBufferList = {this->modelInstanceCollection->getModelInstanceList()[y]->getVertexBuffer()};
+        vkCmdBindVertexBuffers(this->renderCommandBuffers->getCommandBufferList()[this->currentFrame], 0, 1, vertexBufferList.data(), &offset);
+        vkCmdBindIndexBuffer(this->renderCommandBuffers->getCommandBufferList()[this->currentFrame], this->modelInstanceCollection->getModelInstanceList()[y]->getIndexBuffer(), 0, VK_INDEX_TYPE_UINT32);
+        vkCmdDrawIndexed(this->renderCommandBuffers->getCommandBufferList()[this->currentFrame], this->modelInstanceCollection->getModelInstanceList()[y]->getModel()->getPrimitiveCount() * 3, 1, 0, 0, y);
+      }
+      
+      if (z < this->graphicsPipelineCollection->getGraphicsPipelineList().size() - 1) {
+        vkCmdNextSubpass(this->renderCommandBuffers->getCommandBufferList()[this->currentFrame], VK_SUBPASS_CONTENTS_INLINE);
+      }
+    }
+
+    ImDrawData* draw_data = ImGui::GetDrawData();
+    ImGui_ImplVulkan_RenderDrawData(draw_data, this->renderCommandBuffers->getCommandBufferList()[this->currentFrame]);
+    
+    vkCmdEndRenderPass(this->renderCommandBuffers->getCommandBufferList()[this->currentFrame]);
+
+    // { 
+    //   VkImageMemoryBarrier imageMemoryBarrier = {};
+    //   imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+    //   imageMemoryBarrier.pNext = NULL;
+    //   imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    //   imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+    //   imageMemoryBarrier.image = swapchainImageList[this->currentFrame];
+    //   imageMemoryBarrier.subresourceRange = subresourceRange;
+    //   imageMemoryBarrier.srcAccessMask = 0;
+    //   imageMemoryBarrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+
+    //   vkCmdPipelineBarrier(this->renderCommandBuffers->getCommandBufferList()[this->currentFrame], VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0, NULL, 0, NULL, 1, &imageMemoryBarrier);
+    // }
+
+    // { 
+    //   VkImageMemoryBarrier imageMemoryBarrier = {};
+    //   imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+    //   imageMemoryBarrier.pNext = NULL;
+    //   imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_GENERAL;
+    //   imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+    //   imageMemoryBarrier.image = rayTraceImage;
+    //   imageMemoryBarrier.subresourceRange = subresourceRange;
+    //   imageMemoryBarrier.srcAccessMask = 0;
+    //   imageMemoryBarrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+
+    //   vkCmdPipelineBarrier(this->renderCommandBuffers->getCommandBufferList()[this->currentFrame], VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0, NULL, 0, NULL, 1, &imageMemoryBarrier);
+    // }
+
+    // {
+    //   VkImageSubresourceLayers subresourceLayers = {};
+    //   subresourceLayers.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    //   subresourceLayers.mipLevel = 0;
+    //   subresourceLayers.baseArrayLayer = 0;
+    //   subresourceLayers.layerCount = 1;
+
+    //   VkOffset3D offset = {};
+    //   offset.x = 0;
+    //   offset.y = 0;
+    //   offset.z = 0;
+
+    //   VkExtent3D extent = {};
+    //   extent.width = 800;
+    //   extent.height = 600;
+    //   extent.depth = 1;
+
+    //   VkImageCopy imageCopy = {};
+    //   imageCopy.srcSubresource = subresourceLayers;
+    //   imageCopy.srcOffset = offset;
+    //   imageCopy.dstSubresource = subresourceLayers;
+    //   imageCopy.dstOffset = offset;
+    //   imageCopy.extent = extent;
+  
+    //   vkCmdCopyImage(this->renderCommandBuffers->getCommandBufferList()[this->currentFrame], swapchainImageList[this->currentFrame], VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, rayTraceImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &imageCopy);
+    // }
+
+    // { 
+    //   VkImageSubresourceRange subresourceRange = {};
+    //   subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    //   subresourceRange.baseMipLevel = 0;
+    //   subresourceRange.levelCount = 1;
+    //   subresourceRange.baseArrayLayer = 0;
+    //   subresourceRange.layerCount = 1;
+
+    //   VkImageMemoryBarrier imageMemoryBarrier = {};
+    //   imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+    //   imageMemoryBarrier.pNext = NULL;
+    //   imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+    //   imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+    //   imageMemoryBarrier.image = swapchainImageList[this->currentFrame];
+    //   imageMemoryBarrier.subresourceRange = subresourceRange;
+    //   imageMemoryBarrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+    //   imageMemoryBarrier.dstAccessMask = 0;
+
+    //   vkCmdPipelineBarrier(this->renderCommandBuffers->getCommandBufferList()[this->currentFrame], VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0, NULL, 0, NULL, 1, &imageMemoryBarrier);
+    // }
+
+    // { 
+    //   VkImageSubresourceRange subresourceRange = {};
+    //   subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    //   subresourceRange.baseMipLevel = 0;
+    //   subresourceRange.levelCount = 1;
+    //   subresourceRange.baseArrayLayer = 0;
+    //   subresourceRange.layerCount = 1;
+
+    //   VkImageMemoryBarrier imageMemoryBarrier = {};
+    //   imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+    //   imageMemoryBarrier.pNext = NULL;
+    //   imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+    //   imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_GENERAL;
+    //   imageMemoryBarrier.image = rayTraceImage;
+    //   imageMemoryBarrier.subresourceRange = subresourceRange;
+    //   imageMemoryBarrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+    //   imageMemoryBarrier.dstAccessMask = 0;
+
+    //   vkCmdPipelineBarrier(this->renderCommandBuffers->getCommandBufferList()[this->currentFrame], VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0, NULL, 0, NULL, 1, &imageMemoryBarrier);
+    // }
+
+    if (vkEndCommandBuffer(this->renderCommandBuffers->getCommandBufferList()[this->currentFrame]) != VK_SUCCESS) {
+      printf("failed to end recording command buffer for image #%d\n", this->currentFrame);
+    }
+  }
+
   if (vkQueueSubmit(this->deviceQueue->getGraphicsQueue(), 1, &submitInfo, inFlightFence) != VK_SUCCESS) {
     printf("failed to submit draw command buffer\n");
   }

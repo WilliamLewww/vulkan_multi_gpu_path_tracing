@@ -87,8 +87,8 @@ Renderer::Renderer(VkInstance vulkanInstance, VkSurfaceKHR surface, ModelCollect
   };
 
   this->displayDevice->createGraphicsPipelineCollection(shaderList);
-  this->displayDevice->createRenderCommandBuffers();
 
+  this->displayDevice->createRenderCommandBuffers();
   this->displayDevice->createSynchronizationObjects();
 }
 
