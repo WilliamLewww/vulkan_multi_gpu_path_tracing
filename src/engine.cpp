@@ -24,10 +24,10 @@ Engine::Engine() {
                       this->renderer->getLogicalDevice(), 
                       this->renderer->getGraphicsQueueIndex(), 
                       this->renderer->getGraphicsQueue(), 
-                      this->renderer->getDescriptorPool(),
                       this->renderer->getMinImageCount(),
                       this->renderer->getImageCount(),
-                      this->renderer->getRenderPass());
+                      this->renderer->getRenderPass(),
+                      this->renderer->getCommandPool());
 }
 
 Engine::~Engine() {
@@ -46,5 +46,6 @@ void Engine::start() {
     this->camera->update();
     this->renderer->updateUniformBuffers(camera);
     this->renderer->render();
+    this->gui->render();
   }
 }

@@ -31,10 +31,6 @@ VkQueue Device::getGraphicsQueue() {
   return this->deviceQueue->getGraphicsQueue();
 }
 
-VkDescriptorPool Device::getDescriptorPool() {
-  return this->descriptorSetCollection->getDescriptorPool();
-}
-
 uint32_t Device::getMinImageCount() {
   return 2;
 }
@@ -45,6 +41,10 @@ uint32_t Device::getImageCount() {
 
 VkRenderPass Device::getRenderPass() {
   return this->renderPass->getRenderPass();
+}
+
+VkCommandPool Device::getCommandPool() {
+  return this->commandPool->getCommandPool();
 }
 
 ModelInstanceCollection* Device::getModelInstanceCollectionPointer() {

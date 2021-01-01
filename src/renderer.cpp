@@ -112,10 +112,6 @@ VkQueue Renderer::getGraphicsQueue() {
   return this->displayDevice->getGraphicsQueue();
 }
 
-VkDescriptorPool Renderer::getDescriptorPool() {
-  return this->displayDevice->getDescriptorPool();
-}
-
 uint32_t Renderer::getMinImageCount() {
   return this->displayDevice->getMinImageCount();
 }
@@ -126,6 +122,10 @@ uint32_t Renderer::getImageCount() {
 
 VkRenderPass Renderer::getRenderPass() {
   return this->displayDevice->getRenderPass();
+}
+
+VkCommandPool Renderer::getCommandPool() {
+  return this->displayDevice->getCommandPool();
 }
 
 void Renderer::render() {

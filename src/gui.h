@@ -13,10 +13,12 @@ public:
       VkDevice logicalDevice, 
       uint32_t queueFamily, 
       VkQueue queue, 
-      VkDescriptorPool descriptorPool,
       uint32_t minImageCount,
       uint32_t imageCount,
-      VkRenderPass renderPass);
+      VkRenderPass renderPass,
+      VkCommandPool commandPool);
   
   ~GUI();
+
+  void render();
 };

@@ -18,10 +18,10 @@ public:
   VkDevice getLogicalDevice();
   uint32_t getGraphicsQueueIndex(); 
   VkQueue getGraphicsQueue(); 
-  VkDescriptorPool getDescriptorPool();
   uint32_t getMinImageCount();
   uint32_t getImageCount();
   VkRenderPass getRenderPass();
+  VkCommandPool getCommandPool();
 
   void render();
   void updateUniformBuffers(Camera* camera);
