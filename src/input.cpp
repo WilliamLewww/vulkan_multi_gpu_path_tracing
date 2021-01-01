@@ -27,7 +27,7 @@ bool Input::checkKeyDown(int key) {
 }
 
 bool Input::checkKeyPress(int key) {
-  bool found = std::find(keyDownList.begin(), keyDownList.end(), key) != keyDownList.end();
+  bool found = std::find(keyPressList.begin(), keyPressList.end(), key) != keyPressList.end();
   keyPressList.erase(std::remove(keyPressList.begin(), keyPressList.end(), key), keyPressList.end());
 
   return found;

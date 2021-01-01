@@ -18,6 +18,8 @@ private:
   Surface* surface;
   Renderer* renderer;
   GUI* gui;
+
+  bool mouseLocked = true;
 public:
   Engine();
   ~Engine();

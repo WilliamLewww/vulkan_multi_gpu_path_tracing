@@ -43,6 +43,18 @@ Engine::~Engine() {
 void Engine::start() {
   while (!glfwWindowShouldClose(this->window->getWindow())) {
     glfwPollEvents();
+
+    if (Input::checkKeyPress(GLFW_KEY_Q)) {
+      this->mouseLocked = !this->mouseLocked;
+
+      if (this->mouseLocked) {
+        glfwSetInputMode(this->window->getWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+      }
+      else {
+        glfwSetInputMode(this->window->getWindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+      }
+    }
+
     this->camera->update();
     this->renderer->updateUniformBuffers(camera);
     this->gui->render();

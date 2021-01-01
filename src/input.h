@@ -4,6 +4,8 @@
 #include <vector>
 #include <algorithm>
 
+#include <stdio.h>
+
 class Input {
 private:
   static std::vector<int> keyDownList;
