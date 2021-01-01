@@ -89,102 +89,102 @@ void RenderCommandBuffers::recreateCommandBuffer(uint32_t imageIndex,
   
   vkCmdEndRenderPass(this->commandBufferList[imageIndex]);
 
-  // { 
-  //   VkImageMemoryBarrier imageMemoryBarrier = {};
-  //   imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-  //   imageMemoryBarrier.pNext = NULL;
-  //   imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-  //   imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-  //   imageMemoryBarrier.image = swapchainImageList[imageIndex];
-  //   imageMemoryBarrier.subresourceRange = subresourceRange;
-  //   imageMemoryBarrier.srcAccessMask = 0;
-  //   imageMemoryBarrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+  { 
+    VkImageMemoryBarrier imageMemoryBarrier = {};
+    imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+    imageMemoryBarrier.pNext = NULL;
+    imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+    imageMemoryBarrier.image = swapchainImageList[imageIndex];
+    imageMemoryBarrier.subresourceRange = subresourceRange;
+    imageMemoryBarrier.srcAccessMask = 0;
+    imageMemoryBarrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
 
-  //   vkCmdPipelineBarrier(this->commandBufferList[imageIndex], VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0, NULL, 0, NULL, 1, &imageMemoryBarrier);
-  // }
+    vkCmdPipelineBarrier(this->commandBufferList[imageIndex], VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0, NULL, 0, NULL, 1, &imageMemoryBarrier);
+  }
 
-  // { 
-  //   VkImageMemoryBarrier imageMemoryBarrier = {};
-  //   imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-  //   imageMemoryBarrier.pNext = NULL;
-  //   imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_GENERAL;
-  //   imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-  //   imageMemoryBarrier.image = rayTraceImage;
-  //   imageMemoryBarrier.subresourceRange = subresourceRange;
-  //   imageMemoryBarrier.srcAccessMask = 0;
-  //   imageMemoryBarrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+  { 
+    VkImageMemoryBarrier imageMemoryBarrier = {};
+    imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+    imageMemoryBarrier.pNext = NULL;
+    imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_GENERAL;
+    imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+    imageMemoryBarrier.image = rayTraceImage;
+    imageMemoryBarrier.subresourceRange = subresourceRange;
+    imageMemoryBarrier.srcAccessMask = 0;
+    imageMemoryBarrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
 
-  //   vkCmdPipelineBarrier(this->commandBufferList[imageIndex], VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0, NULL, 0, NULL, 1, &imageMemoryBarrier);
-  // }
+    vkCmdPipelineBarrier(this->commandBufferList[imageIndex], VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0, NULL, 0, NULL, 1, &imageMemoryBarrier);
+  }
 
-  // {
-  //   VkImageSubresourceLayers subresourceLayers = {};
-  //   subresourceLayers.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-  //   subresourceLayers.mipLevel = 0;
-  //   subresourceLayers.baseArrayLayer = 0;
-  //   subresourceLayers.layerCount = 1;
+  {
+    VkImageSubresourceLayers subresourceLayers = {};
+    subresourceLayers.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    subresourceLayers.mipLevel = 0;
+    subresourceLayers.baseArrayLayer = 0;
+    subresourceLayers.layerCount = 1;
 
-  //   VkOffset3D offset = {};
-  //   offset.x = 0;
-  //   offset.y = 0;
-  //   offset.z = 0;
+    VkOffset3D offset = {};
+    offset.x = 0;
+    offset.y = 0;
+    offset.z = 0;
 
-  //   VkExtent3D extent = {};
-  //   extent.width = 800;
-  //   extent.height = 600;
-  //   extent.depth = 1;
+    VkExtent3D extent = {};
+    extent.width = 800;
+    extent.height = 600;
+    extent.depth = 1;
 
-  //   VkImageCopy imageCopy = {};
-  //   imageCopy.srcSubresource = subresourceLayers;
-  //   imageCopy.srcOffset = offset;
-  //   imageCopy.dstSubresource = subresourceLayers;
-  //   imageCopy.dstOffset = offset;
-  //   imageCopy.extent = extent;
+    VkImageCopy imageCopy = {};
+    imageCopy.srcSubresource = subresourceLayers;
+    imageCopy.srcOffset = offset;
+    imageCopy.dstSubresource = subresourceLayers;
+    imageCopy.dstOffset = offset;
+    imageCopy.extent = extent;
 
-  //   vkCmdCopyImage(this->commandBufferList[imageIndex], swapchainImageList[imageIndex], VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, rayTraceImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &imageCopy);
-  // }
+    vkCmdCopyImage(this->commandBufferList[imageIndex], swapchainImageList[imageIndex], VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, rayTraceImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &imageCopy);
+  }
 
-  // { 
-  //   VkImageSubresourceRange subresourceRange = {};
-  //   subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-  //   subresourceRange.baseMipLevel = 0;
-  //   subresourceRange.levelCount = 1;
-  //   subresourceRange.baseArrayLayer = 0;
-  //   subresourceRange.layerCount = 1;
+  { 
+    VkImageSubresourceRange subresourceRange = {};
+    subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    subresourceRange.baseMipLevel = 0;
+    subresourceRange.levelCount = 1;
+    subresourceRange.baseArrayLayer = 0;
+    subresourceRange.layerCount = 1;
 
-  //   VkImageMemoryBarrier imageMemoryBarrier = {};
-  //   imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-  //   imageMemoryBarrier.pNext = NULL;
-  //   imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-  //   imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-  //   imageMemoryBarrier.image = swapchainImageList[imageIndex];
-  //   imageMemoryBarrier.subresourceRange = subresourceRange;
-  //   imageMemoryBarrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
-  //   imageMemoryBarrier.dstAccessMask = 0;
+    VkImageMemoryBarrier imageMemoryBarrier = {};
+    imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+    imageMemoryBarrier.pNext = NULL;
+    imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+    imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+    imageMemoryBarrier.image = swapchainImageList[imageIndex];
+    imageMemoryBarrier.subresourceRange = subresourceRange;
+    imageMemoryBarrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+    imageMemoryBarrier.dstAccessMask = 0;
 
-  //   vkCmdPipelineBarrier(this->commandBufferList[imageIndex], VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0, NULL, 0, NULL, 1, &imageMemoryBarrier);
-  // }
+    vkCmdPipelineBarrier(this->commandBufferList[imageIndex], VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0, NULL, 0, NULL, 1, &imageMemoryBarrier);
+  }
 
-  // { 
-  //   VkImageSubresourceRange subresourceRange = {};
-  //   subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-  //   subresourceRange.baseMipLevel = 0;
-  //   subresourceRange.levelCount = 1;
-  //   subresourceRange.baseArrayLayer = 0;
-  //   subresourceRange.layerCount = 1;
+  { 
+    VkImageSubresourceRange subresourceRange = {};
+    subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    subresourceRange.baseMipLevel = 0;
+    subresourceRange.levelCount = 1;
+    subresourceRange.baseArrayLayer = 0;
+    subresourceRange.layerCount = 1;
 
-  //   VkImageMemoryBarrier imageMemoryBarrier = {};
-  //   imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-  //   imageMemoryBarrier.pNext = NULL;
-  //   imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-  //   imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_GENERAL;
-  //   imageMemoryBarrier.image = rayTraceImage;
-  //   imageMemoryBarrier.subresourceRange = subresourceRange;
-  //   imageMemoryBarrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-  //   imageMemoryBarrier.dstAccessMask = 0;
+    VkImageMemoryBarrier imageMemoryBarrier = {};
+    imageMemoryBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+    imageMemoryBarrier.pNext = NULL;
+    imageMemoryBarrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+    imageMemoryBarrier.newLayout = VK_IMAGE_LAYOUT_GENERAL;
+    imageMemoryBarrier.image = rayTraceImage;
+    imageMemoryBarrier.subresourceRange = subresourceRange;
+    imageMemoryBarrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+    imageMemoryBarrier.dstAccessMask = 0;
 
-  //   vkCmdPipelineBarrier(this->commandBufferList[imageIndex], VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0, NULL, 0, NULL, 1, &imageMemoryBarrier);
-  // }
+    vkCmdPipelineBarrier(this->commandBufferList[imageIndex], VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0, NULL, 0, NULL, 1, &imageMemoryBarrier);
+  }
 
   if (vkEndCommandBuffer(this->commandBufferList[imageIndex]) != VK_SUCCESS) {
     printf("failed to end recording command buffer for image #%d\n", imageIndex);
