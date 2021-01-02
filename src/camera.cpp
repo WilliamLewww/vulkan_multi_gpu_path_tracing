@@ -48,51 +48,57 @@ void Camera::resetCursorPosition() {
   this->previousCursorPositionY = Input::getCursorPositionY();
 }
 
-void Camera::update() {
+void Camera::update(bool isCursorActive) {
   int isCameraMoved = 0;
 
   if (Input::checkKeyDown(GLFW_KEY_W)) {
     this->position[0] += cos(-this->yaw - (M_PI / 2)) * 0.1f;
     this->position[2] += sin(-this->yaw - (M_PI / 2)) * 0.1f;
-    isCameraMoved = 1;
   }
   if (Input::checkKeyDown(GLFW_KEY_S)) {
     this->position[0] -= cos(-this->yaw - (M_PI / 2)) * 0.1f;
     this->position[2] -= sin(-this->yaw - (M_PI / 2)) * 0.1f;
-    isCameraMoved = 1;
   }
   if (Input::checkKeyDown(GLFW_KEY_A)) {
     this->position[0] -= cos(-this->yaw) * 0.1f;
     this->position[2] -= sin(-this->yaw) * 0.1f;
-    isCameraMoved = 1;
   }
   if (Input::checkKeyDown(GLFW_KEY_D)) {
     this->position[0] += cos(-this->yaw) * 0.1f;
     this->position[2] += sin(-this->yaw) * 0.1f;
-    isCameraMoved = 1;
   }
   if (Input::checkKeyDown(GLFW_KEY_SPACE)) {
     this->position[1] += 0.1f;
-    isCameraMoved = 1;
   }
   if (Input::checkKeyDown(GLFW_KEY_LEFT_CONTROL)) {
     this->position[1] -= 0.1f;
-    isCameraMoved = 1;
   }
 
-  double cursorPositionX = Input::getCursorPositionX();
-  double cursorPositionY = Input::getCursorPositionY();
+  static float previousPosition[3] = {this->position[0], this->position[1], this->position[2]};
 
-  if (this->previousCursorPositionX != cursorPositionX || this->previousCursorPositionY != cursorPositionY) {
-    double mouseDifferenceX = this->previousCursorPositionX - cursorPositionX;
-    double mouseDifferenceY = this->previousCursorPositionY - cursorPositionY;
+  if (previousPosition[0] != this->position[0] || previousPosition[1] != this->position[1] || previousPosition[2] != this->position[2]) {
+    isCameraMoved = true;
 
-    this->yaw += mouseDifferenceX * 0.0005f;
+    previousPosition[0] = this->position[0];
+    previousPosition[1] = this->position[1];
+    previousPosition[2] = this->position[2];
+  }
 
-    this->previousCursorPositionX = cursorPositionX;
-    this->previousCursorPositionY = cursorPositionY;
+  if (isCursorActive) {
+    double cursorPositionX = Input::getCursorPositionX();
+    double cursorPositionY = Input::getCursorPositionY();
 
-    isCameraMoved = 1;
+    if (this->previousCursorPositionX != cursorPositionX || this->previousCursorPositionY != cursorPositionY) {
+      double mouseDifferenceX = this->previousCursorPositionX - cursorPositionX;
+      double mouseDifferenceY = this->previousCursorPositionY - cursorPositionY;
+
+      this->yaw += mouseDifferenceX * 0.0005f;
+
+      this->previousCursorPositionX = cursorPositionX;
+      this->previousCursorPositionY = cursorPositionY;
+
+      isCameraMoved = 1;
+    }
   }
 
   this->uniform.position[0] = this->position[0]; 
@@ -116,8 +122,4 @@ void Camera::update() {
   else {
     this->uniform.frameCount += 1;
   }
-}
-
-void Camera::updateOnlyFrames() {
-  this->uniform.frameCount += 1;
 }

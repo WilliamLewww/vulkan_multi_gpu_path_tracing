@@ -60,7 +60,7 @@ void Engine::start() {
       this->camera->update();
     }
     else {
-      this->camera->updateOnlyFrames();
+      this->camera->update(false);
     }
 
     this->renderer->updateUniformBuffers(camera);

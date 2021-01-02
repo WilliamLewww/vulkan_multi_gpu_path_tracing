@@ -35,6 +35,5 @@ public:
 
   void resetCursorPosition();
 
-  void update();
-  void updateOnlyFrames();
+  void update(bool isCursorActive = true);
 };
