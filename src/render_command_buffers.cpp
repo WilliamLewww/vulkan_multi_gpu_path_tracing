@@ -34,7 +34,8 @@ void RenderCommandBuffers::recreateCommandBuffer(uint32_t imageIndex,
                                                  std::vector<VkPipeline> pipelineList,
                                                  std::vector<VkPipelineLayout> pipelineLayoutList,
                                                  std::vector<VkDescriptorSet> descriptorSetList,
-                                                 std::vector<ModelInstance*> modelInstanceList) {
+                                                 std::vector<ModelInstance*> modelInstanceList,
+                                                 bool isActiveGUI) {
 
   VkCommandBufferBeginInfo commandBufferBeginCreateInfo = {};
   commandBufferBeginCreateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -84,8 +85,10 @@ void RenderCommandBuffers::recreateCommandBuffer(uint32_t imageIndex,
     }
   }
 
-  ImDrawData* draw_data = ImGui::GetDrawData();
-  ImGui_ImplVulkan_RenderDrawData(draw_data, this->commandBufferList[imageIndex]);
+  if (isActiveGUI) {
+    ImDrawData* draw_data = ImGui::GetDrawData();
+    ImGui_ImplVulkan_RenderDrawData(draw_data, this->commandBufferList[imageIndex]);
+  }
   
   vkCmdEndRenderPass(this->commandBufferList[imageIndex]);
 

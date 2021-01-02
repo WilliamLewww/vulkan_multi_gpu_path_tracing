@@ -107,7 +107,7 @@ void GUI::render() {
 
   ImGui::SetNextWindowSize(ImVec2(200, 300));
   ImGui::Begin("Dashboard", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings);
-  ImGui::Text("(%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+  ImGui::Text("(%.1f FPS)", ImGui::GetIO().Framerate);
   ImGui::End();
 
   ImGui::Render();

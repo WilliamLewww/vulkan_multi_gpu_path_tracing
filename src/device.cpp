@@ -244,7 +244,8 @@ void Device::drawFrame() {
                                                     this->graphicsPipelineCollection->getGraphicsPipelineList(),
                                                     this->graphicsPipelineCollection->getPipelineLayoutList(),
                                                     this->descriptorSetCollection->getDescriptorSetList(),
-                                                    this->modelInstanceCollection->getModelInstanceList());
+                                                    this->modelInstanceCollection->getModelInstanceList(),
+                                                    true);
 
   if (vkQueueSubmit(this->deviceQueue->getGraphicsQueue(), 1, &submitInfo, this->synchronizationObjects->getInFlightFence(this->currentFrame)) != VK_SUCCESS) {
     printf("failed to submit draw command buffer\n");

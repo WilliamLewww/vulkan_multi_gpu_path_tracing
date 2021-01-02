@@ -31,5 +31,6 @@ public:
                              std::vector<VkPipeline> pipelineList,
                              std::vector<VkPipelineLayout> pipelineLayoutList,
                              std::vector<VkDescriptorSet> descriptorSetList,
-                             std::vector<ModelInstance*> modelInstanceList);
+                             std::vector<ModelInstance*> modelInstanceList,
+                             bool isActiveGUI = false);
 };
