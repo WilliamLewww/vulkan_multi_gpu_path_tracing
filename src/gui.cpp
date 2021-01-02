@@ -105,11 +105,10 @@ void GUI::render() {
   ImGui_ImplGlfw_NewFrame();
   ImGui::NewFrame();
 
-  {
-    ImGui::Begin("Hello, world!");
-    ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-    ImGui::End();
-  }
+  ImGui::SetNextWindowSize(ImVec2(200, 300));
+  ImGui::Begin("Dashboard", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings);
+  ImGui::Text("(%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+  ImGui::End();
 
   ImGui::Render();
 }
