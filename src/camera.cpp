@@ -23,6 +23,8 @@ Camera::Camera() {
   this->position[2] = 0;
   this->yaw = 0;
   this->pitch = 0;
+
+  resetCursorPosition();
 }
 
 Camera::~Camera() {
@@ -35,6 +37,11 @@ void* Camera::getUniformPointer() {
 
 uint32_t Camera::getUniformStructureSize() {
   return sizeof(CameraUniform);
+}
+
+void Camera::resetCursorPosition() {
+  this->previousCursorPositionX = Input::getCursorPositionX();
+  this->previousCursorPositionY = Input::getCursorPositionY();
 }
 
 void Camera::update() {
@@ -69,20 +76,17 @@ void Camera::update() {
     isCameraMoved = 1;
   }
 
-  static double previousCursorPositionX = Input::getCursorPositionX();
-  static double previousCursorPositionY = Input::getCursorPositionY();
-
   double cursorPositionX = Input::getCursorPositionX();
   double cursorPositionY = Input::getCursorPositionY();
 
-  if (previousCursorPositionX != cursorPositionX || previousCursorPositionY != cursorPositionY) {
-    double mouseDifferenceX = previousCursorPositionX - cursorPositionX;
-    double mouseDifferenceY = previousCursorPositionY - cursorPositionY;
+  if (this->previousCursorPositionX != cursorPositionX || this->previousCursorPositionY != cursorPositionY) {
+    double mouseDifferenceX = this->previousCursorPositionX - cursorPositionX;
+    double mouseDifferenceY = this->previousCursorPositionY - cursorPositionY;
 
     this->yaw += mouseDifferenceX * 0.0005f;
 
-    previousCursorPositionX = cursorPositionX;
-    previousCursorPositionY = cursorPositionY;
+    this->previousCursorPositionX = cursorPositionX;
+    this->previousCursorPositionY = cursorPositionY;
 
     isCameraMoved = 1;
   }
@@ -108,4 +112,8 @@ void Camera::update() {
   else {
     this->uniform.frameCount += 1;
   }
+}
+
+void Camera::updateOnlyFrames() {
+  this->uniform.frameCount += 1;
 }

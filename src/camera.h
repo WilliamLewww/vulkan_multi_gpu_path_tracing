@@ -21,6 +21,9 @@ private:
   float position[3];
   float yaw;
   float pitch;
+
+  double previousCursorPositionX;
+  double previousCursorPositionY;
 public:
   Camera();
   ~Camera();
@@ -28,5 +31,8 @@ public:
   void* getUniformPointer();
   uint32_t getUniformStructureSize();
 
+  void resetCursorPosition();
+
   void update();
+  void updateOnlyFrames();
 };

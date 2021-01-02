@@ -48,6 +48,7 @@ void Engine::start() {
       this->mouseLocked = !this->mouseLocked;
 
       if (this->mouseLocked) {
+        this->camera->resetCursorPosition();
         glfwSetInputMode(this->window->getWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
       }
       else {
@@ -57,6 +58,9 @@ void Engine::start() {
 
     if (this->mouseLocked) {
       this->camera->update();
+    }
+    else {
+      this->camera->updateOnlyFrames();
     }
 
     this->renderer->updateUniformBuffers(camera);
