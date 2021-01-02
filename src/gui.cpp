@@ -100,14 +100,20 @@ GUI::~GUI() {
 
 }
 
-void GUI::render() {
+void GUI::render(Camera* camera) {
   ImGui_ImplVulkan_NewFrame();
   ImGui_ImplGlfw_NewFrame();
   ImGui::NewFrame();
 
-  ImGui::SetNextWindowSize(ImVec2(200, 300));
+  ImGui::SetNextWindowSize(ImVec2(225, 300));
   ImGui::Begin("Dashboard", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings);
   ImGui::Text("(%.1f FPS)", ImGui::GetIO().Framerate);
+  ImGui::Text("Press \"Q\" to toggle cursor");
+
+  if (ImGui::CollapsingHeader("Camera Properties", ImGuiTreeNodeFlags_DefaultOpen)) {
+    ImGui::InputFloat3("Position", camera->getPosition(), "%.1f");
+  }
+
   ImGui::End();
 
   ImGui::Render();

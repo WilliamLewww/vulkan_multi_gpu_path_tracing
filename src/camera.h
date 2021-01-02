@@ -28,6 +28,8 @@ public:
   Camera();
   ~Camera();
 
+  float* getPosition();
+
   void* getUniformPointer();
   uint32_t getUniformStructureSize();
 

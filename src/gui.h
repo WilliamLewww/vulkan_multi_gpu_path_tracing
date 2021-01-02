@@ -4,6 +4,8 @@
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_vulkan.h"
 
+#include "camera.h"
+
 class GUI {
 private:
 public:
@@ -20,5 +22,5 @@ public:
   
   ~GUI();
 
-  void render();
+  void render(Camera* camera);
 };

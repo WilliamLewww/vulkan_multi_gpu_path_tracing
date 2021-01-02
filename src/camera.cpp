@@ -31,6 +31,10 @@ Camera::~Camera() {
 
 }
 
+float* Camera::getPosition() {
+  return this->position;
+}
+
 void* Camera::getUniformPointer() {
   return &this->uniform;
 }
