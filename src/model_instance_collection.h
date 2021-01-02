@@ -127,6 +127,9 @@ public:
   void* getUniformBufferPointer();
   uint32_t getUniformBufferSize();
 
+  uint32_t getInstanceCount();
+  ModelInstance* getModelInstance(int index);
+
   std::map<Model*, std::vector<ModelInstance*>> getModelInstanceMap();
 
   VkDescriptorBufferInfo* getDescriptorTotalVertexBufferInfoPointer();

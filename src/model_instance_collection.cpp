@@ -506,6 +506,14 @@ uint32_t ModelInstanceCollection::getUniformBufferSize() {
   return sizeof(InstanceUniform);
 }
 
+uint32_t ModelInstanceCollection::getInstanceCount() {
+  return this->modelInstanceList.size();
+}
+
+ModelInstance* ModelInstanceCollection::getModelInstance(int index) {
+  return this->modelInstanceList[index];
+}
+
 std::map<Model*, std::vector<ModelInstance*>> ModelInstanceCollection::getModelInstanceMap() {
   return this->modelInstanceMap;
 }

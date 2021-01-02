@@ -96,6 +96,10 @@ Renderer::~Renderer() {
   delete this->deviceCollection;
 }
 
+ModelInstanceCollection* Renderer::getModelInstanceCollection() {
+  return this->displayDevice->getModelInstanceCollectionPointer();
+}
+
 VkPhysicalDevice Renderer::getPhysicalDevice() {
   return this->displayDevice->getPhysicalDevice();
 }

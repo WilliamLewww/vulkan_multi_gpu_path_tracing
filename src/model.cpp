@@ -19,6 +19,10 @@ Model::~Model() {
 
 }
 
+std::string Model::getFileName() {
+  return this->fileName;
+}
+
 bool Model::checkError() {
   if (!this->warning.empty()) {
     printf("%s\n", this->warning.c_str());

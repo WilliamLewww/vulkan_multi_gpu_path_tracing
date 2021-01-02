@@ -100,7 +100,7 @@ GUI::~GUI() {
 
 }
 
-void GUI::render(Camera* camera) {
+void GUI::render(Camera* camera, ModelInstanceCollection* modelInstanceCollection) {
   ImGui_ImplVulkan_NewFrame();
   ImGui_ImplGlfw_NewFrame();
   ImGui::NewFrame();
@@ -112,6 +112,12 @@ void GUI::render(Camera* camera) {
 
   if (ImGui::CollapsingHeader("Camera Properties", ImGuiTreeNodeFlags_DefaultOpen)) {
     ImGui::InputFloat3("Position", camera->getPosition(), "%.1f");
+  }
+
+  if (ImGui::CollapsingHeader("Model Instances", ImGuiTreeNodeFlags_DefaultOpen)) {
+    for (int x = 0; x < modelInstanceCollection->getInstanceCount(); x++) {
+      ImGui::Text("Model: %s", modelInstanceCollection->getModelInstance(x)->getModel()->getFileName().c_str());
+    }    
   }
 
   ImGui::End();
