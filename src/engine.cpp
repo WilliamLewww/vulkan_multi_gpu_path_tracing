@@ -55,7 +55,10 @@ void Engine::start() {
       }
     }
 
-    this->camera->update();
+    if (this->mouseLocked) {
+      this->camera->update();
+    }
+
     this->renderer->updateUniformBuffers(camera);
     this->gui->render();
     this->renderer->render();
