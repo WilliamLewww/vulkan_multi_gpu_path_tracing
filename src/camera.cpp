@@ -48,6 +48,10 @@ void Camera::resetCursorPosition() {
   this->previousCursorPositionY = Input::getCursorPositionY();
 }
 
+void Camera::resetFrames() {
+  this->uniform.frameCount = 0;
+}
+
 void Camera::update(bool isCursorActive) {
   int isCameraMoved = 0;
 

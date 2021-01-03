@@ -34,6 +34,7 @@ public:
   uint32_t getUniformStructureSize();
 
   void resetCursorPosition();
+  void resetFrames();
 
   void update(bool isCursorActive = true);
 };
