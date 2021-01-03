@@ -136,6 +136,10 @@ void Renderer::render() {
   this->displayDevice->drawFrame();
 }
 
-void Renderer::updateUniformBuffers(Camera* camera) {
+void Renderer::updateCameraUniformBuffers(Camera* camera) {
   this->displayDevice->updateUniformBuffer(0, camera->getUniformPointer(), camera->getUniformStructureSize());
+}
+
+void Renderer::updateModelInstancesUniformBuffers() {
+  this->displayDevice->updateUniformBuffer(1, this->displayDevice->getModelInstanceCollectionPointer()->getUniformBufferPointer(), this->displayDevice->getModelInstanceCollectionPointer()->getUniformBufferSize());
 }

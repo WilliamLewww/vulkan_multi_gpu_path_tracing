@@ -141,4 +141,6 @@ public:
   VkDescriptorBufferInfo* getDescriptorTotalMaterialLightBufferInfoPointer();
 
   std::vector<ModelInstance*> getModelInstanceList();
+
+  void updateUniformBuffer();
 };

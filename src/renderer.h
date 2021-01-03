@@ -26,5 +26,6 @@ public:
   VkCommandPool getCommandPool();
 
   void render();
-  void updateUniformBuffers(Camera* camera);
+  void updateCameraUniformBuffers(Camera* camera);
+  void updateModelInstancesUniformBuffers();
 };

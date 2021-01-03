@@ -549,3 +549,18 @@ VkDescriptorBufferInfo* ModelInstanceCollection::getDescriptorTotalMaterialLight
 std::vector<ModelInstance*> ModelInstanceCollection::getModelInstanceList() {
   return this->modelInstanceList;
 }
+
+void ModelInstanceCollection::updateUniformBuffer() {
+  uint32_t instanceCount = this->modelInstanceList.size();
+  std::vector<float> totalTransformList = this->getTotalTransformList();
+
+  memcpy((float*)&this->instanceUniform, &instanceCount, sizeof(uint32_t));
+  for (int x = 0; x < this->vertexOffsetList.size(); x++) {
+    memcpy(4 + (x * 4) + (float*)&this->instanceUniform, &this->vertexOffsetList[x], sizeof(uint32_t));
+    memcpy(36 + (x * 4) + (float*)&this->instanceUniform, &this->normalOffsetList[x], sizeof(uint32_t));
+    memcpy(68 + (x * 4) + (float*)&this->instanceUniform, &this->indexOffsetList[x], sizeof(uint32_t));
+    memcpy(100 + (x * 4) + (float*)&this->instanceUniform, &this->materialIndexOffsetList[x], sizeof(uint32_t));
+    memcpy(132 + (x * 4) + (float*)&this->instanceUniform, &this->materialOffsetList[x], sizeof(uint32_t));
+  }
+  memcpy(164 + (float*)&this->instanceUniform, totalTransformList.data(), sizeof(float) * totalTransformList.size());
+}

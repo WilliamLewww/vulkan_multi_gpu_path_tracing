@@ -5,6 +5,7 @@
 #include "imgui/imgui_impl_vulkan.h"
 
 #include "camera.h"
+#include "renderer.h"
 #include "model_instance_collection.h"
 
 class GUI {
@@ -23,5 +24,5 @@ public:
   
   ~GUI();
 
-  void render(Camera* camera, ModelInstanceCollection* modelInstanceCollection);
+  void render(Camera* camera, Renderer* renderer, ModelInstanceCollection* modelInstanceCollection);
 };

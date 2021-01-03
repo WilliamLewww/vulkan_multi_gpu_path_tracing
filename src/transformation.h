@@ -21,4 +21,6 @@ public:
 
   Matrix4x4 getTransformMatrix();
   VkTransformMatrixKHR getVulkanTransformMatrix();
+
+  void updateTransformation();
 };

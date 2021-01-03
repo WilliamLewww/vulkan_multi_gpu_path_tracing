@@ -73,3 +73,11 @@ VkTransformMatrixKHR Transformation::getVulkanTransformMatrix() {
 
   return vulkanTransformMatrix;
 }
+
+void Transformation::updateTransformation() {
+  Matrix4x4 transformationMatrix = createIdentityMatrix4x4();
+  transformationMatrix = multiplyMatrix4x4(createScaleMatrix4x4(this->scale[0], this->scale[1], this->scale[2]), transformationMatrix);
+  transformationMatrix = multiplyMatrix4x4(createTranslateMatrix4x4(this->position[0], this->position[1], this->position[2]), transformationMatrix);
+
+   memcpy(&this->transformationMatrix, &transformationMatrix, sizeof(Matrix4x4));
+}

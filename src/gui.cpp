@@ -100,7 +100,7 @@ GUI::~GUI() {
 
 }
 
-void GUI::render(Camera* camera, ModelInstanceCollection* modelInstanceCollection) {
+void GUI::render(Camera* camera, Renderer* renderer, ModelInstanceCollection* modelInstanceCollection) {
   ImGui_ImplVulkan_NewFrame();
   ImGui_ImplGlfw_NewFrame();
   ImGui::NewFrame();
@@ -123,10 +123,14 @@ void GUI::render(Camera* camera, ModelInstanceCollection* modelInstanceCollectio
       if (ImGui::CollapsingHeader(title.c_str())) {
         ImGui::PushID(label.c_str());
         if (ImGui::DragFloat3("Position", modelInstanceCollection->getModelInstance(x)->getTransformation().getPosition(), 0.01, 0.0, 0.0, "%.2f")) {
-
+          modelInstanceCollection->getModelInstance(x)->getTransformation().updateTransformation();
+          modelInstanceCollection->updateUniformBuffer();
+          renderer->updateModelInstancesUniformBuffers();
         }
         if (ImGui::DragFloat3("Scale", modelInstanceCollection->getModelInstance(x)->getTransformation().getScale(), 0.01, 0.0, 0.0, "%.2f")) {
-
+          modelInstanceCollection->getModelInstance(x)->getTransformation().updateTransformation();
+          modelInstanceCollection->updateUniformBuffer();
+          renderer->updateModelInstancesUniformBuffers();
         }
         ImGui::PopID();
       }
