@@ -112,7 +112,7 @@ void GUI::render(Camera* camera, ModelInstanceCollection* modelInstanceCollectio
 
   if (ImGui::CollapsingHeader("Camera Properties", ImGuiTreeNodeFlags_DefaultOpen)) {
     ImGui::PushID("#CAMERA");
-    ImGui::InputFloat3("Position", camera->getPosition(), "%.1f");
+    ImGui::DragFloat3("Position", camera->getPosition(), 0.01, 0.0, 0.0, "%.2f");
     ImGui::PopID();
   }
 
@@ -122,8 +122,12 @@ void GUI::render(Camera* camera, ModelInstanceCollection* modelInstanceCollectio
       std::string label = "#INSTANCE" + std::to_string(x);
       if (ImGui::CollapsingHeader(title.c_str())) {
         ImGui::PushID(label.c_str());
-        ImGui::InputFloat3("Position", modelInstanceCollection->getModelInstance(x)->getTransformation().getPosition(), "%.1f");
-        ImGui::InputFloat3("Scale", modelInstanceCollection->getModelInstance(x)->getTransformation().getScale(), "%.1f");
+        if (ImGui::DragFloat3("Position", modelInstanceCollection->getModelInstance(x)->getTransformation().getPosition(), 0.01, 0.0, 0.0, "%.2f")) {
+
+        }
+        if (ImGui::DragFloat3("Scale", modelInstanceCollection->getModelInstance(x)->getTransformation().getScale(), 0.01, 0.0, 0.0, "%.2f")) {
+
+        }
         ImGui::PopID();
       }
     }    
