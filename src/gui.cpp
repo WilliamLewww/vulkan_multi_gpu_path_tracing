@@ -120,8 +120,8 @@ void GUI::render(Camera* camera, Renderer* renderer, ModelInstanceCollection* mo
     for (int x = 0; x < modelInstanceCollection->getInstanceCount(); x++) {
       std::string title = modelInstanceCollection->getModelInstance(x)->getModel()->getFileName();
       std::string label = "#INSTANCE" + std::to_string(x);
+      ImGui::PushID(label.c_str());
       if (ImGui::CollapsingHeader(title.c_str())) {
-        ImGui::PushID(label.c_str());
         if (ImGui::DragFloat3("Position", modelInstanceCollection->getModelInstance(x)->getTransformation().getPosition(), 0.01, 0.0, 0.0, "%.2f")) {
           modelInstanceCollection->getModelInstance(x)->getTransformation().updateTransformation();
           modelInstanceCollection->updateUniformBuffer();
@@ -136,8 +136,8 @@ void GUI::render(Camera* camera, Renderer* renderer, ModelInstanceCollection* mo
           renderer->updateAccelerationStructure();
           camera->resetFrames();
         }
-        ImGui::PopID();
       }
+      ImGui::PopID();
     }    
   }
 
