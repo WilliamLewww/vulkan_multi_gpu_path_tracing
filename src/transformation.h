@@ -17,6 +17,7 @@ public:
   ~Transformation();
 
   float* getPosition();
+  float* getScale();
 
   Matrix4x4 getTransformMatrix();
   VkTransformMatrixKHR getVulkanTransformMatrix();

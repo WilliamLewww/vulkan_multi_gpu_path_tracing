@@ -21,7 +21,7 @@ public:
 
   uint32_t getInstanceIndex();
 
-  Transformation getTransformation();
+  Transformation& getTransformation();
 
   VkBuffer getVertexBuffer();
   VkBuffer getIndexBuffer();

@@ -53,6 +53,10 @@ float* Transformation::getPosition() {
   return this->position;
 }
 
+float* Transformation::getScale() {
+  return this->scale;
+}
+
 Matrix4x4 Transformation::getTransformMatrix() {
   return this->transformationMatrix;
 }

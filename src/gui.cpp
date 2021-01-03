@@ -105,20 +105,26 @@ void GUI::render(Camera* camera, ModelInstanceCollection* modelInstanceCollectio
   ImGui_ImplGlfw_NewFrame();
   ImGui::NewFrame();
 
-  ImGui::SetNextWindowSize(ImVec2(225, 300));
+  ImGui::SetNextWindowSize(ImVec2(250, 300));
   ImGui::Begin("Dashboard", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings);
   ImGui::Text("(%.1f FPS)", ImGui::GetIO().Framerate);
   ImGui::Text("Press \"Q\" to toggle cursor");
 
   if (ImGui::CollapsingHeader("Camera Properties", ImGuiTreeNodeFlags_DefaultOpen)) {
+    ImGui::PushID("#CAMERA");
     ImGui::InputFloat3("Position", camera->getPosition(), "%.1f");
+    ImGui::PopID();
   }
 
   if (ImGui::CollapsingHeader("Model Instances")) {
     for (int x = 0; x < modelInstanceCollection->getInstanceCount(); x++) {
       std::string title = modelInstanceCollection->getModelInstance(x)->getModel()->getFileName();
+      std::string label = "#INSTANCE" + std::to_string(x);
       if (ImGui::CollapsingHeader(title.c_str())) {
-
+        ImGui::PushID(label.c_str());
+        ImGui::InputFloat3("Position", modelInstanceCollection->getModelInstance(x)->getTransformation().getPosition(), "%.1f");
+        ImGui::InputFloat3("Scale", modelInstanceCollection->getModelInstance(x)->getTransformation().getScale(), "%.1f");
+        ImGui::PopID();
       }
     }    
   }
