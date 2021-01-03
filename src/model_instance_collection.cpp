@@ -41,11 +41,13 @@ ModelInstanceCollection::ModelInstanceCollection(std::map<Model*, std::vector<TR
       this->materialIndexOffsetList.push_back(cumulativeMaterialIndexOffset);
       this->materialOffsetList.push_back(cumulativeMaterialOffset);
 
-      cumulativeVertexOffset += pair.first->getVertexCount();
-      cumulativeNormalOffset += pair.first->getNormalCount();
-      cumulativeIndexOffset += pair.first->getTotalIndexCount();
-      cumulativeMaterialIndexOffset += pair.first->getTotalMaterialIndexCount();
-      cumulativeMaterialOffset += pair.first->getMaterialCount();
+      if (x == pair.second.size() - 1) {
+        cumulativeVertexOffset += pair.first->getVertexCount();
+        cumulativeNormalOffset += pair.first->getNormalCount();
+        cumulativeIndexOffset += pair.first->getTotalIndexCount();
+        cumulativeMaterialIndexOffset += pair.first->getTotalMaterialIndexCount();
+        cumulativeMaterialOffset += pair.first->getMaterialCount();
+      }
 
       for (int y = 0; y < pair.first->getTotalMaterialIndexCount(); y++) {
         float* materialEmission = pair.first->getMaterial(pair.first->getTotalMaterialIndex(y)).emission;
