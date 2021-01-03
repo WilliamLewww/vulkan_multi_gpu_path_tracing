@@ -10,10 +10,13 @@ private:
   Matrix4x4 transformationMatrix;
 
   float position[3];
+  float scale[3];
 public:
   Transformation();
-  Transformation(float* position);
+  Transformation(float* position, float* scale);
   ~Transformation();
+
+  float* getPosition();
 
   Matrix4x4 getTransformMatrix();
   VkTransformMatrixKHR getVulkanTransformMatrix();

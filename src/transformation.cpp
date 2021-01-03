@@ -3,20 +3,54 @@
 Transformation::Transformation() {
   Matrix4x4 transformationMatrix = createIdentityMatrix4x4();
   memcpy(&this->transformationMatrix, &transformationMatrix, sizeof(Matrix4x4));
+
+  this->position[0] = 0;
+  this->position[1] = 0;
+  this->position[2] = 0;
+
+  this->scale[0] = 1;
+  this->scale[1] = 1;
+  this->scale[2] = 1;
 }
 
-Transformation::Transformation(float* position) {
-  this->position[0] = position[0];
-  this->position[1] = position[1];
-  this->position[2] = position[2];
-
+Transformation::Transformation(float* position, float* scale) {
   Matrix4x4 transformationMatrix = createIdentityMatrix4x4();
-  transformationMatrix = multiplyMatrix4x4(createTranslateMatrix4x4(position[0], position[1], position[2]), transformationMatrix);
+
+  if (scale != NULL) {
+    this->scale[0] = scale[0];
+    this->scale[1] = scale[1];
+    this->scale[2] = scale[2];
+
+    transformationMatrix = multiplyMatrix4x4(createScaleMatrix4x4(scale[0], scale[1], scale[2]), transformationMatrix);
+  }
+  else {
+    this->scale[0] = 1;
+    this->scale[1] = 1;
+    this->scale[2] = 1;
+  }
+
+  if (position != NULL) {
+    this->position[0] = position[0];
+    this->position[1] = position[1];
+    this->position[2] = position[2];
+
+    transformationMatrix = multiplyMatrix4x4(createTranslateMatrix4x4(position[0], position[1], position[2]), transformationMatrix);
+  }
+  else {
+    this->position[0] = 0;
+    this->position[1] = 0;
+    this->position[2] = 0;
+  }
+  
   memcpy(&this->transformationMatrix, &transformationMatrix, sizeof(Matrix4x4));
 }
 
 Transformation::~Transformation() {
 
+}
+
+float* Transformation::getPosition() {
+  return this->position;
 }
 
 Matrix4x4 Transformation::getTransformMatrix() {

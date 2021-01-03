@@ -172,7 +172,7 @@ void Device::createFramebuffers() {
                                                     this->textures->getDepthImageView());
 }
 
-void Device::createModelInstances(std::map<Model*, std::vector<std::vector<float>>> modelFrequencyMap) {
+void Device::createModelInstances(std::map<Model*, std::vector<TRS>> modelFrequencyMap) {
   this->modelInstanceCollection = new ModelInstanceCollection(modelFrequencyMap,
                                                               this->logicalDevice, 
                                                               this->physicalDeviceMemoryProperties, 
