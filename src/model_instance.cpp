@@ -1,6 +1,6 @@
 #include "model_instance.h"
 
-ModelInstance::ModelInstance(Model* model, VkBuffer* vertexBuffer, VkBuffer* indexBuffer, uint32_t modelIndex, uint32_t instanceIndex, Matrix4x4 transformationMatrix) {
+ModelInstance::ModelInstance(Model* model, VkBuffer* vertexBuffer, VkBuffer* indexBuffer, uint32_t modelIndex, uint32_t instanceIndex, float* position) {
   this->model = model;
 
   this->vertexBuffer = vertexBuffer;
@@ -9,7 +9,7 @@ ModelInstance::ModelInstance(Model* model, VkBuffer* vertexBuffer, VkBuffer* ind
   this->modelIndex = modelIndex;
   this->instanceIndex = instanceIndex;
 
-  this->transformation = Transformation(transformationMatrix);
+  this->transformation = Transformation(position);
 }
 
 ModelInstance::~ModelInstance() {

@@ -27,23 +27,23 @@ Renderer::Renderer(VkInstance vulkanInstance, VkSurfaceKHR surface, ModelCollect
   this->displayDevice->createTextures();
   this->displayDevice->createFramebuffers();
 
-  std::map<Model*, std::vector<Matrix4x4>> modelFrequencyMap = {
+  std::map<Model*, std::vector<std::vector<float>>> modelFrequencyMap = {
     {
       modelCollection->getModel(0), 
       {
-        createTranslateMatrix4x4(0, 0, 0)
+        {0, 0, 0}
       }
     },
     {
       modelCollection->getModel(2), 
       {
-        createTranslateMatrix4x4(0, 0, 0)
+        {0, 0, 0}
       }
     },
     {
       modelCollection->getModel(1), 
       {
-        createTranslateMatrix4x4(0, 0, 5)
+        {0, 0, 5}
       }
     }
   };

@@ -5,7 +5,13 @@ Transformation::Transformation() {
   memcpy(&this->transformationMatrix, &transformationMatrix, sizeof(Matrix4x4));
 }
 
-Transformation::Transformation(Matrix4x4 transformationMatrix) {
+Transformation::Transformation(float* position) {
+  this->position[0] = position[0];
+  this->position[1] = position[1];
+  this->position[2] = position[2];
+
+  Matrix4x4 transformationMatrix = createIdentityMatrix4x4();
+  transformationMatrix = multiplyMatrix4x4(createTranslateMatrix4x4(position[0], position[1], position[2]), transformationMatrix);
   memcpy(&this->transformationMatrix, &transformationMatrix, sizeof(Matrix4x4));
 }
 

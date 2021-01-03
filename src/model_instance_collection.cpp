@@ -1,6 +1,6 @@
 #include "model_instance_collection.h"
 
-ModelInstanceCollection::ModelInstanceCollection(std::map<Model*, std::vector<Matrix4x4>> modelFrequencyMap, 
+ModelInstanceCollection::ModelInstanceCollection(std::map<Model*, std::vector<std::vector<float>>> modelFrequencyMap, 
                                                  VkDevice logicalDevice, 
                                                  VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties, 
                                                  VkCommandPool commandPool,
@@ -26,13 +26,13 @@ ModelInstanceCollection::ModelInstanceCollection(std::map<Model*, std::vector<Ma
   uint32_t cumulativeMaterialIndexOffset = 0;
   uint32_t cumulativeMaterialOffset = 0;
 
-  for (std::pair<Model*, std::vector<Matrix4x4>> pair : modelFrequencyMap) {
+  for (std::pair<Model*, std::vector<std::vector<float>>> pair : modelFrequencyMap) {
     this->createVertexBuffer(pair.first, logicalDevice, physicalDeviceMemoryProperties, commandPool, queue, &totalVertexList, &totalNormalList);
     this->createIndexBuffer(pair.first, logicalDevice, physicalDeviceMemoryProperties, commandPool, queue, &totalIndexList, &totalNormalIndexList);
     this->createMaterialBuffers(pair.first, logicalDevice, physicalDeviceMemoryProperties, commandPool, queue, &totalMaterialIndexList, &totalMaterialList, &lightContainer);
 
     for (int x = 0; x < pair.second.size(); x++) {
-      this->modelInstanceList.push_back(new ModelInstance(pair.first, &this->vertexBufferMap[pair.first], &this->indexBufferMap[pair.first], modelIndex, instanceIndex, pair.second[x]));
+      this->modelInstanceList.push_back(new ModelInstance(pair.first, &this->vertexBufferMap[pair.first], &this->indexBufferMap[pair.first], modelIndex, instanceIndex, pair.second[x].data()));
       this->modelInstanceMap[pair.first].push_back(this->modelInstanceList.back());
 
       this->vertexOffsetList.push_back(cumulativeVertexOffset);

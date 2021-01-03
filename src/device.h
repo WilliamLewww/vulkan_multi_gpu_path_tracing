@@ -70,7 +70,7 @@ public:
   void createRenderPass();
   void createTextures();
   void createFramebuffers();
-  void createModelInstances(std::map<Model*, std::vector<Matrix4x4>> modelFrequencyMap);
+  void createModelInstances(std::map<Model*, std::vector<std::vector<float>>> modelFrequencyMap);
   void createUniformBufferCollection(std::map<void*, uint32_t> bufferMap);
   void createAccelerationStructureCollection(std::map<Model*, std::vector<ModelInstance*>> modelInstanceMap);
   void createDescriptorSetCollection(std::vector<std::vector<Descriptor*>> separatedDescriptorList);

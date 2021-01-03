@@ -8,9 +8,11 @@
 class Transformation {
 private:
   Matrix4x4 transformationMatrix;
+
+  float position[3];
 public:
   Transformation();
-  Transformation(Matrix4x4 transformationMatrix);
+  Transformation(float* position);
   ~Transformation();
 
   Matrix4x4 getTransformMatrix();

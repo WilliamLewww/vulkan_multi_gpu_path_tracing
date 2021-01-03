@@ -114,9 +114,12 @@ void GUI::render(Camera* camera, ModelInstanceCollection* modelInstanceCollectio
     ImGui::InputFloat3("Position", camera->getPosition(), "%.1f");
   }
 
-  if (ImGui::CollapsingHeader("Model Instances", ImGuiTreeNodeFlags_DefaultOpen)) {
+  if (ImGui::CollapsingHeader("Model Instances")) {
     for (int x = 0; x < modelInstanceCollection->getInstanceCount(); x++) {
-      ImGui::Text("Model: %s", modelInstanceCollection->getModelInstance(x)->getModel()->getFileName().c_str());
+      std::string title = modelInstanceCollection->getModelInstance(x)->getModel()->getFileName();
+      if (ImGui::CollapsingHeader(title.c_str())) {
+
+      }
     }    
   }
 
