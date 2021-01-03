@@ -47,10 +47,6 @@ VkCommandPool Device::getCommandPool() {
   return this->commandPool->getCommandPool();
 }
 
-ModelInstanceCollection* Device::getModelInstanceCollectionPointer() {
-  return this->modelInstanceCollection;
-}
-
 UniformBufferCollection* Device::getUniformBufferCollection() {
   return this->uniformBufferCollection;
 }

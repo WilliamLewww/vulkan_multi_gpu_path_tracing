@@ -57,7 +57,6 @@ public:
   VkRenderPass getRenderPass();
   VkCommandPool getCommandPool();
 
-  ModelInstanceCollection* getModelInstanceCollectionPointer();
   UniformBufferCollection* getUniformBufferCollection();
   AccelerationStructureCollection* getAccelerationStructureCollection();
   Textures* getTextures();

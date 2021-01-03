@@ -51,11 +51,11 @@ Renderer::Renderer(VkInstance vulkanInstance, VkSurfaceKHR surface, ModelCollect
 
   std::map<void*, uint32_t> uniformBufferMap = {
     {camera->getUniformPointer(), camera->getUniformStructureSize()},
-    {this->displayDevice->getModelInstanceCollectionPointer()->getUniformBufferPointer(), this->displayDevice->getModelInstanceCollectionPointer()->getUniformBufferSize()}
+    {this->displayDevice->getModelInstanceCollection()->getUniformBufferPointer(), this->displayDevice->getModelInstanceCollection()->getUniformBufferSize()}
   };
   this->displayDevice->createUniformBufferCollection(uniformBufferMap);
 
-  this->displayDevice->createAccelerationStructureCollection(this->displayDevice->getModelInstanceCollectionPointer()->getModelInstanceMap());
+  this->displayDevice->createAccelerationStructureCollection(this->displayDevice->getModelInstanceCollection()->getModelInstanceMap());
 
   std::vector<std::vector<Descriptor*>> separatedDescriptorList = {
     {
@@ -97,7 +97,7 @@ Renderer::~Renderer() {
 }
 
 ModelInstanceCollection* Renderer::getModelInstanceCollection() {
-  return this->displayDevice->getModelInstanceCollectionPointer();
+  return this->displayDevice->getModelInstanceCollection();
 }
 
 VkPhysicalDevice Renderer::getPhysicalDevice() {
@@ -141,7 +141,7 @@ void Renderer::updateCameraUniformBuffers(Camera* camera) {
 }
 
 void Renderer::updateModelInstancesUniformBuffers() {
-  this->displayDevice->updateUniformBuffer(1, this->displayDevice->getModelInstanceCollectionPointer()->getUniformBufferPointer(), this->displayDevice->getModelInstanceCollectionPointer()->getUniformBufferSize());
+  this->displayDevice->updateUniformBuffer(1, this->displayDevice->getModelInstanceCollection()->getUniformBufferPointer(), this->displayDevice->getModelInstanceCollection()->getUniformBufferSize());
 }
 
 void Renderer::updateAccelerationStructure() {
