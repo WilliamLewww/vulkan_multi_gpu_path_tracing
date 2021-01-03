@@ -126,12 +126,14 @@ void GUI::render(Camera* camera, Renderer* renderer, ModelInstanceCollection* mo
           modelInstanceCollection->getModelInstance(x)->getTransformation().updateTransformation();
           modelInstanceCollection->updateUniformBuffer();
           renderer->updateModelInstancesUniformBuffers();
+          renderer->updateAccelerationStructure();
           camera->resetFrames();
         }
         if (ImGui::DragFloat3("Scale", modelInstanceCollection->getModelInstance(x)->getTransformation().getScale(), 0.01, 0.0, 0.0, "%.2f")) {
           modelInstanceCollection->getModelInstance(x)->getTransformation().updateTransformation();
           modelInstanceCollection->updateUniformBuffer();
           renderer->updateModelInstancesUniformBuffers();
+          renderer->updateAccelerationStructure();
           camera->resetFrames();
         }
         ImGui::PopID();

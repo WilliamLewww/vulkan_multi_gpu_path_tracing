@@ -78,6 +78,8 @@ public:
   void createRenderCommandBuffers();
   void createSynchronizationObjects();
 
+  void updateAccelerationStructureCollection();
+
   void drawFrame();
   void updateUniformBuffer(int index, void* buffer, uint32_t bufferSize);
 };

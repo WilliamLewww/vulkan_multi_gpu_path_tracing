@@ -206,6 +206,10 @@ void Device::createSynchronizationObjects() {
   this->synchronizationObjects = new SynchronizationObjects(this->logicalDevice, this->framesInFlight, this->swapchain->getSwapchainImageCount());
 }
 
+void Device::updateAccelerationStructureCollection() {
+  this->accelerationStructureCollection->updateAccelerationStructure(this->modelInstanceCollection->getModelInstanceList(), this->logicalDevice, this->physicalDeviceMemoryProperties, this->commandPool->getCommandPool(), this->deviceQueue->getComputeQueue());
+}
+
 void Device::drawFrame() {
   vkWaitForFences(this->logicalDevice, 1, &this->synchronizationObjects->getInFlightFence(this->currentFrame), VK_TRUE, UINT64_MAX);
     

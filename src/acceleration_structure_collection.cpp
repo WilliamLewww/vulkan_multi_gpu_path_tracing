@@ -60,3 +60,15 @@ void AccelerationStructureCollection::addBottomLevelAccelerationStructureInstanc
 VkWriteDescriptorSetAccelerationStructureKHR* AccelerationStructureCollection::getWriteDescriptorSetAccelerationStructurePointer() {
   return &this->writeDescriptorSetAccelerationStructure;
 }
+
+void AccelerationStructureCollection::updateAccelerationStructure(std::vector<ModelInstance*> modelInstanceList,
+                                                                  VkDevice logicalDevice, 
+                                                                  VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties, 
+                                                                  VkCommandPool commandPool,
+                                                                  VkQueue queue) {
+  for (int x = 0; x < modelInstanceList.size(); x++) {
+    this->bottomLevelAccelerationStructureInstanceList[x].transform = modelInstanceList[x]->getTransformation().getVulkanTransformMatrix();
+  }
+
+  this->topLevelAccelerationStructure->updateAccelerationStructure(this->bottomLevelAccelerationStructureInstanceList, logicalDevice, physicalDeviceMemoryProperties, commandPool, queue);
+}

@@ -28,4 +28,5 @@ public:
   void render();
   void updateCameraUniformBuffers(Camera* camera);
   void updateModelInstancesUniformBuffers();
+  void updateAccelerationStructure();
 };

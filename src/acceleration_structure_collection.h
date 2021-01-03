@@ -24,4 +24,10 @@ public:
   ~AccelerationStructureCollection();
 
   VkWriteDescriptorSetAccelerationStructureKHR* getWriteDescriptorSetAccelerationStructurePointer();
+
+  void updateAccelerationStructure(std::vector<ModelInstance*> modelInstanceList,
+                                   VkDevice logicalDevice, 
+                                   VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties, 
+                                   VkCommandPool commandPool,
+                                   VkQueue queue);
 };
