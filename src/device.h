@@ -70,13 +70,15 @@ public:
   void createRenderPass();
   void createTextures();
   void createFramebuffers();
-  void createModelInstances(std::map<Model*, std::vector<Matrix4x4>> modelFrequencyMap);
+  void createModelInstances(std::map<Model*, std::vector<TRS>> modelFrequencyMap);
   void createUniformBufferCollection(std::map<void*, uint32_t> bufferMap);
   void createAccelerationStructureCollection(std::map<Model*, std::vector<ModelInstance*>> modelInstanceMap);
   void createDescriptorSetCollection(std::vector<std::vector<Descriptor*>> separatedDescriptorList);
   void createGraphicsPipelineCollection(std::vector<std::vector<std::string>> shaderList);
   void createRenderCommandBuffers();
   void createSynchronizationObjects();
+
+  void updateAccelerationStructureCollection();
 
   void drawFrame();
   void updateUniformBuffer(int index, void* buffer, uint32_t bufferSize);

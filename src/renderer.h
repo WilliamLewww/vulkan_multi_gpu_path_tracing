@@ -14,6 +14,8 @@ public:
   Renderer(VkInstance vulkanInstance, VkSurfaceKHR surface, ModelCollection* modelCollection, Camera* camera);
   ~Renderer();
 
+  ModelInstanceCollection* getModelInstanceCollection();
+
   VkPhysicalDevice getPhysicalDevice(); 
   VkDevice getLogicalDevice();
   uint32_t getGraphicsQueueIndex(); 
@@ -24,5 +26,7 @@ public:
   VkCommandPool getCommandPool();
 
   void render();
-  void updateUniformBuffers(Camera* camera);
+  void updateCameraUniformBuffers(Camera* camera);
+  void updateModelInstancesUniformBuffers();
+  void updateAccelerationStructure();
 };

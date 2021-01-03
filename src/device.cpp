@@ -172,7 +172,7 @@ void Device::createFramebuffers() {
                                                     this->textures->getDepthImageView());
 }
 
-void Device::createModelInstances(std::map<Model*, std::vector<Matrix4x4>> modelFrequencyMap) {
+void Device::createModelInstances(std::map<Model*, std::vector<TRS>> modelFrequencyMap) {
   this->modelInstanceCollection = new ModelInstanceCollection(modelFrequencyMap,
                                                               this->logicalDevice, 
                                                               this->physicalDeviceMemoryProperties, 
@@ -204,6 +204,10 @@ void Device::createRenderCommandBuffers() {
 
 void Device::createSynchronizationObjects() {
   this->synchronizationObjects = new SynchronizationObjects(this->logicalDevice, this->framesInFlight, this->swapchain->getSwapchainImageCount());
+}
+
+void Device::updateAccelerationStructureCollection() {
+  this->accelerationStructureCollection->updateAccelerationStructure(this->modelInstanceCollection->getModelInstanceList(), this->logicalDevice, this->physicalDeviceMemoryProperties, this->commandPool->getCommandPool(), this->deviceQueue->getComputeQueue());
 }
 
 void Device::drawFrame() {

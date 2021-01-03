@@ -1,6 +1,6 @@
 #include "model_instance_collection.h"
 
-ModelInstanceCollection::ModelInstanceCollection(std::map<Model*, std::vector<Matrix4x4>> modelFrequencyMap, 
+ModelInstanceCollection::ModelInstanceCollection(std::map<Model*, std::vector<TRS>> modelFrequencyMap, 
                                                  VkDevice logicalDevice, 
                                                  VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties, 
                                                  VkCommandPool commandPool,
@@ -26,13 +26,13 @@ ModelInstanceCollection::ModelInstanceCollection(std::map<Model*, std::vector<Ma
   uint32_t cumulativeMaterialIndexOffset = 0;
   uint32_t cumulativeMaterialOffset = 0;
 
-  for (std::pair<Model*, std::vector<Matrix4x4>> pair : modelFrequencyMap) {
+  for (std::pair<Model*, std::vector<TRS>> pair : modelFrequencyMap) {
     this->createVertexBuffer(pair.first, logicalDevice, physicalDeviceMemoryProperties, commandPool, queue, &totalVertexList, &totalNormalList);
     this->createIndexBuffer(pair.first, logicalDevice, physicalDeviceMemoryProperties, commandPool, queue, &totalIndexList, &totalNormalIndexList);
     this->createMaterialBuffers(pair.first, logicalDevice, physicalDeviceMemoryProperties, commandPool, queue, &totalMaterialIndexList, &totalMaterialList, &lightContainer);
 
     for (int x = 0; x < pair.second.size(); x++) {
-      this->modelInstanceList.push_back(new ModelInstance(pair.first, &this->vertexBufferMap[pair.first], &this->indexBufferMap[pair.first], modelIndex, instanceIndex, pair.second[x]));
+      this->modelInstanceList.push_back(new ModelInstance(pair.first, &this->vertexBufferMap[pair.first], &this->indexBufferMap[pair.first], modelIndex, instanceIndex, pair.second[x].position, pair.second[x].scale));
       this->modelInstanceMap[pair.first].push_back(this->modelInstanceList.back());
 
       this->vertexOffsetList.push_back(cumulativeVertexOffset);
@@ -506,6 +506,14 @@ uint32_t ModelInstanceCollection::getUniformBufferSize() {
   return sizeof(InstanceUniform);
 }
 
+uint32_t ModelInstanceCollection::getInstanceCount() {
+  return this->modelInstanceList.size();
+}
+
+ModelInstance* ModelInstanceCollection::getModelInstance(int index) {
+  return this->modelInstanceList[index];
+}
+
 std::map<Model*, std::vector<ModelInstance*>> ModelInstanceCollection::getModelInstanceMap() {
   return this->modelInstanceMap;
 }
@@ -540,4 +548,19 @@ VkDescriptorBufferInfo* ModelInstanceCollection::getDescriptorTotalMaterialLight
 
 std::vector<ModelInstance*> ModelInstanceCollection::getModelInstanceList() {
   return this->modelInstanceList;
+}
+
+void ModelInstanceCollection::updateUniformBuffer() {
+  uint32_t instanceCount = this->modelInstanceList.size();
+  std::vector<float> totalTransformList = this->getTotalTransformList();
+
+  memcpy((float*)&this->instanceUniform, &instanceCount, sizeof(uint32_t));
+  for (int x = 0; x < this->vertexOffsetList.size(); x++) {
+    memcpy(4 + (x * 4) + (float*)&this->instanceUniform, &this->vertexOffsetList[x], sizeof(uint32_t));
+    memcpy(36 + (x * 4) + (float*)&this->instanceUniform, &this->normalOffsetList[x], sizeof(uint32_t));
+    memcpy(68 + (x * 4) + (float*)&this->instanceUniform, &this->indexOffsetList[x], sizeof(uint32_t));
+    memcpy(100 + (x * 4) + (float*)&this->instanceUniform, &this->materialIndexOffsetList[x], sizeof(uint32_t));
+    memcpy(132 + (x * 4) + (float*)&this->instanceUniform, &this->materialOffsetList[x], sizeof(uint32_t));
+  }
+  memcpy(164 + (float*)&this->instanceUniform, totalTransformList.data(), sizeof(float) * totalTransformList.size());
 }

@@ -8,11 +8,19 @@
 class Transformation {
 private:
   Matrix4x4 transformationMatrix;
+
+  float position[3];
+  float scale[3];
 public:
   Transformation();
-  Transformation(Matrix4x4 transformationMatrix);
+  Transformation(float* position, float* scale);
   ~Transformation();
+
+  float* getPosition();
+  float* getScale();
 
   Matrix4x4 getTransformMatrix();
   VkTransformMatrixKHR getVulkanTransformMatrix();
+
+  void updateTransformation();
 };

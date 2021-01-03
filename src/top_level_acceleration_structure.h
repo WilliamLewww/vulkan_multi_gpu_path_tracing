@@ -12,6 +12,12 @@ private:
     VkAccelerationStructureKHR accelerationStructure;
     VkBuffer accelerationStructureBuffer;
     VkDeviceMemory accelerationStructureBufferMemory;
+
+    VkAccelerationStructureGeometryKHR accelerationStructureGeometry;
+    VkAccelerationStructureBuildGeometryInfoKHR accelerationStructureBuildGeometryInfo;
+
+    VkBuffer geometryInstanceBuffer;
+    VkDeviceMemory geometryInstanceBufferMemory;
 public:
   TopLevelAccelerationStructure(std::vector<VkAccelerationStructureInstanceKHR> bottomLevelAccelerationStructureInstanceList,
                                 VkDevice logicalDevice, 
@@ -22,4 +28,10 @@ public:
   ~TopLevelAccelerationStructure();
 
   VkAccelerationStructureKHR* getAccelerationStructurePointer();
+
+  void updateAccelerationStructure(std::vector<VkAccelerationStructureInstanceKHR> bottomLevelAccelerationStructureInstanceList,
+                                   VkDevice logicalDevice, 
+                                   VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties, 
+                                   VkCommandPool commandPool,
+                                   VkQueue queue);
 };

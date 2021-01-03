@@ -63,8 +63,8 @@ void Engine::start() {
       this->camera->update(false);
     }
 
-    this->renderer->updateUniformBuffers(camera);
-    this->gui->render(this->camera);
+    this->renderer->updateCameraUniformBuffers(camera);
+    this->gui->render(this->camera, this->renderer, this->renderer->getModelInstanceCollection());
     this->renderer->render();
   }
 }

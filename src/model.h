@@ -18,6 +18,8 @@ public:
   Model(std::string fileName);
   ~Model();
 
+  std::string getFileName();
+
   bool checkError();
 
   uint32_t getVertexCount();

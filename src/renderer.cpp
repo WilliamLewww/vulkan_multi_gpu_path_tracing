@@ -27,23 +27,23 @@ Renderer::Renderer(VkInstance vulkanInstance, VkSurfaceKHR surface, ModelCollect
   this->displayDevice->createTextures();
   this->displayDevice->createFramebuffers();
 
-  std::map<Model*, std::vector<Matrix4x4>> modelFrequencyMap = {
+  std::map<Model*, std::vector<TRS>> modelFrequencyMap = {
     {
       modelCollection->getModel(0), 
       {
-        createTranslateMatrix4x4(0, 0, 0)
+        createTRS({0, 0, 0}, {1, 1, 1})
       }
     },
     {
       modelCollection->getModel(2), 
       {
-        createTranslateMatrix4x4(0, 0, 0)
+        createTRS({0, 0, 0}, {1, 1, 1})
       }
     },
     {
       modelCollection->getModel(1), 
       {
-        createTranslateMatrix4x4(0, 0, 5)
+        createTRS({0, 0, 5}, {1, 1, 1})
       }
     }
   };
@@ -96,6 +96,10 @@ Renderer::~Renderer() {
   delete this->deviceCollection;
 }
 
+ModelInstanceCollection* Renderer::getModelInstanceCollection() {
+  return this->displayDevice->getModelInstanceCollectionPointer();
+}
+
 VkPhysicalDevice Renderer::getPhysicalDevice() {
   return this->displayDevice->getPhysicalDevice();
 }
@@ -132,6 +136,14 @@ void Renderer::render() {
   this->displayDevice->drawFrame();
 }
 
-void Renderer::updateUniformBuffers(Camera* camera) {
+void Renderer::updateCameraUniformBuffers(Camera* camera) {
   this->displayDevice->updateUniformBuffer(0, camera->getUniformPointer(), camera->getUniformStructureSize());
+}
+
+void Renderer::updateModelInstancesUniformBuffers() {
+  this->displayDevice->updateUniformBuffer(1, this->displayDevice->getModelInstanceCollectionPointer()->getUniformBufferPointer(), this->displayDevice->getModelInstanceCollectionPointer()->getUniformBufferSize());
+}
+
+void Renderer::updateAccelerationStructure() {
+  this->displayDevice->updateAccelerationStructureCollection();
 }

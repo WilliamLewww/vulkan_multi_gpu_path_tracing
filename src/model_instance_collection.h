@@ -116,7 +116,7 @@ private:
 
   std::vector<float> getTotalTransformList();
 public:
-  ModelInstanceCollection(std::map<Model*, std::vector<Matrix4x4>> modelFrequencyMap,
+  ModelInstanceCollection(std::map<Model*, std::vector<TRS>> modelFrequencyMap,
                           VkDevice logicalDevice, 
                           VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties, 
                           VkCommandPool commandPool,
@@ -126,6 +126,9 @@ public:
 
   void* getUniformBufferPointer();
   uint32_t getUniformBufferSize();
+
+  uint32_t getInstanceCount();
+  ModelInstance* getModelInstance(int index);
 
   std::map<Model*, std::vector<ModelInstance*>> getModelInstanceMap();
 
@@ -138,4 +141,6 @@ public:
   VkDescriptorBufferInfo* getDescriptorTotalMaterialLightBufferInfoPointer();
 
   std::vector<ModelInstance*> getModelInstanceList();
+
+  void updateUniformBuffer();
 };

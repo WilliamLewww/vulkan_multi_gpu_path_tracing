@@ -100,18 +100,45 @@ GUI::~GUI() {
 
 }
 
-void GUI::render(Camera* camera) {
+void GUI::render(Camera* camera, Renderer* renderer, ModelInstanceCollection* modelInstanceCollection) {
   ImGui_ImplVulkan_NewFrame();
   ImGui_ImplGlfw_NewFrame();
   ImGui::NewFrame();
 
-  ImGui::SetNextWindowSize(ImVec2(225, 300));
+  ImGui::SetNextWindowSize(ImVec2(250, 300));
   ImGui::Begin("Dashboard", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings);
   ImGui::Text("(%.1f FPS)", ImGui::GetIO().Framerate);
   ImGui::Text("Press \"Q\" to toggle cursor");
 
   if (ImGui::CollapsingHeader("Camera Properties", ImGuiTreeNodeFlags_DefaultOpen)) {
-    ImGui::InputFloat3("Position", camera->getPosition(), "%.1f");
+    ImGui::PushID("#CAMERA");
+    ImGui::DragFloat3("Position", camera->getPosition(), 0.01, 0.0, 0.0, "%.2f");
+    ImGui::PopID();
+  }
+
+  if (ImGui::CollapsingHeader("Model Instances")) {
+    for (int x = 0; x < modelInstanceCollection->getInstanceCount(); x++) {
+      std::string title = modelInstanceCollection->getModelInstance(x)->getModel()->getFileName();
+      std::string label = "#INSTANCE" + std::to_string(x);
+      if (ImGui::CollapsingHeader(title.c_str())) {
+        ImGui::PushID(label.c_str());
+        if (ImGui::DragFloat3("Position", modelInstanceCollection->getModelInstance(x)->getTransformation().getPosition(), 0.01, 0.0, 0.0, "%.2f")) {
+          modelInstanceCollection->getModelInstance(x)->getTransformation().updateTransformation();
+          modelInstanceCollection->updateUniformBuffer();
+          renderer->updateModelInstancesUniformBuffers();
+          renderer->updateAccelerationStructure();
+          camera->resetFrames();
+        }
+        if (ImGui::DragFloat3("Scale", modelInstanceCollection->getModelInstance(x)->getTransformation().getScale(), 0.01, 0.0, 0.0, "%.2f")) {
+          modelInstanceCollection->getModelInstance(x)->getTransformation().updateTransformation();
+          modelInstanceCollection->updateUniformBuffer();
+          renderer->updateModelInstancesUniformBuffers();
+          renderer->updateAccelerationStructure();
+          camera->resetFrames();
+        }
+        ImGui::PopID();
+      }
+    }    
   }
 
   ImGui::End();
