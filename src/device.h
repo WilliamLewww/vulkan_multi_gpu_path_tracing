@@ -71,7 +71,7 @@ public:
   void createFramebuffers();
   void createModelInstances(std::map<Model*, std::vector<TRS>> modelFrequencyMap);
   void createUniformBufferCollection(std::map<void*, uint32_t> bufferMap);
-  void createAccelerationStructureCollection(std::map<Model*, std::vector<ModelInstance*>> modelInstanceMap);
+  void createAccelerationStructureCollection();
   void createDescriptorSetCollection(std::vector<std::vector<Descriptor*>> separatedDescriptorList);
   void createGraphicsPipelineCollection(std::vector<std::vector<std::string>> shaderList);
   void createRenderCommandBuffers();

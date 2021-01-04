@@ -32,7 +32,6 @@ Renderer::Renderer(VkInstance vulkanInstance, VkSurfaceKHR surface, ModelCollect
       modelCollection->getModel(0), 
       {
         createTRS({0, 0, 0}, {1, 1, 1}),
-        createTRS({10, 0, 0}, {1, 1, 1})
       }
     },
     {
@@ -49,14 +48,13 @@ Renderer::Renderer(VkInstance vulkanInstance, VkSurfaceKHR surface, ModelCollect
     }
   };
   this->displayDevice->createModelInstances(modelFrequencyMap);
+  this->displayDevice->createAccelerationStructureCollection();
 
   std::map<void*, uint32_t> uniformBufferMap = {
     {camera->getUniformPointer(), camera->getUniformStructureSize()},
     {this->displayDevice->getModelInstanceCollection()->getUniformBufferPointer(), this->displayDevice->getModelInstanceCollection()->getUniformBufferSize()}
   };
   this->displayDevice->createUniformBufferCollection(uniformBufferMap);
-
-  this->displayDevice->createAccelerationStructureCollection(this->displayDevice->getModelInstanceCollection()->getModelInstanceMap());
 
   std::vector<std::vector<Descriptor*>> separatedDescriptorList = {
     {
