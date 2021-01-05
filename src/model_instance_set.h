@@ -117,10 +117,10 @@ private:
   std::vector<float> getTotalTransformList();
 public:
   ModelInstanceSet(std::map<Model*, std::vector<TRS>> modelFrequencyMap,
-                          VkDevice logicalDevice, 
-                          VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties, 
-                          VkCommandPool commandPool,
-                          VkQueue queue);
+                   VkDevice logicalDevice, 
+                   VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties, 
+                   VkCommandPool commandPool,
+                   VkQueue queue);
 
   ~ModelInstanceSet();
 

@@ -59,8 +59,8 @@ Textures* Device::getTextures() {
   return this->textures;
 }
 
-ModelInstanceSet* Device::getModelInstanceSet() {
-  return this->modelInstanceSet;
+ModelInstanceSet* Device::getModelInstanceSet(int index) {
+  return this->modelInstanceSetCollection->getModelInstanceSet(index);
 }
 
 void Device::initializeDeviceQueue(VkSurfaceKHR surface) {
@@ -168,8 +168,8 @@ void Device::createFramebuffers() {
                                                     this->textures->getDepthImageView());
 }
 
-void Device::createModelInstances(std::map<Model*, std::vector<TRS>> modelFrequencyMap) {
-  this->modelInstanceSet = new ModelInstanceSet(modelFrequencyMap,
+void Device::createModelInstances(std::vector<std::map<Model*, std::vector<TRS>>> modelFrequencyMapList) {
+  this->modelInstanceSetCollection = new ModelInstanceSetCollection(modelFrequencyMapList,
                                                               this->logicalDevice, 
                                                               this->physicalDeviceMemoryProperties, 
                                                               this->commandPool->getCommandPool(),
@@ -181,7 +181,7 @@ void Device::createUniformBufferCollection(std::map<void*, uint32_t> bufferMap) 
 }
 
 void Device::createAccelerationStructureCollection() {
-  this->accelerationStructureCollection = new AccelerationStructureCollection(this->modelInstanceSet->getModelInstanceMap(), this->logicalDevice, this->physicalDeviceMemoryProperties, this->commandPool->getCommandPool(), this->deviceQueue->getComputeQueue());
+  this->accelerationStructureCollection = new AccelerationStructureCollection(this->modelInstanceSetCollection->getModelInstanceSet(0)->getModelInstanceMap(), this->logicalDevice, this->physicalDeviceMemoryProperties, this->commandPool->getCommandPool(), this->deviceQueue->getComputeQueue());
 }
 
 void Device::createDescriptorSetCollection(std::vector<std::vector<Descriptor*>> separatedDescriptorList) {
@@ -203,7 +203,7 @@ void Device::createSynchronizationObjects() {
 }
 
 void Device::updateAccelerationStructureCollection() {
-  this->accelerationStructureCollection->updateAccelerationStructure(this->modelInstanceSet->getModelInstanceList(), this->logicalDevice, this->physicalDeviceMemoryProperties, this->commandPool->getCommandPool(), this->deviceQueue->getComputeQueue());
+  this->accelerationStructureCollection->updateAccelerationStructure(this->modelInstanceSetCollection->getModelInstanceSet(0)->getModelInstanceList(), this->logicalDevice, this->physicalDeviceMemoryProperties, this->commandPool->getCommandPool(), this->deviceQueue->getComputeQueue());
 }
 
 void Device::drawFrame() {
@@ -244,7 +244,7 @@ void Device::drawFrame() {
                                                     this->graphicsPipelineCollection->getGraphicsPipelineList(),
                                                     this->graphicsPipelineCollection->getPipelineLayoutList(),
                                                     this->descriptorSetCollection->getDescriptorSetList(),
-                                                    this->modelInstanceSet->getModelInstanceList(),
+                                                    this->modelInstanceSetCollection->getModelInstanceSet(0)->getModelInstanceList(),
                                                     true);
 
   if (vkQueueSubmit(this->deviceQueue->getGraphicsQueue(), 1, &submitInfo, this->synchronizationObjects->getInFlightFence(this->currentFrame)) != VK_SUCCESS) {

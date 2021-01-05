@@ -11,7 +11,7 @@
 #include "render_pass.h"
 #include "textures.h"
 #include "framebuffers.h"
-#include "model_instance_set.h"
+#include "model_instance_set_collection.h"
 #include "uniform_buffer_collection.h"
 #include "acceleration_structure_collection.h"
 #include "descriptor_set_collection.h"
@@ -37,7 +37,7 @@ private:
   RenderPass* renderPass;
   Textures* textures;
   Framebuffers* framebuffers;
-  ModelInstanceSet* modelInstanceSet;
+  ModelInstanceSetCollection* modelInstanceSetCollection;
   UniformBufferCollection* uniformBufferCollection;
   AccelerationStructureCollection* accelerationStructureCollection;
   DescriptorSetCollection* descriptorSetCollection;
@@ -60,7 +60,7 @@ public:
   UniformBufferCollection* getUniformBufferCollection();
   AccelerationStructureCollection* getAccelerationStructureCollection();
   Textures* getTextures();
-  ModelInstanceSet* getModelInstanceSet();
+  ModelInstanceSet* getModelInstanceSet(int index);
 
   void initializeDeviceQueue(VkSurfaceKHR surface);
   void createLogicalDevice(std::vector<const char*> extensions);
@@ -69,7 +69,7 @@ public:
   void createRenderPass();
   void createTextures();
   void createFramebuffers();
-  void createModelInstances(std::map<Model*, std::vector<TRS>> modelFrequencyMap);
+  void createModelInstances(std::vector<std::map<Model*, std::vector<TRS>>> modelFrequencyMapList);
   void createUniformBufferCollection(std::map<void*, uint32_t> bufferMap);
   void createAccelerationStructureCollection();
   void createDescriptorSetCollection(std::vector<std::vector<Descriptor*>> separatedDescriptorList);
