@@ -52,7 +52,7 @@ Renderer::Renderer(VkInstance vulkanInstance, VkSurfaceKHR surface, ModelCollect
 
   std::map<void*, uint32_t> uniformBufferMap = {
     {camera->getUniformPointer(), camera->getUniformStructureSize()},
-    {this->displayDevice->getModelInstanceCollection()->getUniformBufferPointer(), this->displayDevice->getModelInstanceCollection()->getUniformBufferSize()}
+    {this->displayDevice->getModelInstanceSet()->getUniformBufferPointer(), this->displayDevice->getModelInstanceSet()->getUniformBufferSize()}
   };
   this->displayDevice->createUniformBufferCollection(uniformBufferMap);
 
@@ -64,13 +64,13 @@ Renderer::Renderer(VkInstance vulkanInstance, VkSurfaceKHR surface, ModelCollect
       new Descriptor(3, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, (VkShaderStageFlagBits)(VK_SHADER_STAGE_FRAGMENT_BIT), this->displayDevice->getTextures()->getDescriptorRayTraceImageInfoPointer(), NULL, NULL, NULL),
     },
     {
-      new Descriptor(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, (VkShaderStageFlagBits)(VK_SHADER_STAGE_FRAGMENT_BIT), NULL, this->displayDevice->getModelInstanceCollection()->getDescriptorTotalIndexBufferInfoPointer(), NULL, NULL),
-      new Descriptor(1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, (VkShaderStageFlagBits)(VK_SHADER_STAGE_FRAGMENT_BIT), NULL, this->displayDevice->getModelInstanceCollection()->getDescriptorTotalVertexBufferInfoPointer(), NULL, NULL),
-      new Descriptor(2, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, (VkShaderStageFlagBits)(VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT), NULL, this->displayDevice->getModelInstanceCollection()->getDescriptorTotalNormalIndexBufferInfoPointer(), NULL, NULL),
-      new Descriptor(3, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, (VkShaderStageFlagBits)(VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT), NULL, this->displayDevice->getModelInstanceCollection()->getDescriptorTotalNormalBufferInfoPointer(), NULL, NULL),
-      new Descriptor(4, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, (VkShaderStageFlagBits)(VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT), NULL, this->displayDevice->getModelInstanceCollection()->getDescriptorTotalMaterialIndexBufferInfoPointer(), NULL, NULL),
-      new Descriptor(5, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, (VkShaderStageFlagBits)(VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT), NULL, this->displayDevice->getModelInstanceCollection()->getDescriptorTotalMaterialBufferInfoPointer(), NULL, NULL),
-      new Descriptor(6, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, (VkShaderStageFlagBits)(VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT), NULL, this->displayDevice->getModelInstanceCollection()->getDescriptorTotalMaterialLightBufferInfoPointer(), NULL, NULL)
+      new Descriptor(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, (VkShaderStageFlagBits)(VK_SHADER_STAGE_FRAGMENT_BIT), NULL, this->displayDevice->getModelInstanceSet()->getDescriptorTotalIndexBufferInfoPointer(), NULL, NULL),
+      new Descriptor(1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, (VkShaderStageFlagBits)(VK_SHADER_STAGE_FRAGMENT_BIT), NULL, this->displayDevice->getModelInstanceSet()->getDescriptorTotalVertexBufferInfoPointer(), NULL, NULL),
+      new Descriptor(2, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, (VkShaderStageFlagBits)(VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT), NULL, this->displayDevice->getModelInstanceSet()->getDescriptorTotalNormalIndexBufferInfoPointer(), NULL, NULL),
+      new Descriptor(3, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, (VkShaderStageFlagBits)(VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT), NULL, this->displayDevice->getModelInstanceSet()->getDescriptorTotalNormalBufferInfoPointer(), NULL, NULL),
+      new Descriptor(4, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, (VkShaderStageFlagBits)(VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT), NULL, this->displayDevice->getModelInstanceSet()->getDescriptorTotalMaterialIndexBufferInfoPointer(), NULL, NULL),
+      new Descriptor(5, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, (VkShaderStageFlagBits)(VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT), NULL, this->displayDevice->getModelInstanceSet()->getDescriptorTotalMaterialBufferInfoPointer(), NULL, NULL),
+      new Descriptor(6, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, (VkShaderStageFlagBits)(VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT), NULL, this->displayDevice->getModelInstanceSet()->getDescriptorTotalMaterialLightBufferInfoPointer(), NULL, NULL)
     }
   };
   this->displayDevice->createDescriptorSetCollection(separatedDescriptorList);
@@ -95,8 +95,8 @@ Renderer::~Renderer() {
   delete this->deviceCollection;
 }
 
-ModelInstanceCollection* Renderer::getModelInstanceCollection() {
-  return this->displayDevice->getModelInstanceCollection();
+ModelInstanceSet* Renderer::getModelInstanceSet() {
+  return this->displayDevice->getModelInstanceSet();
 }
 
 VkPhysicalDevice Renderer::getPhysicalDevice() {
@@ -140,7 +140,7 @@ void Renderer::updateCameraUniformBuffers(Camera* camera) {
 }
 
 void Renderer::updateModelInstancesUniformBuffers() {
-  this->displayDevice->updateUniformBuffer(1, this->displayDevice->getModelInstanceCollection()->getUniformBufferPointer(), this->displayDevice->getModelInstanceCollection()->getUniformBufferSize());
+  this->displayDevice->updateUniformBuffer(1, this->displayDevice->getModelInstanceSet()->getUniformBufferPointer(), this->displayDevice->getModelInstanceSet()->getUniformBufferSize());
 }
 
 void Renderer::updateAccelerationStructure() {

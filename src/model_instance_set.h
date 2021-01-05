@@ -8,7 +8,7 @@
 #include "model_instance.h"
 #include "buffer_factory.h"
 
-class ModelInstanceCollection {
+class ModelInstanceSet {
 private:
   struct Material {
     alignas(16) float ambient[3];
@@ -116,13 +116,13 @@ private:
 
   std::vector<float> getTotalTransformList();
 public:
-  ModelInstanceCollection(std::map<Model*, std::vector<TRS>> modelFrequencyMap,
+  ModelInstanceSet(std::map<Model*, std::vector<TRS>> modelFrequencyMap,
                           VkDevice logicalDevice, 
                           VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties, 
                           VkCommandPool commandPool,
                           VkQueue queue);
 
-  ~ModelInstanceCollection();
+  ~ModelInstanceSet();
 
   void* getUniformBufferPointer();
   uint32_t getUniformBufferSize();

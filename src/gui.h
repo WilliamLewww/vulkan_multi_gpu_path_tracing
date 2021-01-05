@@ -6,7 +6,7 @@
 
 #include "camera.h"
 #include "renderer.h"
-#include "model_instance_collection.h"
+#include "model_instance_set.h"
 
 class GUI {
 private:
@@ -24,5 +24,5 @@ public:
   
   ~GUI();
 
-  void render(Camera* camera, Renderer* renderer, ModelInstanceCollection* modelInstanceCollection);
+  void render(Camera* camera, Renderer* renderer, ModelInstanceSet* modelInstanceSet);
 };

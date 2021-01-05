@@ -1,6 +1,6 @@
-#include "model_instance_collection.h"
+#include "model_instance_set.h"
 
-ModelInstanceCollection::ModelInstanceCollection(std::map<Model*, std::vector<TRS>> modelFrequencyMap, 
+ModelInstanceSet::ModelInstanceSet(std::map<Model*, std::vector<TRS>> modelFrequencyMap, 
                                                  VkDevice logicalDevice, 
                                                  VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties, 
                                                  VkCommandPool commandPool,
@@ -135,13 +135,13 @@ ModelInstanceCollection::ModelInstanceCollection(std::map<Model*, std::vector<TR
   };
 }
 
-ModelInstanceCollection::~ModelInstanceCollection() {
+ModelInstanceSet::~ModelInstanceSet() {
   for (int x = 0; x < this->modelInstanceList.size(); x++) {
     delete this->modelInstanceList[x];
   }
 }
 
-void ModelInstanceCollection::createVertexBuffer(Model* model,
+void ModelInstanceSet::createVertexBuffer(Model* model,
                                                  VkDevice logicalDevice, 
                                                  VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties, 
                                                  VkCommandPool commandPool,
@@ -185,7 +185,7 @@ void ModelInstanceCollection::createVertexBuffer(Model* model,
   vkFreeMemory(logicalDevice, stagingBufferMemory, NULL);
 }
 
-void ModelInstanceCollection::createIndexBuffer(Model* model,
+void ModelInstanceSet::createIndexBuffer(Model* model,
                                                 VkDevice logicalDevice, 
                                                 VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties, 
                                                 VkCommandPool commandPool,
@@ -231,7 +231,7 @@ void ModelInstanceCollection::createIndexBuffer(Model* model,
   vkFreeMemory(logicalDevice, stagingBufferMemory, NULL);
 }
 
-void ModelInstanceCollection::createMaterialBuffers(Model* model,
+void ModelInstanceSet::createMaterialBuffers(Model* model,
                                                     VkDevice logicalDevice, 
                                                     VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties, 
                                                     VkCommandPool commandPool,
@@ -268,7 +268,7 @@ void ModelInstanceCollection::createMaterialBuffers(Model* model,
   }
 }
 
-void ModelInstanceCollection::createTotalBuffers(std::vector<float> totalVertexList,
+void ModelInstanceSet::createTotalBuffers(std::vector<float> totalVertexList,
                                                  std::vector<float> totalNormalList,
                                                  std::vector<uint32_t> totalIndexList,
                                                  std::vector<uint32_t> totalNormalIndexList,
@@ -491,7 +491,7 @@ void ModelInstanceCollection::createTotalBuffers(std::vector<float> totalVertexL
   vkFreeMemory(logicalDevice, totalMaterialLightStagingBufferMemory, NULL);
 }
 
-std::vector<float> ModelInstanceCollection::getTotalTransformList() {
+std::vector<float> ModelInstanceSet::getTotalTransformList() {
   std::vector<float> transformList(this->modelInstanceList.size() * 16);
   for (int x = 0; x < this->modelInstanceList.size(); x++) {
     memcpy((16 * x) + transformList.data(), this->modelInstanceList[x]->getTransformation().getTransformMatrix().data, sizeof(float) * 16);
@@ -500,59 +500,59 @@ std::vector<float> ModelInstanceCollection::getTotalTransformList() {
   return transformList;
 }
 
-void* ModelInstanceCollection::getUniformBufferPointer() {
+void* ModelInstanceSet::getUniformBufferPointer() {
   return &this->instanceUniform;
 }
 
-uint32_t ModelInstanceCollection::getUniformBufferSize() {
+uint32_t ModelInstanceSet::getUniformBufferSize() {
   return sizeof(InstanceUniform);
 }
 
-uint32_t ModelInstanceCollection::getInstanceCount() {
+uint32_t ModelInstanceSet::getInstanceCount() {
   return this->modelInstanceList.size();
 }
 
-ModelInstance* ModelInstanceCollection::getModelInstance(int index) {
+ModelInstance* ModelInstanceSet::getModelInstance(int index) {
   return this->modelInstanceList[index];
 }
 
-std::map<Model*, std::vector<ModelInstance*>> ModelInstanceCollection::getModelInstanceMap() {
+std::map<Model*, std::vector<ModelInstance*>> ModelInstanceSet::getModelInstanceMap() {
   return this->modelInstanceMap;
 }
 
-VkDescriptorBufferInfo* ModelInstanceCollection::getDescriptorTotalVertexBufferInfoPointer() {
+VkDescriptorBufferInfo* ModelInstanceSet::getDescriptorTotalVertexBufferInfoPointer() {
   return &this->descriptorTotalVertexBufferInfo;
 }
 
-VkDescriptorBufferInfo* ModelInstanceCollection::getDescriptorTotalNormalBufferInfoPointer() {
+VkDescriptorBufferInfo* ModelInstanceSet::getDescriptorTotalNormalBufferInfoPointer() {
   return &this->descriptorTotalNormalBufferInfo;
 }
 
-VkDescriptorBufferInfo* ModelInstanceCollection::getDescriptorTotalIndexBufferInfoPointer() {
+VkDescriptorBufferInfo* ModelInstanceSet::getDescriptorTotalIndexBufferInfoPointer() {
   return &this->descriptorTotalIndexBufferInfo;
 }
 
-VkDescriptorBufferInfo* ModelInstanceCollection::getDescriptorTotalNormalIndexBufferInfoPointer() {
+VkDescriptorBufferInfo* ModelInstanceSet::getDescriptorTotalNormalIndexBufferInfoPointer() {
   return &this->descriptorTotalNormalIndexBufferInfo;
 }
 
-VkDescriptorBufferInfo* ModelInstanceCollection::getDescriptorTotalMaterialIndexBufferInfoPointer() {
+VkDescriptorBufferInfo* ModelInstanceSet::getDescriptorTotalMaterialIndexBufferInfoPointer() {
   return &this->descriptorTotalMaterialIndexBufferInfo;
 }
 
-VkDescriptorBufferInfo* ModelInstanceCollection::getDescriptorTotalMaterialBufferInfoPointer() {
+VkDescriptorBufferInfo* ModelInstanceSet::getDescriptorTotalMaterialBufferInfoPointer() {
   return &this->descriptorTotalMaterialBufferInfo;
 }
 
-VkDescriptorBufferInfo* ModelInstanceCollection::getDescriptorTotalMaterialLightBufferInfoPointer() {
+VkDescriptorBufferInfo* ModelInstanceSet::getDescriptorTotalMaterialLightBufferInfoPointer() {
   return &this->descriptorTotalMaterialLightBufferInfo;
 }
 
-std::vector<ModelInstance*> ModelInstanceCollection::getModelInstanceList() {
+std::vector<ModelInstance*> ModelInstanceSet::getModelInstanceList() {
   return this->modelInstanceList;
 }
 
-void ModelInstanceCollection::updateUniformBuffer() {
+void ModelInstanceSet::updateUniformBuffer() {
   uint32_t instanceCount = this->modelInstanceList.size();
   std::vector<float> totalTransformList = this->getTotalTransformList();
 

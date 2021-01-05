@@ -14,7 +14,7 @@ public:
   Renderer(VkInstance vulkanInstance, VkSurfaceKHR surface, ModelCollection* modelCollection, Camera* camera);
   ~Renderer();
 
-  ModelInstanceCollection* getModelInstanceCollection();
+  ModelInstanceSet* getModelInstanceSet();
 
   VkPhysicalDevice getPhysicalDevice(); 
   VkDevice getLogicalDevice();

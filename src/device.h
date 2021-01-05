@@ -11,7 +11,7 @@
 #include "render_pass.h"
 #include "textures.h"
 #include "framebuffers.h"
-#include "model_instance_collection.h"
+#include "model_instance_set.h"
 #include "uniform_buffer_collection.h"
 #include "acceleration_structure_collection.h"
 #include "descriptor_set_collection.h"
@@ -37,7 +37,7 @@ private:
   RenderPass* renderPass;
   Textures* textures;
   Framebuffers* framebuffers;
-  ModelInstanceCollection* modelInstanceCollection;
+  ModelInstanceSet* modelInstanceSet;
   UniformBufferCollection* uniformBufferCollection;
   AccelerationStructureCollection* accelerationStructureCollection;
   DescriptorSetCollection* descriptorSetCollection;
@@ -60,7 +60,7 @@ public:
   UniformBufferCollection* getUniformBufferCollection();
   AccelerationStructureCollection* getAccelerationStructureCollection();
   Textures* getTextures();
-  ModelInstanceCollection* getModelInstanceCollection();
+  ModelInstanceSet* getModelInstanceSet();
 
   void initializeDeviceQueue(VkSurfaceKHR surface);
   void createLogicalDevice(std::vector<const char*> extensions);
