@@ -4,7 +4,15 @@
 
 class ModelInstanceSetCollection {
 private:
-  std::vector<ModelInstanceSet*> modelInstanceSetList; 
+  std::vector<ModelInstanceSet*> modelInstanceSetList;
+
+  std::vector<uint32_t> collectionIndexList;
+  std::vector<uint32_t> collectionOffsetList;
+
+  VkBuffer collectionIndexBuffer;
+  VkDeviceMemory collectionIndexBufferMemory;
+
+  VkDescriptorBufferInfo descriptorCollectionIndexBufferInfo;
 public:
   ModelInstanceSetCollection(std::vector<std::map<Model*, std::vector<TRS>>> modelFrequencyMapList,
                           VkDevice logicalDevice, 
@@ -14,4 +22,6 @@ public:
   ~ModelInstanceSetCollection();
 
   ModelInstanceSet* getModelInstanceSet(int index);
+
+  VkDescriptorBufferInfo* getDescriptorCollectionIndexBufferInfoPointer();
 };
