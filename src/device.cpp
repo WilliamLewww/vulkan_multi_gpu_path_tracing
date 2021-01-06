@@ -249,6 +249,7 @@ void Device::drawFrame() {
                                                     this->graphicsPipelineCollection->getPipelineLayoutList(),
                                                     this->descriptorSetCollection->getDescriptorSetList(),
                                                     this->modelInstanceSetCollection->getModelInstanceSet(0)->getModelInstanceList(),
+                                                    this->modelInstanceSetCollection->getCollectionOffset(0),
                                                     true);
 
   if (vkQueueSubmit(this->deviceQueue->getGraphicsQueue(), 1, &submitInfo, this->synchronizationObjects->getInFlightFence(this->currentFrame)) != VK_SUCCESS) {

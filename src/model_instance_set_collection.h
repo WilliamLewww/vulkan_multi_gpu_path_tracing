@@ -23,6 +23,8 @@ public:
 
   std::vector<std::map<Model*, std::vector<ModelInstance*>>> getModelInstanceMapList();
 
+  uint32_t getCollectionOffset(int index);
+
   ModelInstanceSet* getModelInstanceSet(int index);
   VkDescriptorBufferInfo* getDescriptorCollectionIndexBufferInfoPointer();
 };

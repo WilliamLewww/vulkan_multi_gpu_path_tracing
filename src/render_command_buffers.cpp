@@ -35,6 +35,7 @@ void RenderCommandBuffers::recreateCommandBuffer(uint32_t imageIndex,
                                                  std::vector<VkPipelineLayout> pipelineLayoutList,
                                                  std::vector<VkDescriptorSet> descriptorSetList,
                                                  std::vector<ModelInstance*> modelInstanceList,
+                                                 uint32_t modelInstanceOffset,
                                                  bool isActiveGUI) {
 
   VkCommandBufferBeginInfo commandBufferBeginCreateInfo = {};
@@ -77,7 +78,7 @@ void RenderCommandBuffers::recreateCommandBuffer(uint32_t imageIndex,
       std::vector<VkBuffer> vertexBufferList = {modelInstanceList[y]->getVertexBuffer()};
       vkCmdBindVertexBuffers(this->commandBufferList[imageIndex], 0, 1, vertexBufferList.data(), &offset);
       vkCmdBindIndexBuffer(this->commandBufferList[imageIndex], modelInstanceList[y]->getIndexBuffer(), 0, VK_INDEX_TYPE_UINT32);
-      vkCmdDrawIndexed(this->commandBufferList[imageIndex], modelInstanceList[y]->getModel()->getPrimitiveCount() * 3, 1, 0, 0, y);
+      vkCmdDrawIndexed(this->commandBufferList[imageIndex], modelInstanceList[y]->getModel()->getPrimitiveCount() * 3, 1, 0, 0, modelInstanceOffset + y);
     }
     
     if (z < pipelineList.size() - 1) {

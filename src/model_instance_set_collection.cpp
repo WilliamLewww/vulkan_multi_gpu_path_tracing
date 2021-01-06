@@ -17,7 +17,12 @@ ModelInstanceSetCollection::ModelInstanceSetCollection(std::vector<std::map<Mode
       this->collectionIndexList.push_back(x);
     }
 
-    this->collectionOffsetList.push_back(this->modelInstanceSetList[x]->getInstanceCount());
+    if (x == 0) {
+      this->collectionOffsetList.push_back(0);
+    }
+    else {
+      this->collectionOffsetList.push_back(this->modelInstanceSetList[x - 1]->getInstanceCount());
+    }
   }
 
   VkDeviceSize bufferSize = sizeof(uint32_t) * this->collectionIndexList.size();
@@ -59,6 +64,10 @@ ModelInstanceSetCollection::ModelInstanceSetCollection(std::vector<std::map<Mode
 
 ModelInstanceSetCollection::~ModelInstanceSetCollection() {
 
+}
+
+uint32_t ModelInstanceSetCollection::getCollectionOffset(int index) {
+  return this->collectionOffsetList[index];
 }
 
 std::vector<std::map<Model*, std::vector<ModelInstance*>>> ModelInstanceSetCollection::getModelInstanceMapList() {

@@ -32,5 +32,6 @@ public:
                              std::vector<VkPipelineLayout> pipelineLayoutList,
                              std::vector<VkDescriptorSet> descriptorSetList,
                              std::vector<ModelInstance*> modelInstanceList,
+                             uint32_t modelInstanceOffset,
                              bool isActiveGUI = false);
 };
