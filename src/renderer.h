@@ -25,7 +25,7 @@ public:
   VkRenderPass getRenderPass();
   VkCommandPool getCommandPool();
 
-  void render();
+  void render(int index);
   void updateCameraUniformBuffers(Camera* camera);
   void updateModelInstancesUniformBuffers();
   void updateAccelerationStructure(int index);

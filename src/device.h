@@ -81,6 +81,6 @@ public:
 
   void updateAccelerationStructureSet(int index);
 
-  void drawFrame();
+  void drawFrame(int index);
   void updateUniformBuffer(int index, void* buffer, uint32_t bufferSize);
 };

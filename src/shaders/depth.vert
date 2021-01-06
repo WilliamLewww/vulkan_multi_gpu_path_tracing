@@ -22,6 +22,9 @@ layout(binding = 1, set = 0) uniform InstanceDescriptionContainer {
   mat4 transformMatrix[8];
 } instanceDescriptionContainer;
 
+layout(binding = 2, set = 0) buffer CollectionIndexBuffer { uint data[]; } collectionIndexBuffer;
+layout(binding = 3, set = 0) buffer CollectionOffsetBuffer { uint data[]; } collectionOffsetBuffer;
+
 void main() {
   vec4 positionVector = camera.position - vec4(0.0, 0.0, 0.0, 1.0);
   mat4 viewMatrix = {

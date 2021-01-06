@@ -12,7 +12,11 @@ private:
   VkBuffer collectionIndexBuffer;
   VkDeviceMemory collectionIndexBufferMemory;
 
+  VkBuffer collectionOffsetBuffer;
+  VkDeviceMemory collectionOffsetBufferMemory;
+
   VkDescriptorBufferInfo descriptorCollectionIndexBufferInfo;
+  VkDescriptorBufferInfo descriptorCollectionOffsetBufferInfo;
 public:
   ModelInstanceSetCollection(std::vector<std::map<Model*, std::vector<TRS>>> modelFrequencyMapList,
                           VkDevice logicalDevice, 
@@ -27,4 +31,5 @@ public:
 
   ModelInstanceSet* getModelInstanceSet(int index);
   VkDescriptorBufferInfo* getDescriptorCollectionIndexBufferInfoPointer();
+  VkDescriptorBufferInfo* getDescriptorCollectionOffsetBufferInfoPointer();
 };

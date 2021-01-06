@@ -210,7 +210,7 @@ void Device::updateAccelerationStructureSet(int index) {
   this->accelerationStructureCollection->getAccelerationStructureSet(index)->updateAccelerationStructure(this->modelInstanceSetCollection->getModelInstanceSet(0)->getModelInstanceList(), this->logicalDevice, this->physicalDeviceMemoryProperties, this->commandPool->getCommandPool(), this->deviceQueue->getComputeQueue());
 }
 
-void Device::drawFrame() {
+void Device::drawFrame(int index) {
   vkWaitForFences(this->logicalDevice, 1, &this->synchronizationObjects->getInFlightFence(this->currentFrame), VK_TRUE, UINT64_MAX);
     
   uint32_t imageIndex;
@@ -248,8 +248,8 @@ void Device::drawFrame() {
                                                     this->graphicsPipelineCollection->getGraphicsPipelineList(),
                                                     this->graphicsPipelineCollection->getPipelineLayoutList(),
                                                     this->descriptorSetCollection->getDescriptorSetList(),
-                                                    this->modelInstanceSetCollection->getModelInstanceSet(0)->getModelInstanceList(),
-                                                    this->modelInstanceSetCollection->getCollectionOffset(0),
+                                                    this->modelInstanceSetCollection->getModelInstanceSet(index)->getModelInstanceList(),
+                                                    this->modelInstanceSetCollection->getCollectionOffset(index),
                                                     true);
 
   if (vkQueueSubmit(this->deviceQueue->getGraphicsQueue(), 1, &submitInfo, this->synchronizationObjects->getInFlightFence(this->currentFrame)) != VK_SUCCESS) {
