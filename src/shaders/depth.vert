@@ -22,8 +22,19 @@ layout(binding = 1, set = 0) uniform InstanceDescriptionContainer {
   mat4 transformMatrix[8];
 } instanceDescriptionContainer;
 
-layout(binding = 2, set = 0) buffer CollectionIndexBuffer { uint data[]; } collectionIndexBuffer;
-layout(binding = 3, set = 0) buffer CollectionOffsetBuffer { uint data[]; } collectionOffsetBuffer;
+
+layout(binding = 2, set = 0) uniform InstanceDescriptionContainerLens {
+  uint instanceCount;
+  uint vertexOffsets[8];
+  uint normalOffsets[8];
+  uint indexOffsets[8];
+  uint materialIndexOffsets[8];
+  uint materialOffsets[8];
+  mat4 transformMatrix[8];
+} instanceDescriptionContainerLens;
+
+layout(binding = 3, set = 0) buffer CollectionIndexBuffer { uint data[]; } collectionIndexBuffer;
+layout(binding = 4, set = 0) buffer CollectionOffsetBuffer { uint data[]; } collectionOffsetBuffer;
 
 void main() {
   vec4 positionVector = camera.position - vec4(0.0, 0.0, 0.0, 1.0);
@@ -48,5 +59,12 @@ void main() {
     vec4(0, 0, (-farDist * nearDist) * oneOverDepth, 0)
   };
 
-  gl_Position = projectionMatrix * viewMatrix * instanceDescriptionContainer.transformMatrix[gl_InstanceIndex] * vec4(inPosition, 1.0);
+  uint correctedInstanceIndex = gl_InstanceIndex - collectionOffsetBuffer.data[collectionIndexBuffer.data[gl_InstanceIndex]];
+
+  if (collectionIndexBuffer.data[gl_InstanceIndex] == 1) {
+    gl_Position = projectionMatrix * viewMatrix * instanceDescriptionContainerLens.transformMatrix[correctedInstanceIndex] * vec4(inPosition, 1.0);
+  }
+  else {
+    gl_Position = projectionMatrix * viewMatrix * instanceDescriptionContainer.transformMatrix[correctedInstanceIndex] * vec4(inPosition, 1.0);
+  }
 }

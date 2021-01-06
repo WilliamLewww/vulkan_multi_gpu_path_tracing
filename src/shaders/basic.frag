@@ -20,6 +20,7 @@ layout(early_fragment_tests) in;
 
 layout(location = 0) in vec3 interpolatedPosition;
 flat layout(location = 1) in uint rasterInstanceIndex;
+flat layout(location = 2) in uint rasterCollectionIndex;
 
 layout(location = 0) out vec4 outColor;
 
@@ -42,12 +43,22 @@ layout(binding = 1, set = 0) uniform InstanceDescriptionContainer {
   mat4 transformMatrix[8];
 } instanceDescriptionContainer;
 
-layout(binding = 2, set = 0) buffer CollectionIndexBuffer { uint data[]; } collectionIndexBuffer;
-layout(binding = 3, set = 0) buffer CollectionOffsetBuffer { uint data[]; } collectionOffsetBuffer;
+layout(binding = 2, set = 0) uniform InstanceDescriptionContainerLens {
+  uint instanceCount;
+  uint vertexOffsets[8];
+  uint normalOffsets[8];
+  uint indexOffsets[8];
+  uint materialIndexOffsets[8];
+  uint materialOffsets[8];
+  mat4 transformMatrix[8];
+} instanceDescriptionContainerLens;
 
-layout(binding = 4, set = 0) uniform accelerationStructureEXT topLevelAS;
-layout(binding = 5, set = 0) uniform accelerationStructureEXT topLevelASLens;
-layout(binding = 6, set = 0, rgba32f) uniform image2D image;
+layout(binding = 3, set = 0) buffer CollectionIndexBuffer { uint data[]; } collectionIndexBuffer;
+layout(binding = 4, set = 0) buffer CollectionOffsetBuffer { uint data[]; } collectionOffsetBuffer;
+
+layout(binding = 5, set = 0) uniform accelerationStructureEXT topLevelAS;
+layout(binding = 6, set = 0) uniform accelerationStructureEXT topLevelASLens;
+layout(binding = 7, set = 0, rgba32f) uniform image2D image;
 
 layout(binding = 0, set = 1) buffer IndexBuffer { uint data[]; } indexBuffer;
 layout(binding = 1, set = 1) buffer VertexBuffer { float data[]; } vertexBuffer;

@@ -5,6 +5,7 @@ layout(location = 0) in vec3 inPosition;
 
 layout(location = 0) out vec3 interpolatedPosition;
 layout(location = 1) out uint instanceIndex;
+layout(location = 2) out uint collectionIndex;
 
 layout(binding = 0, set = 0) uniform Camera {
   vec4 position;
@@ -25,8 +26,18 @@ layout(binding = 1, set = 0) uniform InstanceDescriptionContainer {
   mat4 transformMatrix[8];
 } instanceDescriptionContainer;
 
-layout(binding = 2, set = 0) buffer CollectionIndexBuffer { uint data[]; } collectionIndexBuffer;
-layout(binding = 3, set = 0) buffer CollectionOffsetBuffer { uint data[]; } collectionOffsetBuffer;
+layout(binding = 2, set = 0) uniform InstanceDescriptionContainerLens {
+  uint instanceCount;
+  uint vertexOffsets[8];
+  uint normalOffsets[8];
+  uint indexOffsets[8];
+  uint materialIndexOffsets[8];
+  uint materialOffsets[8];
+  mat4 transformMatrix[8];
+} instanceDescriptionContainerLens;
+
+layout(binding = 3, set = 0) buffer CollectionIndexBuffer { uint data[]; } collectionIndexBuffer;
+layout(binding = 4, set = 0) buffer CollectionOffsetBuffer { uint data[]; } collectionOffsetBuffer;
 
 layout(binding = 2, set = 1) buffer NormalIndexBuffer { uint data[]; } normalIndexBuffer;
 layout(binding = 3, set = 1) buffer NormalBuffer { float data[]; } normalBuffer;
@@ -54,8 +65,17 @@ void main() {
     vec4(0, 0, (-farDist * nearDist) * oneOverDepth, 0)
   };
 
-  gl_Position = projectionMatrix * viewMatrix * instanceDescriptionContainer.transformMatrix[gl_InstanceIndex] * vec4(inPosition, 1.0);
+  uint correctedInstanceIndex = gl_InstanceIndex - collectionOffsetBuffer.data[collectionIndexBuffer.data[gl_InstanceIndex]];
 
-  interpolatedPosition = (instanceDescriptionContainer.transformMatrix[gl_InstanceIndex] * vec4(inPosition, 1.0)).xyz;
-  instanceIndex = gl_InstanceIndex;
+  if (collectionIndexBuffer.data[gl_InstanceIndex] == 1) {
+    gl_Position = projectionMatrix * viewMatrix * instanceDescriptionContainerLens.transformMatrix[correctedInstanceIndex] * vec4(inPosition, 1.0);
+    interpolatedPosition = (instanceDescriptionContainerLens.transformMatrix[correctedInstanceIndex] * vec4(inPosition, 1.0)).xyz;
+  }
+  else {
+    gl_Position = projectionMatrix * viewMatrix * instanceDescriptionContainer.transformMatrix[correctedInstanceIndex] * vec4(inPosition, 1.0);
+    interpolatedPosition = (instanceDescriptionContainer.transformMatrix[correctedInstanceIndex] * vec4(inPosition, 1.0)).xyz;
+  }
+
+  instanceIndex = correctedInstanceIndex;
+  collectionIndex = collectionIndexBuffer.data[gl_InstanceIndex];
 }
