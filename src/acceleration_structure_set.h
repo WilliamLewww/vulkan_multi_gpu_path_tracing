@@ -16,10 +16,10 @@ private:
   void addBottomLevelAccelerationStructureInstance(BottomLevelAccelerationStructure* bottomLevelAccelerationStructure, ModelInstance* modelInstance, VkDevice logicalDevice);
 public:
   AccelerationStructureSet(std::map<Model*, std::vector<ModelInstance*>> modelInstanceMap, 
-                                  VkDevice logicalDevice, 
-                                  VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties, 
-                                  VkCommandPool commandPool,
-                                  VkQueue queue);
+                           VkDevice logicalDevice, 
+                           VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties, 
+                           VkCommandPool commandPool,
+                           VkQueue queue);
 
   ~AccelerationStructureSet();
 

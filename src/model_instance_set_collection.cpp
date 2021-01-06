@@ -61,6 +61,16 @@ ModelInstanceSetCollection::~ModelInstanceSetCollection() {
 
 }
 
+std::vector<std::map<Model*, std::vector<ModelInstance*>>> ModelInstanceSetCollection::getModelInstanceMapList() {
+  std::vector<std::map<Model*, std::vector<ModelInstance*>>> modelInstanceMapList;
+
+  for (int x = 0; x < this->modelInstanceSetList.size(); x++) {
+    modelInstanceMapList.push_back(this->modelInstanceSetList[x]->getModelInstanceMap());
+  }
+
+  return modelInstanceMapList;
+}
+
 ModelInstanceSet* ModelInstanceSetCollection::getModelInstanceSet(int index) {
   return this->modelInstanceSetList[index];
 }

@@ -51,8 +51,8 @@ UniformBufferCollection* Device::getUniformBufferCollection() {
   return this->uniformBufferCollection;
 }
 
-AccelerationStructureSet* Device::getAccelerationStructureSet() {
-  return this->accelerationStructureSet;
+AccelerationStructureSet* Device::getAccelerationStructureSet(int index) {
+  return this->accelerationStructureCollection->getAccelerationStructureSet(index);
 }
 
 Textures* Device::getTextures() {
@@ -184,8 +184,8 @@ void Device::createUniformBufferCollection(std::map<void*, uint32_t> bufferMap) 
   this->uniformBufferCollection = new UniformBufferCollection(bufferMap, this->logicalDevice, this->physicalDeviceMemoryProperties);
 }
 
-void Device::createAccelerationStructureSet() {
-  this->accelerationStructureSet = new AccelerationStructureSet(this->modelInstanceSetCollection->getModelInstanceSet(0)->getModelInstanceMap(), this->logicalDevice, this->physicalDeviceMemoryProperties, this->commandPool->getCommandPool(), this->deviceQueue->getComputeQueue());
+void Device::createAccelerationStructureCollection() {
+  this->accelerationStructureCollection = new AccelerationStructureCollection(this->modelInstanceSetCollection->getModelInstanceMapList(), this->logicalDevice, this->physicalDeviceMemoryProperties, this->commandPool->getCommandPool(), this->deviceQueue->getComputeQueue());
 }
 
 void Device::createDescriptorSetCollection(std::vector<std::vector<Descriptor*>> separatedDescriptorList) {
@@ -206,8 +206,8 @@ void Device::createSynchronizationObjects() {
   this->synchronizationObjects = new SynchronizationObjects(this->logicalDevice, this->framesInFlight, this->swapchain->getSwapchainImageCount());
 }
 
-void Device::updateAccelerationStructureSet() {
-  this->accelerationStructureSet->updateAccelerationStructure(this->modelInstanceSetCollection->getModelInstanceSet(0)->getModelInstanceList(), this->logicalDevice, this->physicalDeviceMemoryProperties, this->commandPool->getCommandPool(), this->deviceQueue->getComputeQueue());
+void Device::updateAccelerationStructureSet(int index) {
+  this->accelerationStructureCollection->getAccelerationStructureSet(index)->updateAccelerationStructure(this->modelInstanceSetCollection->getModelInstanceSet(0)->getModelInstanceList(), this->logicalDevice, this->physicalDeviceMemoryProperties, this->commandPool->getCommandPool(), this->deviceQueue->getComputeQueue());
 }
 
 void Device::drawFrame() {

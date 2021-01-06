@@ -21,7 +21,8 @@ public:
                           VkQueue queue);
   ~ModelInstanceSetCollection();
 
-  ModelInstanceSet* getModelInstanceSet(int index);
+  std::vector<std::map<Model*, std::vector<ModelInstance*>>> getModelInstanceMapList();
 
+  ModelInstanceSet* getModelInstanceSet(int index);
   VkDescriptorBufferInfo* getDescriptorCollectionIndexBufferInfoPointer();
 };
