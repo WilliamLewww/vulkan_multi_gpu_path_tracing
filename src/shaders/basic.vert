@@ -43,7 +43,7 @@ layout(binding = 2, set = 1) buffer NormalIndexBuffer { uint data[]; } normalInd
 layout(binding = 3, set = 1) buffer NormalBuffer { float data[]; } normalBuffer;
 
 void main() {
-  vec4 positionVector = camera.position - vec4(0.0, 0.0, 0.0, 1.0);
+  vec4 positionVector = vec4(0.0, 0.0, 0.0, 1.0);
   mat4 viewMatrix = {
     vec4(camera.right.x, camera.up.x, camera.forward.x, 0),
     vec4(camera.right.y, camera.up.y, camera.forward.y, 0),

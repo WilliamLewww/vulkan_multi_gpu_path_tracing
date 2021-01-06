@@ -420,30 +420,25 @@ vec3 shadeReflection(vec3 position, vec3 normal, Material material) {
   return color;
 }
 
+vec3 getRayDirectionFromLens(vec3 filmPosition) {
+  vec3 rayDirection = filmPosition + vec3(0, 0, -1);
+
+  rayQueryEXT rayQuery;
+  rayQueryInitializeEXT(rayQuery, topLevelASLens, gl_RayFlagsNoneEXT, 0xFF, filmPosition, 0.0001f, rayDirection, 1000.0f);
+
+  while (rayQueryProceedEXT(rayQuery));
+
+  if (rayQueryGetIntersectionTypeEXT(rayQuery, true) != gl_RayQueryCommittedIntersectionNoneEXT) {
+    return vec3(1.0);
+  }
+
+  return vec3(0.0);
+}
+
 void main() {
   vec3 directColor = vec3(0.0, 0.0, 0.0);
 
-  Material rasterMaterial = getMaterialFromPrimitive(rasterInstanceIndex, gl_PrimitiveID);
-
-  vec3 vertexA, vertexB, vertexC;
-  getVertexFromIndices(rasterInstanceIndex, gl_PrimitiveID, vertexA, vertexB, vertexC);
-
-  float u, v, w;
-  getBarycentricFromPoints(interpolatedPosition, vertexA, vertexB, vertexC, u, v, w);
-
-  vec3 normalA, normalB, normalC;
-  getNormalFromIndices(rasterInstanceIndex, gl_PrimitiveID, normalA, normalB, normalC);
-
-  vec3 interpolatedNormal = normalA * u + normalB * v + normalC * w;
-
-  directColor = shade(rasterInstanceIndex, gl_PrimitiveID, interpolatedPosition, interpolatedNormal, rasterMaterial);
-
-  if (rasterMaterial.dissolve < 1.0) {
-    vec3 refractedColor = shadeRefraction(interpolatedPosition, interpolatedNormal, rasterMaterial);
-    vec3 reflectedColor = shadeReflection(interpolatedPosition, interpolatedNormal, rasterMaterial);
-
-    directColor = directColor + refractedColor + reflectedColor;
-  }
+  directColor = getRayDirectionFromLens(interpolatedPosition);
   
   vec4 color = vec4(directColor, 1.0);
   if (camera.frameCount > 0) {

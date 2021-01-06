@@ -32,26 +32,6 @@ Renderer::Renderer(VkInstance vulkanInstance, VkSurfaceKHR surface, ModelCollect
       {
         modelCollection->getModel(0), 
         {
-          createTRS({0, 0, 0}, {1, 1, 1}),
-        }
-      },
-      {
-        modelCollection->getModel(2), 
-        {
-          createTRS({0, 0, 0}, {1, 1, 1})
-        }
-      },
-      {
-        modelCollection->getModel(1), 
-        {
-          createTRS({0, 0, 5}, {1, 1, 1})
-        }
-      }
-    },
-    {
-      {
-        modelCollection->getModel(0), 
-        {
           createTRS({10, 0, 0}, {1, 1, 1}),
         }
       },
@@ -67,7 +47,27 @@ Renderer::Renderer(VkInstance vulkanInstance, VkSurfaceKHR surface, ModelCollect
           createTRS({10, 0, 5}, {1, 1, 1})
         }
       }
-    }
+    },
+    {
+      {
+        modelCollection->getModel(3), 
+        {
+          createTRS({0, 0, -1}, {1, 1, 1}),
+        }
+      },
+      {
+        modelCollection->getModel(0), 
+        {
+          createTRS({0, 0, -5}, {1, 1, 1})
+        }
+      },
+      // {
+      //   modelCollection->getModel(1), 
+      //   {
+      //     createTRS({0, 0, 5}, {1, 1, 1})
+      //   }
+      // }
+    },
   };
   this->displayDevice->createModelInstanceCollection(modelFrequencyMapList);
   this->displayDevice->createAccelerationStructureCollection();
