@@ -37,12 +37,11 @@ layout(binding = 3, set = 0) buffer CollectionIndexBuffer { uint data[]; } colle
 layout(binding = 4, set = 0) buffer CollectionOffsetBuffer { uint data[]; } collectionOffsetBuffer;
 
 void main() {
-  vec4 positionVector = vec4(0.0, 0.0, 0.0, 1.0);
   mat4 viewMatrix = {
-    vec4(camera.right.x, camera.up.x, camera.forward.x, 0),
-    vec4(camera.right.y, camera.up.y, camera.forward.y, 0),
-    vec4(camera.right.z, camera.up.z, camera.forward.z, 0),
-    vec4(-dot(camera.right, positionVector), -dot(camera.up, positionVector), -dot(camera.forward, positionVector), 1)
+    vec4(1, 0, 0, 0),
+    vec4(0, 1, 0, 0),
+    vec4(0, 0, -1, 0),
+    vec4(0, 0, 0, 1)
   };
 
   float farDist = 1000.0;
