@@ -429,7 +429,10 @@ vec3 getRayDirectionFromLens(vec3 filmPosition) {
   while (rayQueryProceedEXT(rayQuery));
 
   if (rayQueryGetIntersectionTypeEXT(rayQuery, true) != gl_RayQueryCommittedIntersectionNoneEXT) {
-    return vec3(1.0);
+    vec2 intersectionUV = rayQueryGetIntersectionBarycentricsEXT(rayQuery, true);
+    vec3 intersectionBarycentrics = vec3(1.0 - intersectionUV.x - intersectionUV.y, intersectionUV.x, intersectionUV.y);
+
+    return intersectionBarycentrics;
   }
 
   return vec3(0.0);
