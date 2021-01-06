@@ -13,7 +13,7 @@ private:
 public:
   Renderer(VkInstance vulkanInstance, VkSurfaceKHR surface, ModelCollection* modelCollection, Camera* camera);
   ~Renderer();
-
+  
   ModelInstanceSet* getModelInstanceSet(int index);
 
   VkPhysicalDevice getPhysicalDevice(); 

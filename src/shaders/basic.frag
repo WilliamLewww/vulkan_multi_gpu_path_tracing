@@ -42,8 +42,10 @@ layout(binding = 1, set = 0) uniform InstanceDescriptionContainer {
   mat4 transformMatrix[8];
 } instanceDescriptionContainer;
 
-layout(binding = 2, set = 0) uniform accelerationStructureEXT topLevelAS;
-layout(binding = 3, set = 0, rgba32f) uniform image2D image;
+layout(binding = 2, set = 0) buffer CollectionIndexBuffer { uint data[]; } collectionIndexBuffer;
+
+layout(binding = 3, set = 0) uniform accelerationStructureEXT topLevelAS;
+layout(binding = 4, set = 0, rgba32f) uniform image2D image;
 
 layout(binding = 0, set = 1) buffer IndexBuffer { uint data[]; } indexBuffer;
 layout(binding = 1, set = 1) buffer VertexBuffer { float data[]; } vertexBuffer;

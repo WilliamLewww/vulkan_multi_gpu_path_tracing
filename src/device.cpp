@@ -59,6 +59,10 @@ Textures* Device::getTextures() {
   return this->textures;
 }
 
+ModelInstanceSetCollection* Device::getModelInstanceSetCollection() {
+  return this->modelInstanceSetCollection;
+}
+
 ModelInstanceSet* Device::getModelInstanceSet(int index) {
   return this->modelInstanceSetCollection->getModelInstanceSet(index);
 }

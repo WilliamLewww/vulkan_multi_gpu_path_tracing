@@ -60,6 +60,8 @@ public:
   UniformBufferCollection* getUniformBufferCollection();
   AccelerationStructureCollection* getAccelerationStructureCollection();
   Textures* getTextures();
+
+  ModelInstanceSetCollection* getModelInstanceSetCollection();
   ModelInstanceSet* getModelInstanceSet(int index);
 
   void initializeDeviceQueue(VkSurfaceKHR surface);
