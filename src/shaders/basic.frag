@@ -34,7 +34,7 @@ layout(binding = 0, set = 0) uniform Camera {
   uint frameCount;
 } camera;
 
-layout(binding = 2, set = 0) uniform InstanceDescriptionContainer {
+layout(binding = 1, set = 0) uniform InstanceDescriptionContainer {
   uint instanceCount;
   uint vertexOffsets[8];
   uint normalOffsets[8];
@@ -47,17 +47,17 @@ layout(binding = 2, set = 0) uniform InstanceDescriptionContainer {
 layout(binding = 3, set = 0) buffer CollectionIndexBuffer { uint data[]; } collectionIndexBuffer;
 layout(binding = 4, set = 0) buffer CollectionOffsetBuffer { uint data[]; } collectionOffsetBuffer;
 
-layout(binding = 6, set = 0) uniform accelerationStructureEXT topLevelAS;
+layout(binding = 5, set = 0) uniform accelerationStructureEXT topLevelAS;
 layout(binding = 7, set = 0, rgba32f) uniform image2D image;
 layout(binding = 8, set = 0, rgba32f) uniform image2D image2;
 
-layout(binding = 0, set = 2) buffer IndexBuffer { uint data[]; } indexBuffer;
-layout(binding = 1, set = 2) buffer VertexBuffer { float data[]; } vertexBuffer;
-layout(binding = 2, set = 2) buffer NormalIndexBuffer { uint data[]; } normalIndexBuffer;
-layout(binding = 3, set = 2) buffer NormalBuffer { float data[]; } normalBuffer;
-layout(binding = 4, set = 2) buffer MaterialIndexBuffer { uint data[]; } materialIndexBuffer;
-layout(binding = 5, set = 2) buffer MaterialBuffer { Material data[]; } materialBuffer;
-layout(binding = 6, set = 2) buffer MaterialLightBuffer { 
+layout(binding = 0, set = 1) buffer IndexBuffer { uint data[]; } indexBuffer;
+layout(binding = 1, set = 1) buffer VertexBuffer { float data[]; } vertexBuffer;
+layout(binding = 2, set = 1) buffer NormalIndexBuffer { uint data[]; } normalIndexBuffer;
+layout(binding = 3, set = 1) buffer NormalBuffer { float data[]; } normalBuffer;
+layout(binding = 4, set = 1) buffer MaterialIndexBuffer { uint data[]; } materialIndexBuffer;
+layout(binding = 5, set = 1) buffer MaterialBuffer { Material data[]; } materialBuffer;
+layout(binding = 6, set = 1) buffer MaterialLightBuffer { 
   uint count; 
   uint indicesPrimitive[64];
   uint indicesInstance[64];
@@ -67,12 +67,34 @@ float random(vec2 uv, float seed) {
   return fract(sin(mod(dot(uv, vec2(12.9898, 78.233)) + 1113.1 * seed, M_PI)) * 43758.5453);;
 }
 
+Material getMaterialFromPrimitive(uint instanceIndex, uint primitiveIndex) {
+  uint materialIndexOffset = instanceDescriptionContainer.materialIndexOffsets[instanceIndex];
+  uint materialOffset = instanceDescriptionContainer.materialOffsets[instanceIndex];
+
+  Material material = materialBuffer.data[materialIndexBuffer.data[primitiveIndex + materialIndexOffset] + materialOffset];
+
+  return material;
+}
+
 void main() {
   vec3 directColor = vec3(0.0, 0.0, 0.0);
 
-  vec3 direction = imageLoad(image2, ivec2(gl_FragCoord.xy)).xyz;
+  vec3 rayOrigin = vec3(((gl_FragCoord.x / 800.0) - 0.5), ((gl_FragCoord.y / 600.0) - 0.5), 0.0) + camera.position.xyz;
+  vec3 rayDirection = rayOrigin + imageLoad(image2, ivec2(gl_FragCoord.xy)).xyz;
 
-  directColor = vec3(direction);
+  rayQueryEXT rayQuery;
+  rayQueryInitializeEXT(rayQuery, topLevelAS, gl_RayFlagsNoneEXT, 0xFF, rayOrigin, 0.0001f, rayDirection, 1000.0f);
+
+  while (rayQueryProceedEXT(rayQuery));
+
+  if (rayQueryGetIntersectionTypeEXT(rayQuery, true) != gl_RayQueryCommittedIntersectionNoneEXT) {
+    int intersectionInstanceIndex = rayQueryGetIntersectionInstanceIdEXT(rayQuery, true);
+    int intersectionPrimitiveIndex = rayQueryGetIntersectionPrimitiveIndexEXT(rayQuery, true);
+
+    Material intersectionMaterial = getMaterialFromPrimitive(intersectionInstanceIndex, intersectionPrimitiveIndex);
+
+    directColor = intersectionMaterial.diffuse;
+  }
   
   vec4 color = vec4(directColor, 1.0);
   if (camera.frameCount > 0) {

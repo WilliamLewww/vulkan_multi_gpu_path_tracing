@@ -89,22 +89,22 @@ void Camera::update(bool isCursorActive) {
     previousPosition[2] = this->position[2];
   }
 
-  if (isCursorActive) {
-    double cursorPositionX = Input::getCursorPositionX();
-    double cursorPositionY = Input::getCursorPositionY();
+  // if (isCursorActive) {
+  //   double cursorPositionX = Input::getCursorPositionX();
+  //   double cursorPositionY = Input::getCursorPositionY();
 
-    if (this->previousCursorPositionX != cursorPositionX || this->previousCursorPositionY != cursorPositionY) {
-      double mouseDifferenceX = this->previousCursorPositionX - cursorPositionX;
-      double mouseDifferenceY = this->previousCursorPositionY - cursorPositionY;
+  //   if (this->previousCursorPositionX != cursorPositionX || this->previousCursorPositionY != cursorPositionY) {
+  //     double mouseDifferenceX = this->previousCursorPositionX - cursorPositionX;
+  //     double mouseDifferenceY = this->previousCursorPositionY - cursorPositionY;
 
-      this->yaw += mouseDifferenceX * 0.0005f;
+  //     this->yaw += mouseDifferenceX * 0.0005f;
 
-      this->previousCursorPositionX = cursorPositionX;
-      this->previousCursorPositionY = cursorPositionY;
+  //     this->previousCursorPositionX = cursorPositionX;
+  //     this->previousCursorPositionY = cursorPositionY;
 
-      isCameraMoved = true;
-    }
-  }
+  //     isCameraMoved = true;
+  //   }
+  // }
 
   if (isCameraMoved == true) {
     this->uniform.frameCount = 0;

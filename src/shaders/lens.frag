@@ -181,7 +181,7 @@ float reflectance(vec3 incidentDirection, vec3 normal, float firstIOR, float sec
 
 vec3 getRayDirectionFromLens(vec3 filmPosition) {
   vec3 aperatureVertexA, aperatureVertexB, aperatureVertexC;
-  getVertexFromIndices(2, 0, aperatureVertexA, aperatureVertexB, aperatureVertexC);
+  getVertexFromIndices(1, 0, aperatureVertexA, aperatureVertexB, aperatureVertexC);
 
   vec2 uv = vec2(random(gl_FragCoord.xy, camera.frameCount), random(gl_FragCoord.xy, camera.frameCount + 1));
   if (uv.x + uv.y > 1.0f) {
@@ -229,10 +229,10 @@ vec3 getRayDirectionFromLens(vec3 filmPosition) {
     isIntersection = rayQueryGetIntersectionTypeEXT(rayQuery, true) != gl_RayQueryCommittedIntersectionNoneEXT;
   }
 
-  return intersectionBarycentrics;
+  return normalize(rayDirection);
 }
 
 void main() {
-  vec3 lensDirection = getRayDirectionFromLens(interpolatedPosition);
+  vec3 lensDirection = getRayDirectionFromLens(vec3(((gl_FragCoord.x / 800.0) - 0.5), ((gl_FragCoord.y / 600.0) - 0.5), 0.0));
   imageStore(image2, ivec2(gl_FragCoord.xy), vec4(lensDirection, 1.0));
 }
