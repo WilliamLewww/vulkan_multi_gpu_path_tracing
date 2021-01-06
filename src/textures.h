@@ -14,12 +14,7 @@ private:
   VkImage rayTraceImage;
   VkDeviceMemory rayTraceImageMemory;
 
-  VkImageView lensRayDirectionImageView;
-  VkImage lensRayDirectionImage;
-  VkDeviceMemory lensRayDirectionImageMemory;
-
   VkDescriptorImageInfo descriptorRayTraceImageInfo;
-  VkDescriptorImageInfo descriptorLensRayDirectionImageInfo;
 public:
   Textures(VkDevice logicalDevice, 
                  VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties, 
@@ -34,7 +29,4 @@ public:
 
   VkImage getRayTraceImage();
   VkDescriptorImageInfo* getDescriptorRayTraceImageInfoPointer();
-
-  VkImage getLensRayDirectionImage();
-  VkDescriptorImageInfo* getDescriptorLensRayDirectionImageInfoPointer();
 };

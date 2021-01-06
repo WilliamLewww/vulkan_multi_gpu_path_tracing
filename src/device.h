@@ -9,6 +9,7 @@
 #include "command_pool.h"
 #include "swapchain.h"
 #include "render_pass.h"
+#include "storage_buffers.h"
 #include "textures.h"
 #include "framebuffers.h"
 #include "model_instance_set_collection.h"
@@ -36,6 +37,7 @@ private:
   Swapchain* swapchain;
   RenderPass* renderPass;
   Textures* textures;
+  StorageBuffers* storageBuffers;
   Framebuffers* framebuffers;
   ModelInstanceSetCollection* modelInstanceSetCollection;
   UniformBufferCollection* uniformBufferCollection;
@@ -60,6 +62,7 @@ public:
   UniformBufferCollection* getUniformBufferCollection();
   AccelerationStructureSet* getAccelerationStructureSet(int index);
   Textures* getTextures();
+  StorageBuffers* getStorageBuffers();
 
   ModelInstanceSetCollection* getModelInstanceSetCollection();
   ModelInstanceSet* getModelInstanceSet(int index);
@@ -70,6 +73,7 @@ public:
   void createSwapchain(VkSurfaceKHR surface);
   void createRenderPass();
   void createTextures();
+  void createStorageBuffers();
   void createFramebuffers();
   void createModelInstanceCollection(std::vector<std::map<Model*, std::vector<TRS>>> modelFrequencyMapList);
   void createUniformBufferCollection(std::map<void*, uint32_t> bufferMap);

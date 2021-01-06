@@ -59,6 +59,10 @@ Textures* Device::getTextures() {
   return this->textures;
 }
 
+StorageBuffers* Device::getStorageBuffers() {
+  return this->storageBuffers;
+}
+
 ModelInstanceSetCollection* Device::getModelInstanceSetCollection() {
   return this->modelInstanceSetCollection;
 }
@@ -160,6 +164,13 @@ void Device::createTextures() {
                                             this->swapchain->getSwapchainImageFormat(),
                                             this->swapchain->getSwapchainExtent(),
                                             this->commandPool->getCommandPool(), 
+                                            this->deviceQueue->getGraphicsQueue());
+}
+
+void Device::createStorageBuffers() {
+  this->storageBuffers = new StorageBuffers(this->logicalDevice, 
+                                            this->physicalDeviceMemoryProperties, 
+                                            this->commandPool->getCommandPool(),
                                             this->deviceQueue->getGraphicsQueue());
 }
 

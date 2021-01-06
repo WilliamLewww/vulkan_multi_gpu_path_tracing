@@ -25,6 +25,7 @@ Renderer::Renderer(VkInstance vulkanInstance, VkSurfaceKHR surface, ModelCollect
   this->displayDevice->createSwapchain(surface);
   this->displayDevice->createRenderPass();
   this->displayDevice->createTextures();
+  this->displayDevice->createStorageBuffers();
   this->displayDevice->createFramebuffers();
 
   std::vector<std::map<Model*, std::vector<TRS>>> modelFrequencyMapList = {
@@ -83,7 +84,7 @@ Renderer::Renderer(VkInstance vulkanInstance, VkSurfaceKHR surface, ModelCollect
       new Descriptor(5, VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR, (VkShaderStageFlagBits)(VK_SHADER_STAGE_FRAGMENT_BIT), NULL, NULL, NULL, this->displayDevice->getAccelerationStructureSet(0)->getWriteDescriptorSetAccelerationStructurePointer()),
       new Descriptor(6, VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR, (VkShaderStageFlagBits)(VK_SHADER_STAGE_FRAGMENT_BIT), NULL, NULL, NULL, this->displayDevice->getAccelerationStructureSet(1)->getWriteDescriptorSetAccelerationStructurePointer()),
       new Descriptor(7, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, (VkShaderStageFlagBits)(VK_SHADER_STAGE_FRAGMENT_BIT), this->displayDevice->getTextures()->getDescriptorRayTraceImageInfoPointer(), NULL, NULL, NULL),
-      new Descriptor(8, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, (VkShaderStageFlagBits)(VK_SHADER_STAGE_FRAGMENT_BIT), this->displayDevice->getTextures()->getDescriptorLensRayDirectionImageInfoPointer(), NULL, NULL, NULL),
+      new Descriptor(8, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, (VkShaderStageFlagBits)(VK_SHADER_STAGE_FRAGMENT_BIT), NULL, this->displayDevice->getStorageBuffers()->getDescriptorRayDirectionBufferInfoPointer(), NULL, NULL),
     },
     {
       new Descriptor(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, (VkShaderStageFlagBits)(VK_SHADER_STAGE_FRAGMENT_BIT), NULL, this->displayDevice->getModelInstanceSet(0)->getDescriptorTotalIndexBufferInfoPointer(), NULL, NULL),
