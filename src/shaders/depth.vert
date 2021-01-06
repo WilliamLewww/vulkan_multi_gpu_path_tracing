@@ -9,6 +9,7 @@ layout(binding = 0, set = 0) uniform Camera {
   vec4 up;
   vec4 forward;
 
+  uint apertureInstanceIndex;
   uint frameCount;
 } camera;
 

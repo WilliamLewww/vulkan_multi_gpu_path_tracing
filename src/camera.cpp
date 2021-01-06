@@ -15,6 +15,7 @@ Camera::Camera() {
       0, 0, 1, 0
     },
 
+    .apertureInstanceIndex = 1,
     .frameCount = 0,
   };
 
