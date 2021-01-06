@@ -4,7 +4,7 @@
 #include "top_level_acceleration_structure.h"
 #include "model_instance.h"
 
-class AccelerationStructureCollection {
+class AccelerationStructureSet {
 private:
   std::vector<BottomLevelAccelerationStructure*> bottomLevelAccelerationStructureList;
   std::vector<VkAccelerationStructureInstanceKHR> bottomLevelAccelerationStructureInstanceList;
@@ -15,13 +15,13 @@ private:
 
   void addBottomLevelAccelerationStructureInstance(BottomLevelAccelerationStructure* bottomLevelAccelerationStructure, ModelInstance* modelInstance, VkDevice logicalDevice);
 public:
-  AccelerationStructureCollection(std::map<Model*, std::vector<ModelInstance*>> modelInstanceMap, 
+  AccelerationStructureSet(std::map<Model*, std::vector<ModelInstance*>> modelInstanceMap, 
                                   VkDevice logicalDevice, 
                                   VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties, 
                                   VkCommandPool commandPool,
                                   VkQueue queue);
 
-  ~AccelerationStructureCollection();
+  ~AccelerationStructureSet();
 
   VkWriteDescriptorSetAccelerationStructureKHR* getWriteDescriptorSetAccelerationStructurePointer();
 

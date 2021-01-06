@@ -1,6 +1,6 @@
-#include "acceleration_structure_collection.h"
+#include "acceleration_structure_set.h"
 
-AccelerationStructureCollection::AccelerationStructureCollection(std::map<Model*, std::vector<ModelInstance*>> modelInstanceMap, 
+AccelerationStructureSet::AccelerationStructureSet(std::map<Model*, std::vector<ModelInstance*>> modelInstanceMap, 
                                                                  VkDevice logicalDevice, 
                                                                  VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties, 
                                                                  VkCommandPool commandPool,
@@ -30,11 +30,11 @@ AccelerationStructureCollection::AccelerationStructureCollection(std::map<Model*
   };
 }
   
-AccelerationStructureCollection::~AccelerationStructureCollection() {
+AccelerationStructureSet::~AccelerationStructureSet() {
 
 }
 
-void AccelerationStructureCollection::addBottomLevelAccelerationStructureInstance(BottomLevelAccelerationStructure* bottomLevelAccelerationStructure, ModelInstance* modelInstance, VkDevice logicalDevice) {
+void AccelerationStructureSet::addBottomLevelAccelerationStructureInstance(BottomLevelAccelerationStructure* bottomLevelAccelerationStructure, ModelInstance* modelInstance, VkDevice logicalDevice) {
   PFN_vkGetAccelerationStructureDeviceAddressKHR pvkGetAccelerationStructureDeviceAddressKHR = (PFN_vkGetAccelerationStructureDeviceAddressKHR)vkGetDeviceProcAddr(logicalDevice, "vkGetAccelerationStructureDeviceAddressKHR");
 
   VkAccelerationStructureDeviceAddressInfoKHR accelerationStructureDeviceAddressInfo = {
@@ -57,11 +57,11 @@ void AccelerationStructureCollection::addBottomLevelAccelerationStructureInstanc
   this->bottomLevelAccelerationStructureInstanceList.push_back(geometryInstance);
 }
 
-VkWriteDescriptorSetAccelerationStructureKHR* AccelerationStructureCollection::getWriteDescriptorSetAccelerationStructurePointer() {
+VkWriteDescriptorSetAccelerationStructureKHR* AccelerationStructureSet::getWriteDescriptorSetAccelerationStructurePointer() {
   return &this->writeDescriptorSetAccelerationStructure;
 }
 
-void AccelerationStructureCollection::updateAccelerationStructure(std::vector<ModelInstance*> modelInstanceList,
+void AccelerationStructureSet::updateAccelerationStructure(std::vector<ModelInstance*> modelInstanceList,
                                                                   VkDevice logicalDevice, 
                                                                   VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties, 
                                                                   VkCommandPool commandPool,

@@ -13,7 +13,7 @@
 #include "framebuffers.h"
 #include "model_instance_set_collection.h"
 #include "uniform_buffer_collection.h"
-#include "acceleration_structure_collection.h"
+#include "acceleration_structure_set.h"
 #include "descriptor_set_collection.h"
 #include "graphics_pipeline_collection.h"
 #include "render_command_buffers.h"
@@ -39,7 +39,7 @@ private:
   Framebuffers* framebuffers;
   ModelInstanceSetCollection* modelInstanceSetCollection;
   UniformBufferCollection* uniformBufferCollection;
-  AccelerationStructureCollection* accelerationStructureCollection;
+  AccelerationStructureSet* accelerationStructureSet;
   DescriptorSetCollection* descriptorSetCollection;
   GraphicsPipelineCollection* graphicsPipelineCollection;
   RenderCommandBuffers* renderCommandBuffers;
@@ -58,7 +58,7 @@ public:
   VkCommandPool getCommandPool();
 
   UniformBufferCollection* getUniformBufferCollection();
-  AccelerationStructureCollection* getAccelerationStructureCollection();
+  AccelerationStructureSet* getAccelerationStructureSet();
   Textures* getTextures();
 
   ModelInstanceSetCollection* getModelInstanceSetCollection();
@@ -71,15 +71,15 @@ public:
   void createRenderPass();
   void createTextures();
   void createFramebuffers();
-  void createModelInstances(std::vector<std::map<Model*, std::vector<TRS>>> modelFrequencyMapList);
+  void createModelInstanceCollection(std::vector<std::map<Model*, std::vector<TRS>>> modelFrequencyMapList);
   void createUniformBufferCollection(std::map<void*, uint32_t> bufferMap);
-  void createAccelerationStructureCollection();
+  void createAccelerationStructureSet();
   void createDescriptorSetCollection(std::vector<std::vector<Descriptor*>> separatedDescriptorList);
   void createGraphicsPipelineCollection(std::vector<std::vector<std::string>> shaderList);
   void createRenderCommandBuffers();
   void createSynchronizationObjects();
 
-  void updateAccelerationStructureCollection();
+  void updateAccelerationStructureSet();
 
   void drawFrame();
   void updateUniformBuffer(int index, void* buffer, uint32_t bufferSize);
