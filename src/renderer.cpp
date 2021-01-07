@@ -176,7 +176,7 @@ void Renderer::updateCameraUniformBuffers(Camera* camera) {
 }
 
 void Renderer::updateModelInstancesUniformBuffers() {
-  this->displayDevice->updateUniformBuffer(1, this->displayDevice->getModelInstanceSet(0)->getUniformBufferPointer(), this->displayDevice->getModelInstanceSet(0)->getUniformBufferSize());
+  this->displayDevice->updateUniformBuffer(2, this->displayDevice->getModelInstanceSet(1)->getUniformBufferPointer(), this->displayDevice->getModelInstanceSet(1)->getUniformBufferSize());
 }
 
 void Renderer::updateAccelerationStructure(int index) {

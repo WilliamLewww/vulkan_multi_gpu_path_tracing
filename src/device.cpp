@@ -218,7 +218,7 @@ void Device::createSynchronizationObjects() {
 }
 
 void Device::updateAccelerationStructureSet(int index) {
-  this->accelerationStructureCollection->getAccelerationStructureSet(index)->updateAccelerationStructure(this->modelInstanceSetCollection->getModelInstanceSet(0)->getModelInstanceList(), this->logicalDevice, this->physicalDeviceMemoryProperties, this->commandPool->getCommandPool(), this->deviceQueue->getComputeQueue());
+  this->accelerationStructureCollection->getAccelerationStructureSet(index)->updateAccelerationStructure(this->modelInstanceSetCollection->getModelInstanceSet(index)->getModelInstanceList(), this->logicalDevice, this->physicalDeviceMemoryProperties, this->commandPool->getCommandPool(), this->deviceQueue->getComputeQueue());
 }
 
 void Device::drawFrame(int index) {
