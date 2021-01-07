@@ -18,6 +18,7 @@ private:
   VkDeviceMemory lensPropertiesBufferMemory;
 
   VkDescriptorBufferInfo descriptorRayDirectionBufferInfo;
+  VkDescriptorBufferInfo descriptorLensPropertiesBufferInfo;
 public:
   StorageBuffers(uint32_t apertureInstanceIndex,
                  uint32_t aperturePrimitiveCount,
@@ -28,4 +29,5 @@ public:
   ~StorageBuffers();
 
   VkDescriptorBufferInfo* getDescriptorRayDirectionBufferInfoPointer();
+  VkDescriptorBufferInfo* getDescriptorLensPropertiesBufferInfoPointer();
 };

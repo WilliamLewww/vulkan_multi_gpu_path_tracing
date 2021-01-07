@@ -61,6 +61,12 @@ StorageBuffers::StorageBuffers(uint32_t apertureInstanceIndex,
     .offset = 0,
     .range = VK_WHOLE_SIZE
   };
+
+  this->descriptorLensPropertiesBufferInfo = {
+    .buffer = this->lensPropertiesBuffer,
+    .offset = 0,
+    .range = VK_WHOLE_SIZE
+  };
 }
 
 StorageBuffers::~StorageBuffers() {
@@ -69,4 +75,8 @@ StorageBuffers::~StorageBuffers() {
 
 VkDescriptorBufferInfo* StorageBuffers::getDescriptorRayDirectionBufferInfoPointer() {
   return &this->descriptorRayDirectionBufferInfo;
+}
+
+VkDescriptorBufferInfo* StorageBuffers::getDescriptorLensPropertiesBufferInfoPointer() {
+  return &this->descriptorLensPropertiesBufferInfo;
 }
