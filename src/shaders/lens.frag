@@ -48,7 +48,7 @@ layout(binding = 3, set = 0) buffer CollectionIndexBuffer { uint data[]; } colle
 layout(binding = 4, set = 0) buffer CollectionOffsetBuffer { uint data[]; } collectionOffsetBuffer;
 
 layout(binding = 6, set = 0) uniform accelerationStructureEXT topLevelAS;
-layout(binding = 8, set = 0) buffer RayDirectionBuffer { vec3 data[]; } rayDirectionBuffer;
+layout(binding = 8, set = 0) buffer RayDirectionBuffer { float data[]; } rayDirectionBuffer;
 
 layout(binding = 0, set = 2) buffer IndexBuffer { uint data[]; } indexBuffer;
 layout(binding = 1, set = 2) buffer VertexBuffer { float data[]; } vertexBuffer;
@@ -233,5 +233,8 @@ vec3 getRayDirectionFromLens(vec3 filmPosition) {
 
 void main() {
   vec3 lensDirection = getRayDirectionFromLens(vec3(((gl_FragCoord.x / 800.0) - 0.5), ((gl_FragCoord.y / 600.0) - 0.5), 0.0));
-  rayDirectionBuffer.data[int(gl_FragCoord.x)] = vec3(0, 0, -1);
+  int rayDirectionCoordinate = (int(gl_FragCoord.y) * 800 + int(gl_FragCoord.x)) * 3;
+  rayDirectionBuffer.data[rayDirectionCoordinate + 0] = lensDirection.x;
+  rayDirectionBuffer.data[rayDirectionCoordinate + 1] = lensDirection.y;
+  rayDirectionBuffer.data[rayDirectionCoordinate + 2] = lensDirection.z;
 }

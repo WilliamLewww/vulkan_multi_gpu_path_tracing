@@ -49,7 +49,7 @@ layout(binding = 4, set = 0) buffer CollectionOffsetBuffer { uint data[]; } coll
 
 layout(binding = 5, set = 0) uniform accelerationStructureEXT topLevelAS;
 layout(binding = 7, set = 0, rgba32f) uniform image2D image;
-layout(binding = 8, set = 0) buffer RayDirectionBuffer { vec3 data[]; } rayDirectionBuffer;
+layout(binding = 8, set = 0) buffer RayDirectionBuffer { float data[]; } rayDirectionBuffer;
 
 layout(binding = 0, set = 1) buffer IndexBuffer { uint data[]; } indexBuffer;
 layout(binding = 1, set = 1) buffer VertexBuffer { float data[]; } vertexBuffer;
@@ -79,8 +79,10 @@ Material getMaterialFromPrimitive(uint instanceIndex, uint primitiveIndex) {
 void main() {
   vec3 directColor = vec3(0.0, 0.0, 0.0);
 
+  int rayDirectionCoordinate = (int(gl_FragCoord.y) * 800 + int(gl_FragCoord.x)) * 3;
+
   vec3 rayOrigin = vec3(((gl_FragCoord.x / 800.0) - 0.5), ((gl_FragCoord.y / 600.0) - 0.5), 0.0) + camera.position.xyz;
-  vec3 rayDirection = rayDirectionBuffer.data[int(gl_FragCoord.x)];
+  vec3 rayDirection = vec3(rayDirectionBuffer.data[rayDirectionCoordinate], rayDirectionBuffer.data[rayDirectionCoordinate + 1], rayDirectionBuffer.data[rayDirectionCoordinate + 2]);
 
   rayQueryEXT rayQuery;
   rayQueryInitializeEXT(rayQuery, topLevelAS, gl_RayFlagsNoneEXT, 0xFF, rayOrigin, 0.0001f, rayDirection, 1000.0f);
