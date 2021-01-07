@@ -73,7 +73,7 @@ public:
   void createSwapchain(VkSurfaceKHR surface);
   void createRenderPass();
   void createTextures();
-  void createStorageBuffers();
+  void createStorageBuffers(uint32_t apertureInstanceIndex, uint32_t aperturePrimitiveCount);
   void createFramebuffers();
   void createModelInstanceCollection(std::vector<std::map<Model*, std::vector<TRS>>> modelFrequencyMapList);
   void createUniformBufferCollection(std::map<void*, uint32_t> bufferMap);

@@ -167,8 +167,10 @@ void Device::createTextures() {
                                             this->deviceQueue->getGraphicsQueue());
 }
 
-void Device::createStorageBuffers() {
-  this->storageBuffers = new StorageBuffers(this->logicalDevice, 
+void Device::createStorageBuffers(uint32_t apertureInstanceIndex, uint32_t aperturePrimitiveCount) {
+  this->storageBuffers = new StorageBuffers(apertureInstanceIndex,
+                                            aperturePrimitiveCount,
+                                            this->logicalDevice, 
                                             this->physicalDeviceMemoryProperties, 
                                             this->commandPool->getCommandPool(),
                                             this->deviceQueue->getGraphicsQueue());

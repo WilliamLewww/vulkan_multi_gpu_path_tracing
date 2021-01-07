@@ -508,6 +508,16 @@ uint32_t ModelInstanceSet::getUniformBufferSize() {
   return sizeof(InstanceUniform);
 }
 
+uint32_t ModelInstanceSet::getModelInstanceIndex(Model* model) {
+  for (int x = 0; x < this->modelInstanceList.size(); x++) {
+    if (this->modelInstanceList[x]->getModel() == model) {
+      return x;
+    }
+  }
+
+  return -1;
+}
+
 uint32_t ModelInstanceSet::getInstanceCount() {
   return this->modelInstanceList.size();
 }
