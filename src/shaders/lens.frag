@@ -30,7 +30,6 @@ layout(binding = 0, set = 0) uniform Camera {
   vec4 up;
   vec4 forward;
 
-  uint apertureInstanceIndex;
   uint frameCount;
 } camera;
 
@@ -180,7 +179,7 @@ float reflectance(vec3 incidentDirection, vec3 normal, float firstIOR, float sec
 
 vec3 getRayDirectionFromLens(vec3 filmPosition) {
   vec3 aperatureVertexA, aperatureVertexB, aperatureVertexC;
-  getVertexFromIndices(2, 0, aperatureVertexA, aperatureVertexB, aperatureVertexC);
+  getVertexFromIndices(3, 0, aperatureVertexA, aperatureVertexB, aperatureVertexC);
 
   vec2 uv = vec2(random(gl_FragCoord.xy, camera.frameCount), random(gl_FragCoord.xy, camera.frameCount + 1));
   if (uv.x + uv.y > 1.0f) {

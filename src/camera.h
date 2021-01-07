@@ -13,7 +13,6 @@ private:
     alignas(16) float up[4];
     alignas(16) float forward[4];
 
-    alignas(4)  uint32_t apertureInstanceIndex;
     alignas(4)  uint32_t frameCount;
   };
 
