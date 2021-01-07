@@ -62,6 +62,12 @@ Renderer::Renderer(VkInstance vulkanInstance, VkSurfaceKHR surface, ModelCollect
           createTRS({0, 0, -2}, {1, 1, 1})
         }
       },
+      {
+        modelCollection->getModel(5), 
+        {
+          createTRS({0, 0, -3}, {1, 1, 1})
+        }
+      },
     },
   };
   this->displayDevice->createModelInstanceCollection(modelFrequencyMapList);

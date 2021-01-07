@@ -3,7 +3,7 @@
 Engine::Engine() {
   this->camera = new Camera();
 
-  std::vector<std::string> modelFileNameList {"transparent.obj", "fun_lens.obj", "fish_eye_lens.obj", "film.obj", "aperture.obj"};
+  std::vector<std::string> modelFileNameList {"transparent.obj", "fun_lens.obj", "fish_eye_lens.obj", "film.obj", "aperture.obj", "lens_1.obj"};
   this->modelCollection = new ModelCollection(modelFileNameList);
 
   this->window = new Window(800, 600);
