@@ -80,9 +80,9 @@ GraphicsPipeline::GraphicsPipeline(std::string vertexShaderFile, std::vector<VkD
 
   VkViewport viewport = {
     .x = 0.0f,
-    .y = (float)swapchainExtent.height,
+    .y = 0.0f,
     .width = (float)swapchainExtent.width,
-    .height = -(float)swapchainExtent.height,
+    .height = (float)swapchainExtent.height,
     .minDepth = 0.0f,
     .maxDepth = 1.0f
   };
@@ -113,7 +113,7 @@ GraphicsPipeline::GraphicsPipeline(std::string vertexShaderFile, std::vector<VkD
     .rasterizerDiscardEnable = VK_FALSE,
     .polygonMode = VK_POLYGON_MODE_FILL,
     .cullMode = VK_CULL_MODE_BACK_BIT,
-    .frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE,
+    .frontFace = VK_FRONT_FACE_CLOCKWISE,
     .depthBiasEnable = VK_FALSE,
     .depthBiasConstantFactor = 0,
     .depthBiasClamp = 0,
@@ -313,9 +313,9 @@ GraphicsPipeline::GraphicsPipeline(std::string vertexShaderFile, std::string fra
 
   VkViewport viewport = {
     .x = 0.0f,
-    .y = (float)swapchainExtent.height,
+    .y = 0.0f,
     .width = (float)swapchainExtent.width,
-    .height = -(float)swapchainExtent.height,
+    .height = (float)swapchainExtent.height,
     .minDepth = 0.0f,
     .maxDepth = 1.0f
   };
@@ -346,7 +346,7 @@ GraphicsPipeline::GraphicsPipeline(std::string vertexShaderFile, std::string fra
     .rasterizerDiscardEnable = VK_FALSE,
     .polygonMode = VK_POLYGON_MODE_FILL,
     .cullMode = VK_CULL_MODE_BACK_BIT,
-    .frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE,
+    .frontFace = VK_FRONT_FACE_CLOCKWISE,
     .depthBiasEnable = VK_FALSE,
     .depthBiasConstantFactor = 0,
     .depthBiasClamp = 0,
