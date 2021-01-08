@@ -183,8 +183,10 @@ float reflectance(vec3 incidentDirection, vec3 normal, float firstIOR, float sec
 }
 
 vec3 getRayDirectionFromLens(vec3 filmPosition) {
+  int randomPrimitiveIndex = int(random(gl_FragCoord.xy, camera.frameCount) * float(lensProperties.aperturePrimitiveCount));
+
   vec3 aperatureVertexA, aperatureVertexB, aperatureVertexC;
-  getVertexFromIndices(3, 0, aperatureVertexA, aperatureVertexB, aperatureVertexC);
+  getVertexFromIndices(lensProperties.apertureInstanceIndex, randomPrimitiveIndex, aperatureVertexA, aperatureVertexB, aperatureVertexC);
 
   vec2 uv = vec2(random(gl_FragCoord.xy, camera.frameCount), random(gl_FragCoord.xy, camera.frameCount + 1));
   if (uv.x + uv.y > 1.0f) {
