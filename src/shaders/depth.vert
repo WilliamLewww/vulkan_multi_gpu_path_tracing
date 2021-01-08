@@ -60,10 +60,5 @@ void main() {
 
   uint correctedInstanceIndex = gl_InstanceIndex - collectionOffsetBuffer.data[collectionIndexBuffer.data[gl_InstanceIndex]];
 
-  if (collectionIndexBuffer.data[gl_InstanceIndex] == 1) {
-    gl_Position = projectionMatrix * viewMatrix * instanceDescriptionContainerLens.transformMatrix[correctedInstanceIndex] * vec4(inPosition, 1.0);
-  }
-  else {
-    gl_Position = projectionMatrix * viewMatrix * instanceDescriptionContainer.transformMatrix[correctedInstanceIndex] * vec4(inPosition, 1.0);
-  }
+  gl_Position = projectionMatrix * viewMatrix * instanceDescriptionContainerLens.transformMatrix[correctedInstanceIndex] * vec4(inPosition, 1.0);
 }
