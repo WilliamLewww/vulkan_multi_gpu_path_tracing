@@ -14,6 +14,7 @@ public:
   Renderer(VkInstance vulkanInstance, VkSurfaceKHR surface, ModelCollection* modelCollection, Camera* camera);
   ~Renderer();
   
+  ModelInstanceSetCollection* getModelInstanceSetCollection();
   ModelInstanceSet* getModelInstanceSet(int index);
 
   VkPhysicalDevice getPhysicalDevice(); 
@@ -27,6 +28,6 @@ public:
 
   void render(int index);
   void updateCameraUniformBuffers(Camera* camera);
-  void updateModelInstancesUniformBuffers();
+  void updateModelInstancesUniformBuffers(int binding, int index);
   void updateAccelerationStructure(int index);
 };

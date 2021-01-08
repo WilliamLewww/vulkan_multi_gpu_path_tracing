@@ -100,7 +100,7 @@ GUI::~GUI() {
 
 }
 
-void GUI::render(Camera* camera, Renderer* renderer, ModelInstanceSet* modelInstanceSet) {
+void GUI::render(Camera* camera, Renderer* renderer, ModelInstanceSetCollection* modelInstanceSetCollection) {
   ImGui_ImplVulkan_NewFrame();
   ImGui_ImplGlfw_NewFrame();
   ImGui::NewFrame();
@@ -117,22 +117,22 @@ void GUI::render(Camera* camera, Renderer* renderer, ModelInstanceSet* modelInst
   }
 
   if (ImGui::CollapsingHeader("Model Instances")) {
-    for (int x = 0; x < modelInstanceSet->getInstanceCount(); x++) {
-      std::string title = modelInstanceSet->getModelInstance(x)->getModel()->getFileName();
+    for (int x = 0; x < modelInstanceSetCollection->getModelInstanceSet(1)->getInstanceCount(); x++) {
+      std::string title = modelInstanceSetCollection->getModelInstanceSet(1)->getModelInstance(x)->getModel()->getFileName();
       std::string label = "#INSTANCE" + std::to_string(x);
       ImGui::PushID(label.c_str());
       if (ImGui::CollapsingHeader(title.c_str())) {
-        if (ImGui::DragFloat3("Position", modelInstanceSet->getModelInstance(x)->getTransformation().getPosition(), 0.01, 0.0, 0.0, "%.2f")) {
-          modelInstanceSet->getModelInstance(x)->getTransformation().updateTransformation();
-          modelInstanceSet->updateUniformBuffer();
-          renderer->updateModelInstancesUniformBuffers();
+        if (ImGui::DragFloat3("Position", modelInstanceSetCollection->getModelInstanceSet(1)->getModelInstance(x)->getTransformation().getPosition(), 0.01, 0.0, 0.0, "%.2f")) {
+          modelInstanceSetCollection->getModelInstanceSet(1)->getModelInstance(x)->getTransformation().updateTransformation();
+          modelInstanceSetCollection->getModelInstanceSet(1)->updateUniformBuffer();
+          renderer->updateModelInstancesUniformBuffers(2, 1);
           renderer->updateAccelerationStructure(1);
           camera->resetFrames();
         }
-        if (ImGui::DragFloat3("Scale", modelInstanceSet->getModelInstance(x)->getTransformation().getScale(), 0.01, 0.0, 0.0, "%.2f")) {
-          modelInstanceSet->getModelInstance(x)->getTransformation().updateTransformation();
-          modelInstanceSet->updateUniformBuffer();
-          renderer->updateModelInstancesUniformBuffers();
+        if (ImGui::DragFloat3("Scale", modelInstanceSetCollection->getModelInstanceSet(1)->getModelInstance(x)->getTransformation().getScale(), 0.01, 0.0, 0.0, "%.2f")) {
+          modelInstanceSetCollection->getModelInstanceSet(1)->getModelInstance(x)->getTransformation().updateTransformation();
+          modelInstanceSetCollection->getModelInstanceSet(1)->updateUniformBuffer();
+          renderer->updateModelInstancesUniformBuffers(2, 1);
           renderer->updateAccelerationStructure(1);
           camera->resetFrames();
         }

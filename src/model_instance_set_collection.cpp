@@ -120,6 +120,10 @@ std::vector<std::map<Model*, std::vector<ModelInstance*>>> ModelInstanceSetColle
   return modelInstanceMapList;
 }
 
+uint32_t ModelInstanceSetCollection::getModelInstanceSetCount() {
+  return this->modelInstanceSetList.size();
+}
+
 ModelInstanceSet* ModelInstanceSetCollection::getModelInstanceSet(int index) {
   return this->modelInstanceSetList[index];
 }

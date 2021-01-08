@@ -139,6 +139,10 @@ Renderer::~Renderer() {
   delete this->deviceCollection;
 }
 
+ModelInstanceSetCollection* Renderer::getModelInstanceSetCollection() {
+  return this->displayDevice->getModelInstanceSetCollection();
+}
+
 ModelInstanceSet* Renderer::getModelInstanceSet(int index) {
   return this->displayDevice->getModelInstanceSet(index);
 }
@@ -183,8 +187,8 @@ void Renderer::updateCameraUniformBuffers(Camera* camera) {
   this->displayDevice->updateUniformBuffer(0, camera->getUniformPointer(), camera->getUniformStructureSize());
 }
 
-void Renderer::updateModelInstancesUniformBuffers() {
-  this->displayDevice->updateUniformBuffer(2, this->displayDevice->getModelInstanceSet(1)->getUniformBufferPointer(), this->displayDevice->getModelInstanceSet(1)->getUniformBufferSize());
+void Renderer::updateModelInstancesUniformBuffers(int binding, int index) {
+  this->displayDevice->updateUniformBuffer(binding, this->displayDevice->getModelInstanceSet(index)->getUniformBufferPointer(), this->displayDevice->getModelInstanceSet(index)->getUniformBufferSize());
 }
 
 void Renderer::updateAccelerationStructure(int index) {

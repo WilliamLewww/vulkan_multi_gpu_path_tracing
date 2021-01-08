@@ -29,6 +29,8 @@ public:
 
   uint32_t getCollectionOffset(int index);
 
+  uint32_t getModelInstanceSetCount();
+
   ModelInstanceSet* getModelInstanceSet(int index);
   VkDescriptorBufferInfo* getDescriptorCollectionIndexBufferInfoPointer();
   VkDescriptorBufferInfo* getDescriptorCollectionOffsetBufferInfoPointer();
