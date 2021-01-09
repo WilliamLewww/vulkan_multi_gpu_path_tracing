@@ -15,6 +15,7 @@ Camera::Camera() {
       0, 0, 1, 0
     },
 
+    .yaw = 0,
     .frameCount = 0,
   };
 
@@ -88,22 +89,22 @@ void Camera::update(bool isCursorActive) {
     previousPosition[2] = this->position[2];
   }
 
-  // if (isCursorActive) {
-  //   double cursorPositionX = Input::getCursorPositionX();
-  //   double cursorPositionY = Input::getCursorPositionY();
+  if (isCursorActive) {
+    double cursorPositionX = Input::getCursorPositionX();
+    double cursorPositionY = Input::getCursorPositionY();
 
-  //   if (this->previousCursorPositionX != cursorPositionX || this->previousCursorPositionY != cursorPositionY) {
-  //     double mouseDifferenceX = this->previousCursorPositionX - cursorPositionX;
-  //     double mouseDifferenceY = this->previousCursorPositionY - cursorPositionY;
+    if (this->previousCursorPositionX != cursorPositionX || this->previousCursorPositionY != cursorPositionY) {
+      double mouseDifferenceX = this->previousCursorPositionX - cursorPositionX;
+      double mouseDifferenceY = this->previousCursorPositionY - cursorPositionY;
 
-  //     this->yaw += mouseDifferenceX * 0.0005f;
+      this->yaw += mouseDifferenceX * 0.0005f;
 
-  //     this->previousCursorPositionX = cursorPositionX;
-  //     this->previousCursorPositionY = cursorPositionY;
+      this->previousCursorPositionX = cursorPositionX;
+      this->previousCursorPositionY = cursorPositionY;
 
-  //     isCameraMoved = true;
-  //   }
-  // }
+      isCameraMoved = true;
+    }
+  }
 
   if (isCameraMoved == true) {
     this->uniform.frameCount = 0;
@@ -122,6 +123,8 @@ void Camera::update(bool isCursorActive) {
     this->uniform.right[1] = this->uniform.forward[2] * this->uniform.up[0] - this->uniform.forward[0] * this->uniform.up[2];
     this->uniform.right[2] = this->uniform.forward[0] * this->uniform.up[1] - this->uniform.forward[1] * this->uniform.up[0];
     this->uniform.right[3] = 0.0f;
+
+    this->uniform.yaw = this->yaw;
 
     isCameraMoved = false;
   }

@@ -5,6 +5,7 @@ layout(location = 0) in vec3 inPosition;
 
 layout(location = 0) out vec3 interpolatedPosition;
 layout(location = 1) out uint instanceIndex;
+layout(location = 2) out mat4 cameraRotationMatrix;
 
 layout(binding = 0, set = 0) uniform Camera {
   vec4 position;
@@ -12,6 +13,7 @@ layout(binding = 0, set = 0) uniform Camera {
   vec4 up;
   vec4 forward;
 
+  float yaw;
   uint frameCount;
 } camera;
 
@@ -51,6 +53,14 @@ void main() {
   };
 
   gl_Position = projectionMatrix * viewMatrix * instanceDescriptionContainerLens.transformMatrix[gl_InstanceIndex] * vec4(inPosition, 1.0);
+
   interpolatedPosition = (instanceDescriptionContainerLens.transformMatrix[gl_InstanceIndex] * vec4(inPosition, 1.0)).xyz;
   instanceIndex = gl_InstanceIndex;
+
+  cameraRotationMatrix = mat4(
+    vec4(cos(camera.yaw), 0, -sin(camera.yaw), 0),
+    vec4(0, 1, 0, 0),
+    vec4(sin(camera.yaw), 0, cos(camera.yaw), 0),
+    vec4(0, 0, 0, 1)
+  );
 }

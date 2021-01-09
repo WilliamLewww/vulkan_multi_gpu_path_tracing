@@ -20,6 +20,7 @@ layout(early_fragment_tests) in;
 
 layout(location = 0) in vec3 interpolatedPosition;
 flat layout(location = 1) in uint rasterInstanceIndex;
+flat layout(location = 2) in mat4 cameraRotationMatrix;
 
 layout(location = 0) out vec4 outColor;
 
@@ -29,6 +30,7 @@ layout(binding = 0, set = 0) uniform Camera {
   vec4 up;
   vec4 forward;
 
+  float yaw;
   uint frameCount;
 } camera;
 
@@ -403,7 +405,7 @@ void main() {
   int rayDirectionCoordinate = (int(gl_FragCoord.y) * 800 + int(gl_FragCoord.x)) * 3;
 
   vec3 rayOrigin = vec3(((gl_FragCoord.x / 800.0) - 0.5), ((gl_FragCoord.y / 600.0) - 0.5), 0.0) + camera.position.xyz;
-  vec3 rayDirection = vec3(rayDirectionBuffer.data[rayDirectionCoordinate], rayDirectionBuffer.data[rayDirectionCoordinate + 1], rayDirectionBuffer.data[rayDirectionCoordinate + 2]);
+  vec3 rayDirection = (cameraRotationMatrix * vec4(rayDirectionBuffer.data[rayDirectionCoordinate], rayDirectionBuffer.data[rayDirectionCoordinate + 1], rayDirectionBuffer.data[rayDirectionCoordinate + 2], 1.0)).xyz;
 
   rayQueryEXT rayQuery;
   rayQueryInitializeEXT(rayQuery, topLevelAS, gl_RayFlagsNoneEXT, 0xFF, rayOrigin, 0.0001f, rayDirection, 1000.0f);
