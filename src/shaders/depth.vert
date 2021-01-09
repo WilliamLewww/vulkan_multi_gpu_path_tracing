@@ -22,19 +22,8 @@ layout(binding = 1, set = 0) uniform InstanceDescriptionContainer {
   mat4 transformMatrix[8];
 } instanceDescriptionContainer;
 
-
-layout(binding = 2, set = 0) uniform InstanceDescriptionContainerLens {
-  uint instanceCount;
-  uint vertexOffsets[8];
-  uint normalOffsets[8];
-  uint indexOffsets[8];
-  uint materialIndexOffsets[8];
-  uint materialOffsets[8];
-  mat4 transformMatrix[8];
-} instanceDescriptionContainerLens;
-
-layout(binding = 3, set = 0) buffer CollectionIndexBuffer { uint data[]; } collectionIndexBuffer;
-layout(binding = 4, set = 0) buffer CollectionOffsetBuffer { uint data[]; } collectionOffsetBuffer;
+layout(binding = 2, set = 0) buffer CollectionIndexBuffer { uint data[]; } collectionIndexBuffer;
+layout(binding = 3, set = 0) buffer CollectionOffsetBuffer { uint data[]; } collectionOffsetBuffer;
 
 void main() {
   mat4 viewMatrix = {

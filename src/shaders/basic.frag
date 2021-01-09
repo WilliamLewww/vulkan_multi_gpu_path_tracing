@@ -20,7 +20,6 @@ layout(early_fragment_tests) in;
 
 layout(location = 0) in vec3 interpolatedPosition;
 flat layout(location = 1) in uint rasterInstanceIndex;
-flat layout(location = 2) in uint rasterCollectionIndex;
 
 layout(location = 0) out vec4 outColor;
 
