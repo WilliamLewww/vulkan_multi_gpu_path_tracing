@@ -404,7 +404,9 @@ void main() {
 
   int rayDirectionCoordinate = (int(gl_FragCoord.y) * 800 + int(gl_FragCoord.x)) * 3;
 
-  vec3 rayOrigin = vec3(-((gl_FragCoord.x / 800.0) - 0.5), ((gl_FragCoord.y / 600.0) - 0.5), 0.0) + camera.position.xyz;
+  vec3 filmPosition = vec3(-((gl_FragCoord.x / 800.0) - 0.5), ((gl_FragCoord.y / 600.0) - 0.5), 0.0);
+
+  vec3 rayOrigin = filmPosition + camera.position.xyz;
   vec3 rayDirection = (cameraRotationMatrix * vec4(rayDirectionBuffer.data[rayDirectionCoordinate], rayDirectionBuffer.data[rayDirectionCoordinate + 1], rayDirectionBuffer.data[rayDirectionCoordinate + 2], 1.0)).xyz;
 
   rayQueryEXT rayQuery;
