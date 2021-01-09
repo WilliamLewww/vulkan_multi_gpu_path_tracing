@@ -66,6 +66,7 @@ void AccelerationStructureSet::updateAccelerationStructure(std::vector<ModelInst
                                                                   VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties, 
                                                                   VkCommandPool commandPool,
                                                                   VkQueue queue) {
+  
   for (int x = 0; x < modelInstanceList.size(); x++) {
     this->bottomLevelAccelerationStructureInstanceList[x].transform = modelInstanceList[x]->getTransformation().getVulkanTransformMatrix();
   }

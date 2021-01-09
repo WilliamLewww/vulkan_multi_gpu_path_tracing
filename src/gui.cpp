@@ -116,29 +116,39 @@ void GUI::render(Camera* camera, Renderer* renderer, ModelInstanceSetCollection*
     ImGui::PopID();
   }
 
-  if (ImGui::CollapsingHeader("Model Instances")) {
-    for (int x = 0; x < modelInstanceSetCollection->getModelInstanceSet(1)->getInstanceCount(); x++) {
-      std::string title = modelInstanceSetCollection->getModelInstanceSet(1)->getModelInstance(x)->getModel()->getFileName();
-      std::string label = "#INSTANCE" + std::to_string(x);
-      ImGui::PushID(label.c_str());
-      if (ImGui::CollapsingHeader(title.c_str())) {
-        if (ImGui::DragFloat3("Position", modelInstanceSetCollection->getModelInstanceSet(1)->getModelInstance(x)->getTransformation().getPosition(), 0.01, 0.0, 0.0, "%.2f")) {
-          modelInstanceSetCollection->getModelInstanceSet(1)->getModelInstance(x)->getTransformation().updateTransformation();
-          modelInstanceSetCollection->getModelInstanceSet(1)->updateUniformBuffer();
-          renderer->updateModelInstancesUniformBuffers(2, 1);
-          renderer->updateAccelerationStructure(1);
-          camera->resetFrames();
-        }
-        if (ImGui::DragFloat3("Scale", modelInstanceSetCollection->getModelInstanceSet(1)->getModelInstance(x)->getTransformation().getScale(), 0.01, 0.0, 0.0, "%.2f")) {
-          modelInstanceSetCollection->getModelInstanceSet(1)->getModelInstance(x)->getTransformation().updateTransformation();
-          modelInstanceSetCollection->getModelInstanceSet(1)->updateUniformBuffer();
-          renderer->updateModelInstancesUniformBuffers(2, 1);
-          renderer->updateAccelerationStructure(1);
-          camera->resetFrames();
+  if (ImGui::CollapsingHeader("Model Collections")) {
+    for (int y = 0; y < modelInstanceSetCollection->getModelInstanceSetCount(); y++) {
+      std::string title2 = "placeholder";
+      std::string label2 = "#COLLECTION" + std::to_string(y);
+      ImGui::PushID(label2.c_str());
+
+      if (ImGui::CollapsingHeader(title2.c_str())) {
+        for (int x = 0; x < modelInstanceSetCollection->getModelInstanceSet(y)->getInstanceCount(); x++) {
+          std::string title = modelInstanceSetCollection->getModelInstanceSet(y)->getModelInstance(x)->getModel()->getFileName();
+          std::string label = "#INSTANCE" + std::to_string(x);
+          ImGui::PushID(label.c_str());
+          if (ImGui::CollapsingHeader(title.c_str())) {
+            if (ImGui::DragFloat3("Position", modelInstanceSetCollection->getModelInstanceSet(y)->getModelInstance(x)->getTransformation().getPosition(), 0.01, 0.0, 0.0, "%.2f")) {
+              modelInstanceSetCollection->getModelInstanceSet(y)->getModelInstance(x)->getTransformation().updateTransformation();
+              modelInstanceSetCollection->getModelInstanceSet(y)->updateUniformBuffer();
+              renderer->updateModelInstancesUniformBuffers(y + 1, y);
+              renderer->updateAccelerationStructure(y);
+              camera->resetFrames();
+            }
+            if (ImGui::DragFloat3("Scale", modelInstanceSetCollection->getModelInstanceSet(y)->getModelInstance(x)->getTransformation().getScale(), 0.01, 0.0, 0.0, "%.2f")) {
+              modelInstanceSetCollection->getModelInstanceSet(y)->getModelInstance(x)->getTransformation().updateTransformation();
+              modelInstanceSetCollection->getModelInstanceSet(y)->updateUniformBuffer();
+              renderer->updateModelInstancesUniformBuffers(y + 1, y);
+              renderer->updateAccelerationStructure(y);
+              camera->resetFrames();
+            }
+          }
+          ImGui::PopID();
         }
       }
+
       ImGui::PopID();
-    }    
+    }
   }
 
   ImGui::End();

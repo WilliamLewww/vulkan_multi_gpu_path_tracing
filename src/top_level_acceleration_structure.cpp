@@ -203,6 +203,7 @@ void TopLevelAccelerationStructure::updateAccelerationStructure(std::vector<VkAc
                                                                 VkQueue queue) {
 
   this->accelerationStructureBuildGeometryInfo.srcAccelerationStructure = this->accelerationStructure;
+  this->accelerationStructureBuildGeometryInfo.mode = VK_BUILD_ACCELERATION_STRUCTURE_MODE_UPDATE_KHR;
 
   PFN_vkCmdBuildAccelerationStructuresKHR pvkCmdBuildAccelerationStructuresKHR = (PFN_vkCmdBuildAccelerationStructuresKHR)vkGetDeviceProcAddr(logicalDevice, "vkCmdBuildAccelerationStructuresKHR");
 
@@ -264,4 +265,7 @@ void TopLevelAccelerationStructure::updateAccelerationStructure(std::vector<VkAc
   vkQueueWaitIdle(queue);
 
   vkFreeCommandBuffers(logicalDevice, commandPool, 1, &commandBuffer);
+
+  vkDestroyBuffer(logicalDevice, geometryInstanceStagingBuffer, NULL);
+  vkFreeMemory(logicalDevice, geometryInstanceStagingBufferMemory, NULL);
 }
