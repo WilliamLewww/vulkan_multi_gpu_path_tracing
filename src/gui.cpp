@@ -118,13 +118,13 @@ void GUI::render(Camera* camera, Renderer* renderer, ModelInstanceSetCollection*
 
   if (ImGui::CollapsingHeader("Model Collections")) {
     for (int y = 0; y < modelInstanceSetCollection->getModelInstanceSetCount(); y++) {
-      std::string title2 = "placeholder";
+      std::string title2 = "  Collection #" + std::to_string(y);
       std::string label2 = "#COLLECTION" + std::to_string(y);
       ImGui::PushID(label2.c_str());
 
       if (ImGui::CollapsingHeader(title2.c_str())) {
         for (int x = 0; x < modelInstanceSetCollection->getModelInstanceSet(y)->getInstanceCount(); x++) {
-          std::string title = modelInstanceSetCollection->getModelInstanceSet(y)->getModelInstance(x)->getModel()->getFileName();
+          std::string title = "    " + modelInstanceSetCollection->getModelInstanceSet(y)->getModelInstance(x)->getModel()->getFileName();
           std::string label = "#INSTANCE" + std::to_string(x);
           ImGui::PushID(label.c_str());
           if (ImGui::CollapsingHeader(title.c_str())) {
