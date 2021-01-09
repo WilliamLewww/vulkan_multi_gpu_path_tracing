@@ -42,10 +42,10 @@ layout(binding = 2, set = 0) uniform InstanceDescriptionContainer {
   mat4 transformMatrix[8];
 } instanceDescriptionContainer;
 
-layout(binding = 6, set = 0) uniform accelerationStructureEXT topLevelAS;
-layout(binding = 8, set = 0) buffer RayDirectionBuffer { float data[]; } rayDirectionBuffer;
+layout(binding = 4, set = 0) uniform accelerationStructureEXT topLevelAS;
+layout(binding = 6, set = 0) buffer RayDirectionBuffer { float data[]; } rayDirectionBuffer;
 
-layout(binding = 9, set = 0) buffer LensProperties {
+layout(binding = 7, set = 0) buffer LensProperties {
   uint apertureInstanceIndex;
   uint aperturePrimitiveCount;
 } lensProperties;
