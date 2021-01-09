@@ -35,34 +35,28 @@ Renderer::Renderer(VkInstance vulkanInstance, VkSurfaceKHR surface, ModelCollect
           createTRS({0, 0, -5}, {1, 1, 1}),
         }
       },
-      // {
-      //   modelCollection->getModel(2), 
-      //   {
-      //     createTRS({10, 0, 0}, {1, 1, 1})
-      //   }
-      // },
       {
         modelCollection->getModel(1), 
         {
-          createTRS({0, 0, 5}, {1, 1, 1})
+          createTRS({0, 0, 3}, {1, 1, 1})
         }
       }
     },
     {
       {
-        modelCollection->getModel(3), 
+        modelCollection->getModel(2), 
         {
           createTRS({0, 0, -1}, {1, 1, 1}),
         }
       },
       {
-        modelCollection->getModel(4), 
+        modelCollection->getModel(3), 
         {
           createTRS({0, 0, -2}, {1, 1, 1})
         }
       },
       {
-        modelCollection->getModel(5), 
+        modelCollection->getModel(4), 
         {
           createTRS({0, 0, -3}, {1, 1, 1}),
         }
@@ -72,7 +66,7 @@ Renderer::Renderer(VkInstance vulkanInstance, VkSurfaceKHR surface, ModelCollect
   this->displayDevice->createModelInstanceCollection(modelFrequencyMapList);
   this->displayDevice->createAccelerationStructureCollection();
 
-  this->displayDevice->createStorageBuffers(this->displayDevice->getModelInstanceSet(1)->getModelInstanceIndex(modelCollection->getModel(4)), modelCollection->getModel(4)->getPrimitiveCount());
+  this->displayDevice->createStorageBuffers(this->displayDevice->getModelInstanceSet(1)->getModelInstanceIndex(modelCollection->getModel(3)), modelCollection->getModel(3)->getPrimitiveCount());
 
   std::map<void*, uint32_t> uniformBufferMap = {
     {camera->getUniformPointer(), camera->getUniformStructureSize()},
