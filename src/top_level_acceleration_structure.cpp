@@ -183,9 +183,6 @@ TopLevelAccelerationStructure::TopLevelAccelerationStructure(std::vector<VkAccel
   vkQueueWaitIdle(queue);
 
   vkFreeCommandBuffers(logicalDevice, commandPool, 1, &commandBuffer);
-
-  vkDestroyBuffer(logicalDevice, scratchBuffer, NULL);
-  vkFreeMemory(logicalDevice, scratchBufferMemory, NULL);
 }
 
 TopLevelAccelerationStructure::~TopLevelAccelerationStructure() {
