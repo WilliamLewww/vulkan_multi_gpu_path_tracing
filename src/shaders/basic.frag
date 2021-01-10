@@ -408,7 +408,7 @@ void main() {
   vec3 rayOrigin = filmPosition + camera.position.xyz;
   vec3 rayDirection = (cameraRotationMatrix * vec4(rayDirectionBuffer.data[rayDirectionCoordinate], rayDirectionBuffer.data[rayDirectionCoordinate + 1], rayDirectionBuffer.data[rayDirectionCoordinate + 2], 1.0)).xyz;
 
-  if (rayDirection.z < 0.0) {
+  if (rayDirectionBuffer.data[rayDirectionCoordinate + 2] < 0.0) {
     rayQueryEXT rayQuery;
     rayQueryInitializeEXT(rayQuery, topLevelAS, gl_RayFlagsNoneEXT, 0xFF, rayOrigin, 0.0001f, rayDirection, 1000.0f);
 
