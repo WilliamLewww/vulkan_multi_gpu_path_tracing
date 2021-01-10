@@ -193,6 +193,7 @@ vec3 getRayDirectionFromLens(vec3 filmPosition) {
   vec3 aperatureBarycentric = vec3(1.0 - uv.x - uv.y, uv.x, uv.y);
   vec3 aperaturePosition = aperatureVertexA * aperatureBarycentric.x + aperatureVertexB * aperatureBarycentric.y + aperatureVertexC * aperatureBarycentric.z;
 
+  bool isFilmIntersection = true;
   vec3 rayOrigin = filmPosition;
   vec3 rayDirection = normalize(aperaturePosition - filmPosition);
 
@@ -245,9 +246,15 @@ vec3 getRayDirectionFromLens(vec3 filmPosition) {
       intersectionPosition = intersectionVertexA * intersectionBarycentrics.x + intersectionVertexB * intersectionBarycentrics.y + intersectionVertexC * intersectionBarycentrics.z;
       intersectionNormal = intersectionNormalA * intersectionBarycentrics.x + intersectionNormalB * intersectionBarycentrics.y + intersectionNormalC * intersectionBarycentrics.z;
 
-      rayOrigin = intersectionPosition;
+      isFilmIntersection = false;
 
+      rayOrigin = intersectionPosition;
       rayDirection = refract(rayDirection, -intersectionNormal, intersectionMaterial.ior, 1.0);
+    }
+    else {
+      if (intersectionInstanceIndex != lensProperties.apertureInstanceIndex && !isFilmIntersection) {
+        return vec3(0, 0, 0);
+      }
     }
 
     rayQueryInitializeEXT(rayQuery, topLevelAS, gl_RayFlagsNoneEXT, 0xFF, rayOrigin, 0.0001f, rayDirection, 1000.0f);
@@ -262,7 +269,7 @@ void main() {
   vec3 filmPosition = vec3(-((gl_FragCoord.x / 800.0) - 0.5), ((gl_FragCoord.y / 600.0) - 0.5), 0.0);
   int rayDirectionCoordinate = (int(gl_FragCoord.y) * 800 + int(gl_FragCoord.x)) * 3;
   vec3 lensDirection = getRayDirectionFromLens(filmPosition);
-  
+
   rayDirectionBuffer.data[rayDirectionCoordinate + 0] = lensDirection.x;
   rayDirectionBuffer.data[rayDirectionCoordinate + 1] = lensDirection.y;
   rayDirectionBuffer.data[rayDirectionCoordinate + 2] = lensDirection.z;
