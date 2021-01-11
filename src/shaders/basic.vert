@@ -27,9 +27,6 @@ layout(binding = 2, set = 0) uniform InstanceDescriptionContainerLens {
   mat4 transformMatrix[8];
 } instanceDescriptionContainerLens;
 
-layout(binding = 2, set = 1) buffer NormalIndexBuffer { uint data[]; } normalIndexBuffer;
-layout(binding = 3, set = 1) buffer NormalBuffer { float data[]; } normalBuffer;
-
 void main() {
   mat4 viewMatrix = {
     vec4(1, 0, 0, 0),
