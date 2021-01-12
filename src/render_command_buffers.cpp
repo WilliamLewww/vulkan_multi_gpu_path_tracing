@@ -85,17 +85,22 @@ void RenderCommandBuffers::recreateCommandBuffer(uint32_t imageIndex,
       VkClearRect clearRect = {
         .rect = {
           .offset = {
-            .x = 0,
+            .x = 600,
             .y = 0
           },
           .extent = {
-            .width = 800,
-            .height = 600
+            .width = 200,
+            .height = 150
           }
         },
         .baseArrayLayer = 0,
         .layerCount = 1
       };
+
+      vkCmdClearAttachments(this->commandBufferList[imageIndex], 1, &clearAttachment, 1, &clearRect);
+
+      clearAttachment.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+      clearAttachment.clearValue = {0.0, 0.0, 0.0, 0.0};
 
       vkCmdClearAttachments(this->commandBufferList[imageIndex], 1, &clearAttachment, 1, &clearRect);
     }

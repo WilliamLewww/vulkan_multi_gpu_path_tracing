@@ -70,5 +70,6 @@ Material getMaterialFromPrimitive(uint instanceIndex, uint primitiveIndex) {
 }
 
 void main() {
-  outColor = vec4(normalize(abs(interpolatedPosition)), 1.0);
+  vec3 color = vec3(float(rasterInstanceIndex) / instanceDescriptionContainer.instanceCount);
+  outColor = vec4(color, 1.0);
 }
