@@ -140,9 +140,9 @@ Renderer::Renderer(VkInstance vulkanInstance, VkSurfaceKHR surface, ModelCollect
     },
     {
       600.0f,
-      0.0f,
-      200.0f,
       150.0f,
+      200.0f,
+      -150.0f,
     }
   };
 
