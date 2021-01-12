@@ -2,6 +2,7 @@
 
 Engine::Engine() {
   this->camera = new Camera();
+  this->minimapCamera = new Camera();
 
   std::vector<std::string> modelFileNameList {"transparent.obj", "lens_2.obj", "film.obj", "aperture.obj", "lens_1.obj", "case.obj", "fish_eye_lens.obj"};
   this->modelCollection = new ModelCollection(modelFileNameList);
@@ -16,7 +17,7 @@ Engine::Engine() {
 
   this->surface = new Surface(this->vulkanInstance->getVulkanInstance(), this->window->getWindow());
 
-  this->renderer = new Renderer(this->vulkanInstance->getVulkanInstance(), this->surface->getSurface(), this->modelCollection, this->camera);
+  this->renderer = new Renderer(this->vulkanInstance->getVulkanInstance(), this->surface->getSurface(), this->modelCollection, this->camera, this->minimapCamera);
 
   this->gui = new GUI(this->window->getWindow(),
                       this->vulkanInstance->getVulkanInstance(), 
@@ -37,6 +38,7 @@ Engine::~Engine() {
   delete this->vulkanInstance;
   delete this->window;
   delete this->modelCollection;
+  delete this->minimapCamera;
   delete this->camera;
 }
 
@@ -60,11 +62,13 @@ void Engine::start() {
       this->camera->update();
     }
     else {
-      this->camera->update(false);
+      this->camera->update(true, false);
     }
+    this->minimapCamera->update(false, false, true);
 
-    this->renderer->updateCameraUniformBuffers(camera);
-    this->gui->render(this->camera, this->renderer, this->renderer->getModelInstanceSetCollection());
+    this->renderer->updateCameraUniformBuffers(0, this->camera);
+    this->renderer->updateCameraUniformBuffers(1, this->minimapCamera);
+    this->gui->render(this->camera, this->minimapCamera, this->renderer, this->renderer->getModelInstanceSetCollection());
     this->renderer->render(1);
   }
 }

@@ -19,7 +19,7 @@ flat layout(location = 1) in uint rasterInstanceIndex;
 
 layout(location = 0) out vec4 outColor;
 
-layout(binding = 0, set = 0) uniform Camera {
+layout(binding = 8, set = 0) uniform Camera {
   vec4 position;
   vec4 right;
   vec4 up;

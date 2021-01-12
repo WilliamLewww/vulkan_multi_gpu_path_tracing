@@ -25,6 +25,30 @@ Camera::Camera() {
   this->yaw = 0;
   this->pitch = 0;
 
+  this->uniform.position[0] = this->position[0]; 
+  this->uniform.position[1] = this->position[1]; 
+  this->uniform.position[2] = this->position[2]; 
+  this->uniform.position[3] = 1.0;
+
+  this->uniform.forward[0] = cosf(this->pitch) * cosf(-this->yaw - (M_PI / 2.0));
+  this->uniform.forward[1] = sinf(this->pitch);
+  this->uniform.forward[2] = cosf(this->pitch) * sinf(-this->yaw - (M_PI / 2.0));
+  this->uniform.forward[3] = 0.0f;
+
+  this->uniform.right[0] = this->uniform.forward[1] * this->uniform.up[2] - this->uniform.forward[2] * this->uniform.up[1];
+  this->uniform.right[1] = this->uniform.forward[2] * this->uniform.up[0] - this->uniform.forward[0] * this->uniform.up[2];
+  this->uniform.right[2] = this->uniform.forward[0] * this->uniform.up[1] - this->uniform.forward[1] * this->uniform.up[0];
+  this->uniform.right[3] = 0.0f;
+
+  this->uniform.yaw = this->yaw;
+  this->uniform.frameCount = 0;
+
+  this->isCameraMoved = true;
+  this->previousPosition[0] = this->position[0]; 
+  this->previousPosition[1] = this->position[1]; 
+  this->previousPosition[2] = this->position[2];
+  this->previousYaw = this->yaw;
+
   resetCursorPosition();
 }
 
@@ -34,6 +58,10 @@ Camera::~Camera() {
 
 float* Camera::getPosition() {
   return this->position;
+}
+
+float* Camera::getYaw() {
+  return &this->yaw;
 }
 
 void* Camera::getUniformPointer() {
@@ -53,40 +81,38 @@ void Camera::resetFrames() {
   this->uniform.frameCount = 0;
 }
 
-void Camera::update(bool isCursorActive) {
-  static bool isCameraMoved = true;
+void Camera::update(bool isKeyboardActive, bool isCursorActive, bool isInverseYaw) {
+  if (isKeyboardActive) {
+    if (Input::checkKeyDown(GLFW_KEY_W)) {
+      this->position[0] += cos(-this->yaw - (M_PI / 2)) * 0.1f;
+      this->position[2] += sin(-this->yaw - (M_PI / 2)) * 0.1f;
+    }
+    if (Input::checkKeyDown(GLFW_KEY_S)) {
+      this->position[0] -= cos(-this->yaw - (M_PI / 2)) * 0.1f;
+      this->position[2] -= sin(-this->yaw - (M_PI / 2)) * 0.1f;
+    }
+    if (Input::checkKeyDown(GLFW_KEY_A)) {
+      this->position[0] -= cos(-this->yaw) * 0.1f;
+      this->position[2] -= sin(-this->yaw) * 0.1f;
+    }
+    if (Input::checkKeyDown(GLFW_KEY_D)) {
+      this->position[0] += cos(-this->yaw) * 0.1f;
+      this->position[2] += sin(-this->yaw) * 0.1f;
+    }
+    if (Input::checkKeyDown(GLFW_KEY_SPACE)) {
+      this->position[1] += 0.1f;
+    }
+    if (Input::checkKeyDown(GLFW_KEY_LEFT_CONTROL)) {
+      this->position[1] -= 0.1f;
+    }
+  }
 
-  if (Input::checkKeyDown(GLFW_KEY_W)) {
-    this->position[0] += cos(-this->yaw - (M_PI / 2)) * 0.1f;
-    this->position[2] += sin(-this->yaw - (M_PI / 2)) * 0.1f;
-  }
-  if (Input::checkKeyDown(GLFW_KEY_S)) {
-    this->position[0] -= cos(-this->yaw - (M_PI / 2)) * 0.1f;
-    this->position[2] -= sin(-this->yaw - (M_PI / 2)) * 0.1f;
-  }
-  if (Input::checkKeyDown(GLFW_KEY_A)) {
-    this->position[0] -= cos(-this->yaw) * 0.1f;
-    this->position[2] -= sin(-this->yaw) * 0.1f;
-  }
-  if (Input::checkKeyDown(GLFW_KEY_D)) {
-    this->position[0] += cos(-this->yaw) * 0.1f;
-    this->position[2] += sin(-this->yaw) * 0.1f;
-  }
-  if (Input::checkKeyDown(GLFW_KEY_SPACE)) {
-    this->position[1] += 0.1f;
-  }
-  if (Input::checkKeyDown(GLFW_KEY_LEFT_CONTROL)) {
-    this->position[1] -= 0.1f;
-  }
+  if (this->previousPosition[0] != this->position[0] || this->previousPosition[1] != this->position[1] || this->previousPosition[2] != this->position[2]) {
+    this->isCameraMoved = true;
 
-  static float previousPosition[3] = {this->position[0], this->position[1], this->position[2]};
-
-  if (previousPosition[0] != this->position[0] || previousPosition[1] != this->position[1] || previousPosition[2] != this->position[2]) {
-    isCameraMoved = true;
-
-    previousPosition[0] = this->position[0];
-    previousPosition[1] = this->position[1];
-    previousPosition[2] = this->position[2];
+    this->previousPosition[0] = this->position[0];
+    this->previousPosition[1] = this->position[1];
+    this->previousPosition[2] = this->position[2];
   }
 
   if (isCursorActive) {
@@ -101,22 +127,31 @@ void Camera::update(bool isCursorActive) {
 
       this->previousCursorPositionX = cursorPositionX;
       this->previousCursorPositionY = cursorPositionY;
-
-      isCameraMoved = true;
     }
   }
 
-  if (isCameraMoved == true) {
-    this->uniform.frameCount = 0;
+  if (this->previousYaw != this->yaw) {
+    this->previousYaw = this->yaw;
 
+    this->isCameraMoved = true;
+  }
+
+  if (this->isCameraMoved == true) {
     this->uniform.position[0] = this->position[0]; 
     this->uniform.position[1] = this->position[1]; 
     this->uniform.position[2] = this->position[2]; 
     this->uniform.position[3] = 1.0;
 
-    this->uniform.forward[0] = cosf(this->pitch) * cosf(-this->yaw - (M_PI / 2.0));
-    this->uniform.forward[1] = sinf(this->pitch);
-    this->uniform.forward[2] = cosf(this->pitch) * sinf(-this->yaw - (M_PI / 2.0));
+    if (isInverseYaw) {
+      this->uniform.forward[0] = cosf(this->pitch) * cosf(this->yaw - (M_PI / 2.0));
+      this->uniform.forward[1] = sinf(this->pitch);
+      this->uniform.forward[2] = cosf(this->pitch) * sinf(this->yaw - (M_PI / 2.0));
+    }
+    else {
+      this->uniform.forward[0] = cosf(this->pitch) * cosf(-this->yaw - (M_PI / 2.0));
+      this->uniform.forward[1] = sinf(this->pitch);
+      this->uniform.forward[2] = cosf(this->pitch) * sinf(-this->yaw - (M_PI / 2.0));
+    }
     this->uniform.forward[3] = 0.0f;
 
     this->uniform.right[0] = this->uniform.forward[1] * this->uniform.up[2] - this->uniform.forward[2] * this->uniform.up[1];
@@ -125,8 +160,9 @@ void Camera::update(bool isCursorActive) {
     this->uniform.right[3] = 0.0f;
 
     this->uniform.yaw = this->yaw;
+    this->uniform.frameCount = 0;
 
-    isCameraMoved = false;
+    this->isCameraMoved = false;
   }
   else {
     this->uniform.frameCount += 1;

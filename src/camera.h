@@ -25,11 +25,16 @@ private:
 
   double previousCursorPositionX;
   double previousCursorPositionY;
+
+  bool isCameraMoved;
+  float previousPosition[3];
+  float previousYaw;
 public:
   Camera();
   ~Camera();
 
   float* getPosition();
+  float* getYaw();
 
   void* getUniformPointer();
   uint32_t getUniformStructureSize();
@@ -37,5 +42,5 @@ public:
   void resetCursorPosition();
   void resetFrames();
 
-  void update(bool isCursorActive = true);
+  void update(bool isKeyboardActive = true, bool isCursorActive = true, bool isInverseYaw = false);
 };

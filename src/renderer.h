@@ -11,7 +11,7 @@ private:
   DeviceCollection* deviceCollection;
   Device* displayDevice;
 public:
-  Renderer(VkInstance vulkanInstance, VkSurfaceKHR surface, ModelCollection* modelCollection, Camera* camera);
+  Renderer(VkInstance vulkanInstance, VkSurfaceKHR surface, ModelCollection* modelCollection, Camera* camera, Camera* minimapCamera);
   ~Renderer();
   
   ModelInstanceSetCollection* getModelInstanceSetCollection();
@@ -27,7 +27,7 @@ public:
   VkCommandPool getCommandPool();
 
   void render(int index);
-  void updateCameraUniformBuffers(Camera* camera);
+  void updateCameraUniformBuffers(int index, Camera* camera);
   void updateModelInstancesUniformBuffers(int binding, int index);
   void updateAccelerationStructure(int index);
 };

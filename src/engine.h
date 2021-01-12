@@ -12,6 +12,8 @@
 class Engine {
 private:
   Camera* camera;
+  Camera* minimapCamera;
+  
   ModelCollection* modelCollection;
   Window* window;
   VulkanInstance* vulkanInstance;

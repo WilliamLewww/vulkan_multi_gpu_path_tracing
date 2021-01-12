@@ -24,5 +24,5 @@ public:
   
   ~GUI();
 
-  void render(Camera* camera, Renderer* renderer, ModelInstanceSetCollection* modelInstanceSetCollection);
+  void render(Camera* camera, Camera* minimapCamera, Renderer* renderer, ModelInstanceSetCollection* modelInstanceSetCollection);
 };
