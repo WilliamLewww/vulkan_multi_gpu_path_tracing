@@ -79,7 +79,7 @@ public:
   void createUniformBufferCollection(std::map<void*, uint32_t> bufferMap);
   void createAccelerationStructureCollection();
   void createDescriptorSetCollection(std::vector<std::vector<Descriptor*>> separatedDescriptorList);
-  void createGraphicsPipelineCollection(std::vector<std::vector<std::string>> shaderList);
+  void createGraphicsPipelineCollection(std::vector<std::vector<std::string>> shaderList, std::vector<std::vector<float>> screenPropertiesList);
   void createRenderCommandBuffers();
   void createSynchronizationObjects();
 

@@ -27,11 +27,12 @@ layout(binding = 2, set = 0) uniform InstanceDescriptionContainerLens {
 } instanceDescriptionContainerLens;
 
 void main() {
+  vec4 positionVector = camera.position - vec4(0.0, 0.0, 0.0, 1.0);
   mat4 viewMatrix = {
-    vec4(1, 0, 0, 0),
-    vec4(0, 1, 0, 0),
-    vec4(0, 0, -1, 0),
-    vec4(0, 0, 0, 1)
+    vec4(camera.right.x, camera.up.x, camera.forward.x, 0),
+    vec4(camera.right.y, camera.up.y, camera.forward.y, 0),
+    vec4(camera.right.z, camera.up.z, camera.forward.z, 0),
+    vec4(-dot(camera.right, positionVector), -dot(camera.up, positionVector), -dot(camera.forward, positionVector), 1)
   };
 
   float farDist = 1000.0;

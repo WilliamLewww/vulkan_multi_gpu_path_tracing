@@ -7,6 +7,7 @@ private:
   std::vector<GraphicsPipeline*> graphicsPipelineList;
 public:
   GraphicsPipelineCollection(std::vector<std::vector<std::string>> shaderList,
+                             std::vector<std::vector<float>> screenPropertiesList,
                              std::vector<VkDescriptorSetLayout> descriptorSetLayoutList,
                              VkDevice logicalDevice, 
                              VkExtent2D swapchainExtent, 

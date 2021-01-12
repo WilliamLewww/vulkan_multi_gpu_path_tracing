@@ -112,10 +112,41 @@ Renderer::Renderer(VkInstance vulkanInstance, VkSurfaceKHR surface, ModelCollect
     {
       "bin/basic.vert.spv",
       "bin/basic.frag.spv"
+    },
+    {
+      "bin/minimap.vert.spv",
+      "bin/minimap.frag.spv"
     }
   };
 
-  this->displayDevice->createGraphicsPipelineCollection(shaderList);
+  std::vector<std::vector<float>> screenPropertiesList = {
+    {
+      0.0f,
+      0.0f,
+      800.0f,
+      600.0f,
+    },
+    {
+      0.0f,
+      0.0f,
+      800.0f,
+      600.0f,
+    },
+    {
+      0.0f,
+      0.0f,
+      800.0f,
+      600.0f,
+    },
+    {
+      400.0f,
+      0.0f,
+      400.0f,
+      300.0f,
+    }
+  };
+
+  this->displayDevice->createGraphicsPipelineCollection(shaderList, screenPropertiesList);
 
   this->displayDevice->createRenderCommandBuffers();
   this->displayDevice->createSynchronizationObjects();
