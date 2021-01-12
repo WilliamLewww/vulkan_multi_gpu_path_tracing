@@ -70,5 +70,5 @@ Material getMaterialFromPrimitive(uint instanceIndex, uint primitiveIndex) {
 }
 
 void main() {
-  outColor = vec4(1.0);
+  outColor = vec4(normalize(abs(interpolatedPosition)), 1.0);
 }

@@ -61,7 +61,7 @@ RenderPass::RenderPass(VkDevice logicalDevice, VkFormat swapchainImageFormat) {
     .pPreserveAttachments = NULL
   };
 
-    VkSubpassDescription thirdSubpass = {
+  VkSubpassDescription thirdSubpass = {
     .flags = 0,
     .pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS,
     .inputAttachmentCount = 0,
@@ -74,16 +74,28 @@ RenderPass::RenderPass(VkDevice logicalDevice, VkFormat swapchainImageFormat) {
     .pPreserveAttachments = NULL
   };
 
+  VkSubpassDescription fourthSubpass = {
+    .flags = 0,
+    .pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS,
+    .inputAttachmentCount = 0,
+    .pInputAttachments = NULL,
+    .colorAttachmentCount = 1,
+    .pColorAttachments = &colorAttachmentRef,
+    .pResolveAttachments = NULL,
+    .pDepthStencilAttachment = &depthAttachmentRef,
+    .preserveAttachmentCount = 0,
+    .pPreserveAttachments = NULL
+  };
 
-  std::vector<VkSubpassDescription> subpassList = {firstSubpass, secondSubpass, thirdSubpass};
+  std::vector<VkSubpassDescription> subpassList = {firstSubpass, secondSubpass, thirdSubpass, fourthSubpass};
 
   VkSubpassDependency firstDependency = {
     .srcSubpass = VK_SUBPASS_EXTERNAL,
     .dstSubpass = 0,
-    .srcStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
-    .dstStageMask = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,
+    .srcStageMask = VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
+    .dstStageMask = VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
     .srcAccessMask = 0,
-    .dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
+    .dstAccessMask = 0,
     .dependencyFlags = 0
   };
 
@@ -92,22 +104,32 @@ RenderPass::RenderPass(VkDevice logicalDevice, VkFormat swapchainImageFormat) {
     .dstSubpass = 1,
     .srcStageMask = VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
     .dstStageMask = VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
-    .srcAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
-    .dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT,
+    .srcAccessMask = 0,
+    .dstAccessMask = 0,
     .dependencyFlags = 0
   };
 
   VkSubpassDependency thirdDependency = {
     .srcSubpass = 1,
     .dstSubpass = 2,
-    .srcStageMask = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,
-    .dstStageMask = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,
-    .srcAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
-    .dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT,
+    .srcStageMask = VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
+    .dstStageMask = VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
+    .srcAccessMask = 0,
+    .dstAccessMask = 0,
     .dependencyFlags = 0
   };
 
-  std::vector<VkSubpassDependency> dependencyList = {firstDependency, secondDependency, thirdDependency};
+  VkSubpassDependency fourthDependency = {
+    .srcSubpass = 2,
+    .dstSubpass = 3,
+    .srcStageMask = VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
+    .dstStageMask = VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
+    .srcAccessMask = 0,
+    .dstAccessMask = 0,
+    .dependencyFlags = 0
+  };
+
+  std::vector<VkSubpassDependency> dependencyList = {firstDependency, secondDependency, thirdDependency, fourthDependency};
 
   VkAttachmentDescription attachments[2] = {colorAttachment, depthAttachment};
 

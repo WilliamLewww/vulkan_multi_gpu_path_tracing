@@ -205,8 +205,8 @@ void Device::createDescriptorSetCollection(std::vector<std::vector<Descriptor*>>
   this->descriptorSetCollection = new DescriptorSetCollection(separatedDescriptorList, this->logicalDevice);
 }
 
-void Device::createGraphicsPipelineCollection(std::vector<std::vector<std::string>> shaderList) {
-  this->graphicsPipelineCollection = new GraphicsPipelineCollection(shaderList, this->descriptorSetCollection->getDescriptorSetLayoutList(), this->logicalDevice, this->swapchain->getSwapchainExtent(), this->renderPass->getRenderPass());
+void Device::createGraphicsPipelineCollection(std::vector<std::vector<std::string>> shaderList, std::vector<std::vector<float>> screenPropertiesList) {
+  this->graphicsPipelineCollection = new GraphicsPipelineCollection(shaderList, screenPropertiesList, this->descriptorSetCollection->getDescriptorSetLayoutList(), this->logicalDevice, this->swapchain->getSwapchainExtent(), this->renderPass->getRenderPass());
 }
 
 void Device::createRenderCommandBuffers() {

@@ -1,6 +1,7 @@
 #include "graphics_pipeline_collection.h"
 
 GraphicsPipelineCollection::GraphicsPipelineCollection(std::vector<std::vector<std::string>> shaderList,
+                                                       std::vector<std::vector<float>> screenPropertiesList,
                                                        std::vector<VkDescriptorSetLayout> descriptorSetLayoutList,
                                                        VkDevice logicalDevice, 
                                                        VkExtent2D swapchainExtent, 
@@ -13,7 +14,11 @@ GraphicsPipelineCollection::GraphicsPipelineCollection(std::vector<std::vector<s
                                                                 logicalDevice, 
                                                                 swapchainExtent, 
                                                                 renderPass,
-                                                                x));
+                                                                x,
+                                                                screenPropertiesList[x][0],
+                                                                screenPropertiesList[x][1],
+                                                                screenPropertiesList[x][2],
+                                                                screenPropertiesList[x][3]));
     }
 
     if (shaderList[x].size() == 2) {
@@ -23,7 +28,11 @@ GraphicsPipelineCollection::GraphicsPipelineCollection(std::vector<std::vector<s
                                                                 logicalDevice, 
                                                                 swapchainExtent, 
                                                                 renderPass,
-                                                                x));
+                                                                x,
+                                                                screenPropertiesList[x][0],
+                                                                screenPropertiesList[x][1],
+                                                                screenPropertiesList[x][2],
+                                                                screenPropertiesList[x][3]));
     }
   }
 }

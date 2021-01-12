@@ -72,6 +72,34 @@ void RenderCommandBuffers::recreateCommandBuffer(uint32_t imageIndex,
   for (int z = 0; z < pipelineList.size(); z++) {
     vkCmdBindPipeline(this->commandBufferList[imageIndex], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineList[z]);
     vkCmdBindDescriptorSets(this->commandBufferList[imageIndex], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayoutList[z], 0, descriptorSetList.size(), descriptorSetList.data(), 0, 0);
+    
+    if (z == pipelineList.size() - 1) {
+      VkClearAttachment clearAttachment = {
+        .aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT,
+        .colorAttachment = 0,
+        .clearValue = {
+          1.0, 1.0, 1.0, 1.0
+        }
+      };
+
+      VkClearRect clearRect = {
+        .rect = {
+          .offset = {
+            .x = 0,
+            .y = 0
+          },
+          .extent = {
+            .width = 800,
+            .height = 600
+          }
+        },
+        .baseArrayLayer = 0,
+        .layerCount = 1
+      };
+
+      vkCmdClearAttachments(this->commandBufferList[imageIndex], 1, &clearAttachment, 1, &clearRect);
+    }
+
     for (int y = 0; y < modelInstanceList.size(); y++) {
       VkDeviceSize offset = 0;
       std::vector<VkBuffer> vertexBufferList = {modelInstanceList[y]->getVertexBuffer()};
