@@ -12,6 +12,7 @@ layout(binding = 0, set = 0) uniform Camera {
   vec4 up;
   vec4 forward;
 
+  float pitch;
   float yaw;
   uint frameCount;
 } camera;

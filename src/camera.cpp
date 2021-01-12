@@ -15,6 +15,7 @@ Camera::Camera() {
       0, 0, 1, 0
     },
 
+    .pitch = 0,
     .yaw = 0,
     .frameCount = 0,
   };
@@ -40,6 +41,7 @@ Camera::Camera() {
   this->uniform.right[2] = this->uniform.forward[0] * this->uniform.up[1] - this->uniform.forward[1] * this->uniform.up[0];
   this->uniform.right[3] = 0.0f;
 
+  this->uniform.pitch = this->pitch;
   this->uniform.yaw = this->yaw;
   this->uniform.frameCount = 0;
 
@@ -47,6 +49,7 @@ Camera::Camera() {
   this->previousPosition[0] = this->position[0]; 
   this->previousPosition[1] = this->position[1]; 
   this->previousPosition[2] = this->position[2];
+  this->previousPitch = this->pitch;
   this->previousYaw = this->yaw;
 
   resetCursorPosition();
@@ -62,6 +65,10 @@ float* Camera::getPosition() {
 
 float* Camera::getYaw() {
   return &this->yaw;
+}
+
+float* Camera::getPitch() {
+  return &this->pitch;
 }
 
 void* Camera::getUniformPointer() {
@@ -130,8 +137,9 @@ void Camera::update(bool isKeyboardActive, bool isCursorActive, bool isInverseYa
     }
   }
 
-  if (this->previousYaw != this->yaw) {
+  if (this->previousYaw != this->yaw || this->previousPitch != this->pitch) {
     this->previousYaw = this->yaw;
+    this->previousPitch = this->pitch;
 
     this->isCameraMoved = true;
   }
@@ -159,6 +167,7 @@ void Camera::update(bool isKeyboardActive, bool isCursorActive, bool isInverseYa
     this->uniform.right[2] = this->uniform.forward[0] * this->uniform.up[1] - this->uniform.forward[1] * this->uniform.up[0];
     this->uniform.right[3] = 0.0f;
 
+    this->uniform.pitch = this->pitch;
     this->uniform.yaw = this->yaw;
     this->uniform.frameCount = 0;
 

@@ -118,7 +118,8 @@ void GUI::render(Camera* camera, Camera* minimapCamera, Renderer* renderer, Mode
 
   ImGui::PushID("#MINIMAPCAMERA");
   if (ImGui::CollapsingHeader("Minimap Camera Properties", ImGuiTreeNodeFlags_DefaultOpen)) {
-    ImGui::DragFloat3("Position", minimapCamera->getPosition(), 0.01, 0.0, 0.0, "%.2f");
+    ImGui::DragFloat("Radius", minimapCamera->getPosition(), 0.01, 0.0, 0.0, "%.2f");
+    ImGui::DragFloat("Pitch", minimapCamera->getPitch(), 0.01, 0.0, 0.0, "%.2f");
     ImGui::DragFloat("Yaw", minimapCamera->getYaw(), 0.01, 0.0, 0.0, "%.2f");
   }
   ImGui::PopID();

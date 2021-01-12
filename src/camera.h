@@ -13,6 +13,7 @@ private:
     alignas(16) float up[4];
     alignas(16) float forward[4];
 
+    alignas(4)  float pitch;
     alignas(4)  float yaw;
     alignas(4)  uint32_t frameCount;
   };
@@ -29,12 +30,14 @@ private:
   bool isCameraMoved;
   float previousPosition[3];
   float previousYaw;
+  float previousPitch;
 public:
   Camera();
   ~Camera();
 
   float* getPosition();
   float* getYaw();
+  float* getPitch();
 
   void* getUniformPointer();
   uint32_t getUniformStructureSize();
