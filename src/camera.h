@@ -32,7 +32,7 @@ private:
   float previousYaw;
   float previousPitch;
 public:
-  Camera();
+  Camera(float positionX = 0.0, float positionY = 0.0, float positionZ = 0.0, float pitch = 0.0, float yaw = 0.0);
   ~Camera();
 
   float* getPosition();

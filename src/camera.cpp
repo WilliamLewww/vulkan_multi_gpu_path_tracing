@@ -1,6 +1,6 @@
 #include "camera.h"
 
-Camera::Camera() {
+Camera::Camera(float positionX, float positionY, float positionZ, float pitch, float yaw) {
   this->uniform = {
     .position = {
       0, 0, 0, 1
@@ -20,11 +20,11 @@ Camera::Camera() {
     .frameCount = 0,
   };
 
-  this->position[0] = 0;
-  this->position[1] = 0;
-  this->position[2] = 0;
-  this->yaw = 0;
-  this->pitch = 0;
+  this->position[0] = positionX;
+  this->position[1] = positionY;
+  this->position[2] = positionZ;
+  this->yaw = yaw;
+  this->pitch = pitch;
 
   this->uniform.position[0] = this->position[0]; 
   this->uniform.position[1] = this->position[1]; 
