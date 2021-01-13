@@ -30,7 +30,7 @@ Renderer::Renderer(VkInstance vulkanInstance, VkSurfaceKHR surface, ModelCollect
   std::vector<std::map<Model*, std::vector<TRS>>> modelFrequencyMapList = {
     {
       {
-        modelCollection->getModel(0), 
+        modelCollection->getModel(7), 
         {
           createTRS({0, 0, -3}, {1, 1, 1}),
         }
