@@ -1,3 +1,5 @@
+#define STB_IMAGE_IMPLEMENTATION
+
 #include "model_instance_set.h"
 
 ModelInstanceSet::ModelInstanceSet(std::map<Model*, std::vector<TRS>> modelFrequencyMap, 
@@ -10,8 +12,10 @@ ModelInstanceSet::ModelInstanceSet(std::map<Model*, std::vector<TRS>> modelFrequ
   int instanceIndex = 0;
   std::vector<float> totalVertexList;
   std::vector<float> totalNormalList;
+  std::vector<float> totalTextureCoordinateList;
   std::vector<uint32_t> totalIndexList;
   std::vector<uint32_t> totalNormalIndexList;
+  std::vector<uint32_t> totalTextureCoordinateIndexList;
   std::vector<uint32_t> totalMaterialIndexList;
   std::vector<Material> totalMaterialList;
   LightContainer lightContainer = {
@@ -19,17 +23,19 @@ ModelInstanceSet::ModelInstanceSet(std::map<Model*, std::vector<TRS>> modelFrequ
     .indicesPrimitive = {},
     .indicesInstance = {}
   };
+  std::vector<std::string> totalTextureNameList;
 
   uint32_t cumulativeVertexOffset = 0;
   uint32_t cumulativeNormalOffset = 0;
+  uint32_t cumulativeTextureCoordinateOffset = 0;
   uint32_t cumulativeIndexOffset = 0;
   uint32_t cumulativeMaterialIndexOffset = 0;
   uint32_t cumulativeMaterialOffset = 0;
 
   for (std::pair<Model*, std::vector<TRS>> pair : modelFrequencyMap) {
-    this->createVertexBuffer(pair.first, logicalDevice, physicalDeviceMemoryProperties, commandPool, queue, &totalVertexList, &totalNormalList);
-    this->createIndexBuffer(pair.first, logicalDevice, physicalDeviceMemoryProperties, commandPool, queue, &totalIndexList, &totalNormalIndexList);
-    this->createMaterialBuffers(pair.first, logicalDevice, physicalDeviceMemoryProperties, commandPool, queue, &totalMaterialIndexList, &totalMaterialList, &lightContainer);
+    this->createVertexBuffer(pair.first, logicalDevice, physicalDeviceMemoryProperties, commandPool, queue, &totalVertexList, &totalNormalList, &totalTextureCoordinateList);
+    this->createIndexBuffer(pair.first, logicalDevice, physicalDeviceMemoryProperties, commandPool, queue, &totalIndexList, &totalNormalIndexList, &totalTextureCoordinateIndexList);
+    this->createMaterialBuffers(pair.first, logicalDevice, physicalDeviceMemoryProperties, commandPool, queue, &totalMaterialIndexList, &totalMaterialList, &totalTextureNameList, &lightContainer);
 
     for (int x = 0; x < pair.second.size(); x++) {
       this->modelInstanceList.push_back(new ModelInstance(pair.first, &this->vertexBufferMap[pair.first], &this->indexBufferMap[pair.first], modelIndex, instanceIndex, pair.second[x].position, pair.second[x].scale));
@@ -37,6 +43,7 @@ ModelInstanceSet::ModelInstanceSet(std::map<Model*, std::vector<TRS>> modelFrequ
 
       this->vertexOffsetList.push_back(cumulativeVertexOffset);
       this->normalOffsetList.push_back(cumulativeNormalOffset);
+      this->textureCoordinateOffsetList.push_back(cumulativeTextureCoordinateOffset);
       this->indexOffsetList.push_back(cumulativeIndexOffset);
       this->materialIndexOffsetList.push_back(cumulativeMaterialIndexOffset);
       this->materialOffsetList.push_back(cumulativeMaterialOffset);
@@ -44,6 +51,7 @@ ModelInstanceSet::ModelInstanceSet(std::map<Model*, std::vector<TRS>> modelFrequ
       if (x == pair.second.size() - 1) {
         cumulativeVertexOffset += pair.first->getVertexCount();
         cumulativeNormalOffset += pair.first->getNormalCount();
+        cumulativeTextureCoordinateOffset += pair.first->getTextureCoordinateCount();
         cumulativeIndexOffset += pair.first->getTotalIndexCount();
         cumulativeMaterialIndexOffset += pair.first->getTotalMaterialIndexCount();
         cumulativeMaterialOffset += pair.first->getMaterialCount();
@@ -74,16 +82,20 @@ ModelInstanceSet::ModelInstanceSet(std::map<Model*, std::vector<TRS>> modelFrequ
   for (int x = 0; x < this->vertexOffsetList.size(); x++) {
     memcpy(4 + (x * 4) + (float*)&this->instanceUniform, &this->vertexOffsetList[x], sizeof(uint32_t));
     memcpy(36 + (x * 4) + (float*)&this->instanceUniform, &this->normalOffsetList[x], sizeof(uint32_t));
-    memcpy(68 + (x * 4) + (float*)&this->instanceUniform, &this->indexOffsetList[x], sizeof(uint32_t));
-    memcpy(100 + (x * 4) + (float*)&this->instanceUniform, &this->materialIndexOffsetList[x], sizeof(uint32_t));
-    memcpy(132 + (x * 4) + (float*)&this->instanceUniform, &this->materialOffsetList[x], sizeof(uint32_t));
+    memcpy(68 + (x * 4) + (float*)&this->instanceUniform, &this->textureCoordinateOffsetList[x], sizeof(uint32_t));
+
+    memcpy(100 + (x * 4) + (float*)&this->instanceUniform, &this->indexOffsetList[x], sizeof(uint32_t));
+    memcpy(132 + (x * 4) + (float*)&this->instanceUniform, &this->materialIndexOffsetList[x], sizeof(uint32_t));
+    memcpy(164 + (x * 4) + (float*)&this->instanceUniform, &this->materialOffsetList[x], sizeof(uint32_t));
   }
-  memcpy(164 + (float*)&this->instanceUniform, totalTransformList.data(), sizeof(float) * totalTransformList.size());
+  memcpy(196 + (float*)&this->instanceUniform, totalTransformList.data(), sizeof(float) * totalTransformList.size());
 
   createTotalBuffers(totalVertexList,
                      totalNormalList,
+                     totalTextureCoordinateList,
                      totalIndexList,
                      totalNormalIndexList,
+                     totalTextureCoordinateIndexList,
                      totalMaterialIndexList,
                      totalMaterialList,
                      lightContainer,
@@ -133,6 +145,80 @@ ModelInstanceSet::ModelInstanceSet(std::map<Model*, std::vector<TRS>> modelFrequ
     .offset = 0,
     .range = VK_WHOLE_SIZE
   };
+
+  this->materialImageList.resize(totalTextureNameList.size());
+  this->materialImageViewList.resize(totalTextureNameList.size());
+  this->materialImageMemory.resize(totalTextureNameList.size());
+  this->descriptorMaterialImageInfoList.resize(totalTextureNameList.size());
+
+  for (int x = 0; x < totalTextureNameList.size(); x++) {
+    int texWidth, texHeight, texChannels;
+    stbi_uc* pixels = stbi_load(std::string("res/" + totalTextureNameList[x]).c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+    VkDeviceSize imageSize = texWidth * texHeight * 4;
+
+    if (!pixels) {
+      printf("Failed to load texture!\n");
+    }
+
+    VkBuffer stagingBuffer;
+    VkDeviceMemory stagingBufferMemory;
+    BufferFactory::createBuffer(logicalDevice,
+                                physicalDeviceMemoryProperties,
+                                imageSize, 
+                                VK_BUFFER_USAGE_TRANSFER_SRC_BIT, 
+                                VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, 
+                                &stagingBuffer, 
+                                &stagingBufferMemory);
+
+    void* data;
+    vkMapMemory(logicalDevice, stagingBufferMemory, 0, imageSize, 0, &data);
+    memcpy(data, pixels, static_cast<size_t>(imageSize));
+    vkUnmapMemory(logicalDevice, stagingBufferMemory);
+
+    stbi_image_free(pixels);
+
+    ImageFactory::createImage(logicalDevice,
+                              physicalDeviceMemoryProperties,
+                              texWidth, 
+                              texHeight, 
+                              VK_FORMAT_R8G8B8A8_SRGB, 
+                              VK_IMAGE_TILING_OPTIMAL, 
+                              VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, 
+                              VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 
+                              &this->materialImageList[x], 
+                              &this->materialImageMemory[x]);
+
+    ImageFactory::transitionImageLayout(logicalDevice,
+                                        commandPool,
+                                        queue,
+                                        this->materialImageList[x], 
+                                        VK_FORMAT_R8G8B8A8_SRGB, 
+                                        VK_IMAGE_LAYOUT_UNDEFINED, 
+                                        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+
+    ImageFactory::copyBufferToImage(logicalDevice,
+                                    commandPool,
+                                    queue,
+                                    stagingBuffer, this->materialImageList[x], (uint32_t)texWidth, (uint32_t)texHeight);
+
+    ImageFactory::transitionImageLayout(logicalDevice,
+                                        commandPool,
+                                        queue,
+                                        this->materialImageList[x], 
+                                        VK_FORMAT_R8G8B8A8_SRGB, 
+                                        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 
+                                        VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+
+    ImageFactory::createImageView(logicalDevice, this->materialImageList[x], VK_FORMAT_R8G8B8A8_SRGB, &this->materialImageViewList[x]);
+
+    vkDestroyBuffer(logicalDevice, stagingBuffer, nullptr);
+    vkFreeMemory(logicalDevice, stagingBufferMemory, nullptr);
+
+    this->descriptorMaterialImageInfoList[x] = {
+      .imageView = this->materialImageViewList[x],
+      .imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+    };
+  }
 }
 
 ModelInstanceSet::~ModelInstanceSet() {
@@ -142,19 +228,22 @@ ModelInstanceSet::~ModelInstanceSet() {
 }
 
 void ModelInstanceSet::createVertexBuffer(Model* model,
-                                                 VkDevice logicalDevice, 
-                                                 VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties, 
-                                                 VkCommandPool commandPool,
-                                                 VkQueue queue,
-                                                 std::vector<float>* totalVertexList,
-                                                 std::vector<float>* totalNormalList) {
+                                          VkDevice logicalDevice, 
+                                          VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties, 
+                                          VkCommandPool commandPool,
+                                          VkQueue queue,
+                                          std::vector<float>* totalVertexList,
+                                          std::vector<float>* totalNormalList,
+                                          std::vector<float>* totalTextureCoordinateList) {
 
   VkDeviceSize bufferSize = sizeof(float) * model->getVertexCount();
 
   std::vector<float> vertexList = model->getVertices();
   std::vector<float> normalList = model->getNormals();
+  std::vector<float> textureCoordinateList = model->getTextureCoordinates();
   std::copy(vertexList.begin(), vertexList.end(), std::back_inserter(*totalVertexList));
   std::copy(normalList.begin(), normalList.end(), std::back_inserter(*totalNormalList));
+  std::copy(textureCoordinateList.begin(), textureCoordinateList.end(), std::back_inserter(*totalTextureCoordinateList));
   
   VkBuffer stagingBuffer;
   VkDeviceMemory stagingBufferMemory;
@@ -186,12 +275,13 @@ void ModelInstanceSet::createVertexBuffer(Model* model,
 }
 
 void ModelInstanceSet::createIndexBuffer(Model* model,
-                                                VkDevice logicalDevice, 
-                                                VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties, 
-                                                VkCommandPool commandPool,
-                                                VkQueue queue,
-                                                std::vector<uint32_t>* totalIndexList,
-                                                std::vector<uint32_t>* totalNormalIndexList) {
+                                         VkDevice logicalDevice, 
+                                         VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties, 
+                                         VkCommandPool commandPool,
+                                         VkQueue queue,
+                                         std::vector<uint32_t>* totalIndexList,
+                                         std::vector<uint32_t>* totalNormalIndexList,
+                                         std::vector<uint32_t>* totalTextureCoordinateIndexList) {
 
   VkDeviceSize bufferSize = sizeof(uint32_t) * model->getTotalIndexCount();
 
@@ -200,6 +290,7 @@ void ModelInstanceSet::createIndexBuffer(Model* model,
     positionIndexList[x] = model->getTotalIndex(x).vertex_index;
     totalIndexList->push_back(model->getTotalIndex(x).vertex_index);
     totalNormalIndexList->push_back(model->getTotalIndex(x).normal_index);
+    totalTextureCoordinateIndexList->push_back(model->getTotalIndex(x).texcoord_index);
   }
   
   VkBuffer stagingBuffer;
@@ -238,6 +329,7 @@ void ModelInstanceSet::createMaterialBuffers(Model* model,
                                                     VkQueue queue,
                                                     std::vector<uint32_t>* totalMaterialIndexList,
                                                     std::vector<Material>* totalMaterialList,
+                                                    std::vector<std::string>* totalTextureNameList,
                                                     LightContainer* lightContainer) {
 
   for (int x = 0; x < model->getTotalMaterialIndexCount(); x++) {
@@ -251,9 +343,12 @@ void ModelInstanceSet::createMaterialBuffers(Model* model,
       .diffuse = {},
       .specular = {},
       .emission = {},
+
       .shininess = 0,
       .dissolve = 0,
-      .ior = 0
+      .ior = 0,
+
+      .diffuseTextureIndex = -1
     };
     memcpy(material.ambient, model->getMaterial(x).ambient, sizeof(float) * 3);
     memcpy(material.diffuse, model->getMaterial(x).diffuse, sizeof(float) * 3);
@@ -264,21 +359,36 @@ void ModelInstanceSet::createMaterialBuffers(Model* model,
     material.dissolve = model->getMaterial(x).dissolve;
     material.ior = model->getMaterial(x).ior;
 
+    if (!model->getMaterial(x).diffuse_texname.empty()) {
+      int textureIndex = totalTextureNameList->size();
+      for (int y = 0; y < totalTextureNameList->size(); y++) {
+        if ((*totalTextureNameList)[y] == model->getMaterial(x).diffuse_texname) {
+          textureIndex = y;
+        }
+      }
+      material.diffuseTextureIndex = textureIndex;
+      if (textureIndex == totalTextureNameList->size()) {
+        totalTextureNameList->push_back(model->getMaterial(x).diffuse_texname);
+      }
+    }
+
     totalMaterialList->push_back(material);
   }
 }
 
 void ModelInstanceSet::createTotalBuffers(std::vector<float> totalVertexList,
-                                                 std::vector<float> totalNormalList,
-                                                 std::vector<uint32_t> totalIndexList,
-                                                 std::vector<uint32_t> totalNormalIndexList,
-                                                 std::vector<uint32_t> totalMaterialIndexList,
-                                                 std::vector<Material> totalMaterialList,
-                                                 LightContainer lightContainer,
-                                                 VkDevice logicalDevice, 
-                                                 VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties, 
-                                                 VkCommandPool commandPool,
-                                                 VkQueue queue) {
+                                          std::vector<float> totalNormalList,
+                                          std::vector<float> totalTextureCoordinateList,
+                                          std::vector<uint32_t> totalIndexList,
+                                          std::vector<uint32_t> totalNormalIndexList,
+                                          std::vector<uint32_t> totalTextureCoordinateIndexList,
+                                          std::vector<uint32_t> totalMaterialIndexList,
+                                          std::vector<Material> totalMaterialList,
+                                          LightContainer lightContainer,
+                                          VkDevice logicalDevice, 
+                                          VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties, 
+                                          VkCommandPool commandPool,
+                                          VkQueue queue) {
 
   VkDeviceSize totalVertexBufferSize = sizeof(float) * totalVertexList.size();
   
@@ -340,6 +450,36 @@ void ModelInstanceSet::createTotalBuffers(std::vector<float> totalVertexList,
   vkDestroyBuffer(logicalDevice, totalNormalStagingBuffer, NULL);
   vkFreeMemory(logicalDevice, totalNormalStagingBufferMemory, NULL);
 
+  VkDeviceSize totalTextureCoordinateBufferSize = sizeof(float) * totalTextureCoordinateList.size();
+  
+  VkBuffer totalTextureCoordinateStagingBuffer;
+  VkDeviceMemory totalTextureCoordinateStagingBufferMemory;
+  BufferFactory::createBuffer(logicalDevice,
+                              physicalDeviceMemoryProperties,
+                              totalTextureCoordinateBufferSize, 
+                              VK_BUFFER_USAGE_TRANSFER_SRC_BIT, 
+                              VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, 
+                              &totalTextureCoordinateStagingBuffer, 
+                              &totalTextureCoordinateStagingBufferMemory);
+
+  void* totalTextureCoordinateData;
+  vkMapMemory(logicalDevice, totalTextureCoordinateStagingBufferMemory, 0, totalTextureCoordinateBufferSize, 0, &totalTextureCoordinateData);
+  memcpy(totalTextureCoordinateData, totalTextureCoordinateList.data(), totalTextureCoordinateBufferSize);
+  vkUnmapMemory(logicalDevice, totalTextureCoordinateStagingBufferMemory);
+
+  BufferFactory::createBuffer(logicalDevice, 
+                              physicalDeviceMemoryProperties,
+                              totalTextureCoordinateBufferSize, 
+                              VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT, 
+                              VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 
+                              &this->totalTextureCoordinateBuffer, 
+                              &this->totalTextureCoordinateBufferMemory);  
+
+  BufferFactory::copyBuffer(logicalDevice, commandPool, queue, totalTextureCoordinateStagingBuffer, this->totalTextureCoordinateBuffer, totalTextureCoordinateBufferSize);
+
+  vkDestroyBuffer(logicalDevice, totalTextureCoordinateStagingBuffer, NULL);
+  vkFreeMemory(logicalDevice, totalTextureCoordinateStagingBufferMemory, NULL);
+
   VkDeviceSize totalIndexBufferSize = sizeof(uint32_t) * totalIndexList.size();
   
   VkBuffer totalIndexStagingBuffer;
@@ -399,6 +539,36 @@ void ModelInstanceSet::createTotalBuffers(std::vector<float> totalVertexList,
 
   vkDestroyBuffer(logicalDevice, totalNormalIndexStagingBuffer, NULL);
   vkFreeMemory(logicalDevice, totalNormalIndexStagingBufferMemory, NULL);
+
+  VkDeviceSize totalTextureCoordinateIndexBufferSize = sizeof(uint32_t) * totalTextureCoordinateIndexList.size();
+  
+  VkBuffer totalTextureCoordinateIndexStagingBuffer;
+  VkDeviceMemory totalTextureCoordinateIndexStagingBufferMemory;
+  BufferFactory::createBuffer(logicalDevice,
+                              physicalDeviceMemoryProperties,
+                              totalTextureCoordinateIndexBufferSize, 
+                              VK_BUFFER_USAGE_TRANSFER_SRC_BIT, 
+                              VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, 
+                              &totalTextureCoordinateIndexStagingBuffer, 
+                              &totalTextureCoordinateIndexStagingBufferMemory);
+
+  void* totalTextureCoordinateIndexData;
+  vkMapMemory(logicalDevice, totalTextureCoordinateIndexStagingBufferMemory, 0, totalTextureCoordinateIndexBufferSize, 0, &totalTextureCoordinateIndexData);
+  memcpy(totalTextureCoordinateIndexData, totalTextureCoordinateIndexList.data(), totalTextureCoordinateIndexBufferSize);
+  vkUnmapMemory(logicalDevice, totalTextureCoordinateIndexStagingBufferMemory);
+
+  BufferFactory::createBuffer(logicalDevice, 
+                              physicalDeviceMemoryProperties,
+                              totalTextureCoordinateIndexBufferSize, 
+                              VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT, 
+                              VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 
+                              &this->totalTextureCoordinateIndexBuffer, 
+                              &this->totalTextureCoordinateIndexBufferMemory);  
+
+  BufferFactory::copyBuffer(logicalDevice, commandPool, queue, totalTextureCoordinateIndexStagingBuffer, this->totalTextureCoordinateIndexBuffer, totalTextureCoordinateIndexBufferSize);
+
+  vkDestroyBuffer(logicalDevice, totalTextureCoordinateIndexStagingBuffer, NULL);
+  vkFreeMemory(logicalDevice, totalTextureCoordinateIndexStagingBufferMemory, NULL);
 
   VkDeviceSize totalMaterialIndexBufferSize = sizeof(uint32_t) * totalMaterialIndexList.size();
   
@@ -556,6 +726,10 @@ VkDescriptorBufferInfo* ModelInstanceSet::getDescriptorTotalMaterialBufferInfoPo
 
 VkDescriptorBufferInfo* ModelInstanceSet::getDescriptorTotalMaterialLightBufferInfoPointer() {
   return &this->descriptorTotalMaterialLightBufferInfo;
+}
+
+VkDescriptorImageInfo* ModelInstanceSet::getDescriptorMaterialImageInfoListPointer() {
+  return this->descriptorMaterialImageInfoList.data();
 }
 
 std::vector<ModelInstance*> ModelInstanceSet::getModelInstanceList() {

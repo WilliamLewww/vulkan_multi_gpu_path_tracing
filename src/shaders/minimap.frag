@@ -34,6 +34,7 @@ layout(binding = 2, set = 0) uniform InstanceDescriptionContainer {
   uint instanceCount;
   uint vertexOffsets[8];
   uint normalOffsets[8];
+  uint textureCoordinateOffsets[8];
   uint indexOffsets[8];
   uint materialIndexOffsets[8];
   uint materialOffsets[8];

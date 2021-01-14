@@ -51,6 +51,14 @@ std::vector<float> Model::getNormals() {
   return this->attrib.normals;
 }
 
+uint32_t Model::getTextureCoordinateCount() {
+  return this->attrib.texcoords.size();
+}
+
+std::vector<float> Model::getTextureCoordinates() {
+  return this->attrib.texcoords;
+};
+
 uint32_t Model::getTotalIndexCount() {
   uint32_t indexCount = 0;
   for (int x = 0; x < this->shapes.size(); x++) {

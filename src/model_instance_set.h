@@ -5,8 +5,10 @@
 #include <map>
 #include <stddef.h>
 
+#include "stb/stb_image.h"
 #include "model_instance.h"
 #include "buffer_factory.h"
+#include "image_factory.h"
 
 class ModelInstanceSet {
 private:
@@ -19,6 +21,8 @@ private:
     alignas(4) float shininess;
     alignas(4) float dissolve;
     alignas(4) float ior;
+
+    alignas(4) int diffuseTextureIndex;
   };
 
   struct LightContainer {
@@ -28,14 +32,16 @@ private:
   };
 
   struct InstanceUniform {
-    float buffer[292];
+    float buffer[324];
   };
 
   std::map<Model*, std::vector<ModelInstance*>> modelInstanceMap;
 
   std::vector<ModelInstance*> modelInstanceList;
+
   std::vector<uint32_t> vertexOffsetList;
   std::vector<uint32_t> normalOffsetList;
+  std::vector<uint32_t> textureCoordinateOffsetList;
   std::vector<uint32_t> indexOffsetList;
   std::vector<uint32_t> materialIndexOffsetList;
   std::vector<uint32_t> materialOffsetList;
@@ -54,11 +60,17 @@ private:
   VkBuffer totalNormalBuffer;
   VkDeviceMemory totalNormalBufferMemory;
 
+  VkBuffer totalTextureCoordinateBuffer;
+  VkDeviceMemory totalTextureCoordinateBufferMemory;
+
   VkBuffer totalIndexBuffer;
   VkDeviceMemory totalIndexBufferMemory;
 
   VkBuffer totalNormalIndexBuffer;
   VkDeviceMemory totalNormalIndexBufferMemory;
+
+  VkBuffer totalTextureCoordinateIndexBuffer;
+  VkDeviceMemory totalTextureCoordinateIndexBufferMemory;
 
   VkBuffer totalMaterialIndexBuffer;
   VkDeviceMemory totalMaterialIndexBufferMemory;
@@ -69,9 +81,11 @@ private:
   VkBuffer totalMaterialLightBuffer;
   VkDeviceMemory totalMaterialLightBufferMemory;
 
-  VkImage materialImageList;
-  VkImageView materialImageViewList;
-  VkDeviceMemory materialImageMemory;
+  std::vector<VkImage> materialImageList;
+  std::vector<VkImageView> materialImageViewList;
+  std::vector<VkDeviceMemory> materialImageMemory;
+
+  std::vector<VkDescriptorImageInfo> descriptorMaterialImageInfoList;
 
   VkDescriptorBufferInfo descriptorTotalVertexBufferInfo;
   VkDescriptorBufferInfo descriptorTotalNormalBufferInfo;
@@ -87,7 +101,8 @@ private:
                           VkCommandPool commandPool,
                           VkQueue queue,
                           std::vector<float>* totalVertexList = NULL,
-                          std::vector<float>* totalNormalList = NULL);
+                          std::vector<float>* totalNormalList = NULL,
+                          std::vector<float>* totalTextureCoordinateList = NULL);
 
   void createIndexBuffer(Model* model,
                          VkDevice logicalDevice, 
@@ -95,7 +110,8 @@ private:
                          VkCommandPool commandPool,
                          VkQueue queue,
                          std::vector<uint32_t>* totalIndexList = NULL,
-                         std::vector<uint32_t>* totalNormalIndexList = NULL);
+                         std::vector<uint32_t>* totalNormalIndexList = NULL,
+                         std::vector<uint32_t>* totalTextureCoordinateIndexList = NULL);
 
   void createMaterialBuffers(Model* model,
                              VkDevice logicalDevice, 
@@ -104,12 +120,15 @@ private:
                              VkQueue queue,
                              std::vector<uint32_t>* totalMaterialIndexList = NULL,
                              std::vector<Material>* totalMaterialList = NULL,
+                             std::vector<std::string>* totalTextureNameList = NULL,
                              LightContainer* totalMaterialLightList = NULL);
 
   void createTotalBuffers(std::vector<float> totalVertexList,
                           std::vector<float> totalNormalList,
+                          std::vector<float> totalTextureCoordinateList,
                           std::vector<uint32_t> totalIndexList,
                           std::vector<uint32_t> totalNormalIndexList,
+                          std::vector<uint32_t> totalTextureCoordinateIndexList,
                           std::vector<uint32_t> totalMaterialIndexList,
                           std::vector<Material> totalMaterialList,
                           LightContainer totalMaterialLightList,
@@ -145,6 +164,8 @@ public:
   VkDescriptorBufferInfo* getDescriptorTotalMaterialIndexBufferInfoPointer();
   VkDescriptorBufferInfo* getDescriptorTotalMaterialBufferInfoPointer();
   VkDescriptorBufferInfo* getDescriptorTotalMaterialLightBufferInfoPointer();
+
+  VkDescriptorImageInfo* getDescriptorMaterialImageInfoListPointer();
 
   std::vector<ModelInstance*> getModelInstanceList();
 
