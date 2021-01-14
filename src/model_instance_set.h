@@ -89,8 +89,10 @@ private:
 
   VkDescriptorBufferInfo descriptorTotalVertexBufferInfo;
   VkDescriptorBufferInfo descriptorTotalNormalBufferInfo;
+  VkDescriptorBufferInfo descriptorTotalTextureCoordinateBufferInfo;
   VkDescriptorBufferInfo descriptorTotalIndexBufferInfo;
   VkDescriptorBufferInfo descriptorTotalNormalIndexBufferInfo;
+  VkDescriptorBufferInfo descriptorTotalTextureCoordinateIndexBufferInfo;
   VkDescriptorBufferInfo descriptorTotalMaterialIndexBufferInfo;
   VkDescriptorBufferInfo descriptorTotalMaterialBufferInfo;
   VkDescriptorBufferInfo descriptorTotalMaterialLightBufferInfo;
@@ -164,6 +166,8 @@ public:
   VkDescriptorBufferInfo* getDescriptorTotalMaterialIndexBufferInfoPointer();
   VkDescriptorBufferInfo* getDescriptorTotalMaterialBufferInfoPointer();
   VkDescriptorBufferInfo* getDescriptorTotalMaterialLightBufferInfoPointer();
+  VkDescriptorBufferInfo* getDescriptorTotalTextureCoordinateBufferInfoPointer();
+  VkDescriptorBufferInfo* getDescriptorTotalTextureCoordinateIndexBufferInfoPointer();
 
   VkDescriptorImageInfo* getDescriptorMaterialImageInfoListPointer();
 

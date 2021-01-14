@@ -146,6 +146,18 @@ ModelInstanceSet::ModelInstanceSet(std::map<Model*, std::vector<TRS>> modelFrequ
     .range = VK_WHOLE_SIZE
   };
 
+  this->descriptorTotalTextureCoordinateBufferInfo = {
+    .buffer = this->totalTextureCoordinateBuffer,
+    .offset = 0,
+    .range = VK_WHOLE_SIZE
+  };
+
+  this->descriptorTotalTextureCoordinateIndexBufferInfo = {
+    .buffer = this->totalTextureCoordinateIndexBuffer,
+    .offset = 0,
+    .range = VK_WHOLE_SIZE
+  };
+
   this->materialImageList.resize(totalTextureNameList.size());
   this->materialImageViewList.resize(totalTextureNameList.size());
   this->materialImageMemory.resize(totalTextureNameList.size());
@@ -726,6 +738,14 @@ VkDescriptorBufferInfo* ModelInstanceSet::getDescriptorTotalMaterialBufferInfoPo
 
 VkDescriptorBufferInfo* ModelInstanceSet::getDescriptorTotalMaterialLightBufferInfoPointer() {
   return &this->descriptorTotalMaterialLightBufferInfo;
+}
+
+VkDescriptorBufferInfo* ModelInstanceSet::getDescriptorTotalTextureCoordinateBufferInfoPointer() {
+  return &this->descriptorTotalTextureCoordinateBufferInfo;
+}
+
+VkDescriptorBufferInfo* ModelInstanceSet::getDescriptorTotalTextureCoordinateIndexBufferInfoPointer() {
+  return &this->descriptorTotalTextureCoordinateIndexBufferInfo;
 }
 
 VkDescriptorImageInfo* ModelInstanceSet::getDescriptorMaterialImageInfoListPointer() {
