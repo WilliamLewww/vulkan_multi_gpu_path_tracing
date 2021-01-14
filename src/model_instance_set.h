@@ -69,6 +69,10 @@ private:
   VkBuffer totalMaterialLightBuffer;
   VkDeviceMemory totalMaterialLightBufferMemory;
 
+  VkImage materialImageList;
+  VkImageView materialImageViewList;
+  VkDeviceMemory materialImageMemory;
+
   VkDescriptorBufferInfo descriptorTotalVertexBufferInfo;
   VkDescriptorBufferInfo descriptorTotalNormalBufferInfo;
   VkDescriptorBufferInfo descriptorTotalIndexBufferInfo;
