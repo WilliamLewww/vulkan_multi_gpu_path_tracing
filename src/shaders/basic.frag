@@ -14,6 +14,8 @@ struct Material {
   float shininess;
   float dissolve;
   float ior;
+
+  int diffuseTextureIndex;
 };
 
 layout(early_fragment_tests) in;
@@ -55,6 +57,8 @@ layout(binding = 7, set = 0) buffer LensProperties {
   uint aperturePrimitiveCount;
 } lensProperties;
 
+layout(binding = 9, set = 0) uniform sampler samp;
+
 layout(binding = 0, set = 1) buffer IndexBuffer { uint data[]; } indexBuffer;
 layout(binding = 1, set = 1) buffer VertexBuffer { float data[]; } vertexBuffer;
 layout(binding = 2, set = 1) buffer NormalIndexBuffer { uint data[]; } normalIndexBuffer;
@@ -68,6 +72,7 @@ layout(binding = 8, set = 1) buffer MaterialLightBuffer {
   uint indicesPrimitive[64];
   uint indicesInstance[64];
 } materialLightBuffer;
+layout(binding = 9, set = 1) uniform texture2D textures[8];
 
 float random(vec2 uv, float seed) {
   return fract(sin(mod(dot(uv, vec2(12.9898, 78.233)) + 1113.1 * seed, M_PI)) * 43758.5453);;
@@ -149,6 +154,31 @@ void getNormalFromIndices(uint instanceIndex, uint primitiveIndex, out vec3 norm
              normalBuffer.data[3 * indices.z + 1 + normalOffset], 
              normalBuffer.data[3 * indices.z + 2 + normalOffset], 
              1.0).xyz;
+}
+
+ivec3 getTextureCoordinateIndicesFromPrimitive(uint instanceIndex, uint primitiveIndex) {
+  uint indexOffset = instanceDescriptionContainer.indexOffsets[instanceIndex];
+
+  ivec3 indices = ivec3(textureCoordinateIndexBuffer.data[3 * primitiveIndex + 0 + indexOffset], 
+                        textureCoordinateIndexBuffer.data[3 * primitiveIndex + 1 + indexOffset], 
+                        textureCoordinateIndexBuffer.data[3 * primitiveIndex + 2 + indexOffset]);
+
+  return indices;
+};
+
+void getTextureCoordinateFromIndices(uint instanceIndex, uint primitiveIndex, out vec2 textureCoordinateA, out vec2 textureCoordinateB, out vec2 textureCoordinateC) {
+  uint textureCoordinateOffset = instanceDescriptionContainer.textureCoordinateOffsets[instanceIndex];
+
+  ivec3 indices = getTextureCoordinateIndicesFromPrimitive(instanceIndex, primitiveIndex);
+
+  textureCoordinateA = vec2(textureCoordinateBuffer.data[2 * indices.x + 0 + textureCoordinateOffset], 
+                            textureCoordinateBuffer.data[2 * indices.x + 1 + textureCoordinateOffset]);
+
+  textureCoordinateB =  vec2(textureCoordinateBuffer.data[2 * indices.y + 0 + textureCoordinateOffset], 
+                            textureCoordinateBuffer.data[2 * indices.y + 1 + textureCoordinateOffset]);
+  
+  textureCoordinateC =  vec2(textureCoordinateBuffer.data[2 * indices.z + 0 + textureCoordinateOffset], 
+                            textureCoordinateBuffer.data[2 * indices.z + 1 + textureCoordinateOffset]);
 }
 
 Material getMaterialFromPrimitive(uint instanceIndex, uint primitiveIndex) {
@@ -447,6 +477,14 @@ void main() {
         vec3 reflectedColor = shadeReflection(intersectionPosition, intersectionNormal, intersectionMaterial);
 
         directColor = directColor + refractedColor + reflectedColor;
+      }
+
+      if (intersectionMaterial.diffuseTextureIndex != -1) {
+        vec2 textureCoordinateA, textureCoordinateB, textureCoordinateC;
+        getTextureCoordinateFromIndices(intersectionInstanceIndex, intersectionPrimitiveIndex, textureCoordinateA, textureCoordinateB, textureCoordinateC);
+        
+        vec2 textureCoordinate = textureCoordinateA * intersectionBarycentrics.x + textureCoordinateB * intersectionBarycentrics.y + textureCoordinateC * intersectionBarycentrics.z;
+        directColor = vec3(textureCoordinate, 0.0);
       }
     }
   }
