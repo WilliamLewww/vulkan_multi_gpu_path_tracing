@@ -8,12 +8,13 @@ private:
   VkWriteDescriptorSet writeDescriptorSet;
 public:
   Descriptor(uint32_t binding,
-                   VkDescriptorType descriptorType, 
-                   VkShaderStageFlagBits stageFlags,
-                   VkDescriptorImageInfo* pImageInfo = NULL, 
-                   VkDescriptorBufferInfo* pBufferInfo = NULL,
-                   VkBufferView* pTexelBufferView = NULL,
-                   void* pNext = NULL);
+             VkDescriptorType descriptorType, 
+             uint32_t descriptorCount,
+             VkShaderStageFlagBits stageFlags,
+             VkDescriptorImageInfo* pImageInfo = NULL, 
+             VkDescriptorBufferInfo* pBufferInfo = NULL,
+             VkBufferView* pTexelBufferView = NULL,
+             void* pNext = NULL);
 
   ~Descriptor();
 

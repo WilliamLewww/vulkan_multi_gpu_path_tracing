@@ -1,17 +1,18 @@
 #include "descriptor.h"
 
 Descriptor::Descriptor(uint32_t binding,
-                                   VkDescriptorType descriptorType, 
-                                   VkShaderStageFlagBits stageFlags,
-                                   VkDescriptorImageInfo* pImageInfo, 
-                                   VkDescriptorBufferInfo* pBufferInfo,
-                                   VkBufferView* pTexelBufferView,
-                                   void* pNext) {
+                       VkDescriptorType descriptorType,
+                       uint32_t descriptorCount,
+                       VkShaderStageFlagBits stageFlags,
+                       VkDescriptorImageInfo* pImageInfo, 
+                       VkDescriptorBufferInfo* pBufferInfo,
+                       VkBufferView* pTexelBufferView,
+                       void* pNext) {
 
   this->descriptorSetLayoutBinding = {
     .binding = binding,
     .descriptorType = descriptorType,
-    .descriptorCount = 1,
+    .descriptorCount = descriptorCount,
     .stageFlags = stageFlags,
     .pImmutableSamplers = NULL
   };
