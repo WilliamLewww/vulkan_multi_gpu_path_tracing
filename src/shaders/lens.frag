@@ -270,11 +270,11 @@ vec3 getRayDirectionFromLens(vec3 filmPosition) {
 }
 
 void main() {
-  vec3 filmPosition = vec3(-((gl_FragCoord.x / 800.0) - 0.5), ((gl_FragCoord.y / 600.0) - 0.5), 0.0);
-  int rayDirectionCoordinate = (int(gl_FragCoord.y) * 800 + int(gl_FragCoord.x)) * 3;
-  vec3 lensDirection = getRayDirectionFromLens(filmPosition);
+  // vec3 filmPosition = vec3(-((gl_FragCoord.x / 800.0) - 0.5), ((gl_FragCoord.y / 600.0) - 0.5), 0.0);
+  // int rayDirectionCoordinate = (int(gl_FragCoord.y) * 800 + int(gl_FragCoord.x)) * 3;
+  // vec3 lensDirection = getRayDirectionFromLens(filmPosition);
 
-  rayDirectionBuffer.data[rayDirectionCoordinate + 0] = lensDirection.x;
-  rayDirectionBuffer.data[rayDirectionCoordinate + 1] = lensDirection.y;
-  rayDirectionBuffer.data[rayDirectionCoordinate + 2] = lensDirection.z;
+  // rayDirectionBuffer.data[rayDirectionCoordinate + 0] = lensDirection.x;
+  // rayDirectionBuffer.data[rayDirectionCoordinate + 1] = lensDirection.y;
+  // rayDirectionBuffer.data[rayDirectionCoordinate + 2] = lensDirection.z;
 }
