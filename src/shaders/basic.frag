@@ -72,7 +72,7 @@ layout(binding = 8, set = 1) buffer MaterialLightBuffer {
   uint indicesPrimitive[64];
   uint indicesInstance[64];
 } materialLightBuffer;
-layout(binding = 9, set = 1) uniform texture2D textures[1];
+layout(binding = 9, set = 1) uniform texture2D textures[3];
 
 float random(vec2 uv, float seed) {
   return fract(sin(mod(dot(uv, vec2(12.9898, 78.233)) + 1113.1 * seed, M_PI)) * 43758.5453);;
