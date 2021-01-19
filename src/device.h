@@ -79,7 +79,7 @@ public:
   void createRenderPass();
   void createTextures();
   void createSampler();
-  void createStorageBuffers(uint32_t apertureInstanceIndex, uint32_t aperturePrimitiveCount);
+  void createStorageBuffers(uint32_t apertureInstanceIndex, uint32_t aperturePrimitiveCount, uint32_t aperturePrimitiveOffset);
   void createFramebuffers();
   void createModelInstanceCollection(std::vector<std::map<Model*, std::vector<TRS>>> modelFrequencyMapList);
   void createUniformBufferCollection(std::map<void*, uint32_t> bufferMap);

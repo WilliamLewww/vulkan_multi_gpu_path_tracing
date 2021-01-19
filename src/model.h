@@ -41,4 +41,6 @@ public:
   tinyobj::material_t getMaterial(uint32_t index);
 
   uint32_t getPrimitiveCount();
+  uint32_t getTransparentPrimitiveCount();
+  uint32_t getTransparentPrimitiveOffset();
 };

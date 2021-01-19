@@ -51,6 +51,7 @@ layout(binding = 6, set = 0) buffer RayDirectionBuffer { float data[]; } rayDire
 layout(binding = 7, set = 0) buffer LensProperties {
   uint apertureInstanceIndex;
   uint aperturePrimitiveCount;
+  uint aperturePrimitiveOffset;
 } lensProperties;
 
 layout(binding = 0, set = 2) buffer IndexBuffer { uint data[]; } indexBuffer;
@@ -184,7 +185,7 @@ float reflectance(vec3 incidentDirection, vec3 normal, float firstIOR, float sec
 }
 
 vec3 getRayDirectionFromLens(vec3 filmPosition) {
-  int randomPrimitiveIndex = int(random(gl_FragCoord.xy, camera.frameCount) * float(lensProperties.aperturePrimitiveCount));
+  int randomPrimitiveIndex = int(random(gl_FragCoord.xy, camera.frameCount) * float(lensProperties.aperturePrimitiveCount + lensProperties.aperturePrimitiveOffset));
 
   vec3 aperatureVertexA, aperatureVertexB, aperatureVertexC;
   getVertexFromIndices(lensProperties.apertureInstanceIndex, randomPrimitiveIndex, aperatureVertexA, aperatureVertexB, aperatureVertexC);
