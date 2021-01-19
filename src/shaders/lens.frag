@@ -250,8 +250,6 @@ vec3 getRayDirectionFromLens(vec3 filmPosition) {
       intersectionPosition = intersectionVertexA * intersectionBarycentrics.x + intersectionVertexB * intersectionBarycentrics.y + intersectionVertexC * intersectionBarycentrics.z;
       intersectionNormal = intersectionNormalA * intersectionBarycentrics.x + intersectionNormalB * intersectionBarycentrics.y + intersectionNormalC * intersectionBarycentrics.z;
 
-      isFilmIntersection = false;
-
       rayOrigin = intersectionPosition;
       rayDirection = refract(rayDirection, -intersectionNormal, intersectionMaterial.ior, 1.0);
     }
@@ -260,6 +258,8 @@ vec3 getRayDirectionFromLens(vec3 filmPosition) {
         return vec3(0, 0, 0);
       }
     }
+
+    isFilmIntersection = false;
 
     rayQueryInitializeEXT(rayQuery, topLevelAS, gl_RayFlagsNoneEXT, 0xFF, rayOrigin, 0.0001f, rayDirection, 1000.0f);
     while (rayQueryProceedEXT(rayQuery));
