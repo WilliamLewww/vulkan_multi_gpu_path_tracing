@@ -232,7 +232,9 @@ vec3 getRayDirectionFromLens(vec3 filmPosition) {
 
     rayOrigin = intersectionPosition;
 
-    if (intersectionMaterial.dissolve < 1.0 && intersectionInstanceIndex != lensProperties.apertureInstanceIndex) {
+    bool hitAperture = (intersectionInstanceIndex == lensProperties.apertureInstanceIndex) && (intersectionPrimitiveIndex >= lensProperties.aperturePrimitiveOffset) && (intersectionPrimitiveIndex < lensProperties.aperturePrimitiveOffset + lensProperties.aperturePrimitiveCount);
+
+    if (intersectionMaterial.dissolve < 1.0 && !hitAperture) {
       rayDirection = refract(rayDirection, intersectionNormal, 1.0, intersectionMaterial.ior);
 
       rayQueryEXT rayQuery;
@@ -255,7 +257,7 @@ vec3 getRayDirectionFromLens(vec3 filmPosition) {
       rayDirection = refract(rayDirection, -intersectionNormal, intersectionMaterial.ior, 1.0);
     }
     else {
-      if (intersectionInstanceIndex != lensProperties.apertureInstanceIndex && !isFilmIntersection) {
+      if (!hitAperture && !isFilmIntersection) {
         return vec3(0, 0, 0);
       }
     }
