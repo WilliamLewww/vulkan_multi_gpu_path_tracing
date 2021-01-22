@@ -15,10 +15,14 @@ private:
   VkBuffer rayDirectionBuffer;
   VkDeviceMemory rayDirectionBufferMemory;
 
+  VkBuffer lightDepthBuffer;
+  VkDeviceMemory lightDepthBufferMemory;
+
   VkBuffer lensPropertiesBuffer;
   VkDeviceMemory lensPropertiesBufferMemory;
 
   VkDescriptorBufferInfo descriptorRayDirectionBufferInfo;
+  VkDescriptorBufferInfo descriptorLightDepthBufferInfo;
   VkDescriptorBufferInfo descriptorLensPropertiesBufferInfo;
 public:
   StorageBuffers(uint32_t apertureInstanceIndex,

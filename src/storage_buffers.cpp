@@ -21,6 +21,18 @@ StorageBuffers::StorageBuffers(uint32_t apertureInstanceIndex,
   }
 
   {
+    VkDeviceSize bufferSize = sizeof(float) * 800 * 600;
+
+    BufferFactory::createBuffer(logicalDevice, 
+                                physicalDeviceMemoryProperties,
+                                bufferSize, 
+                                VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT, 
+                                VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 
+                                &this->lightDepthBuffer, 
+                                &this->lightDepthBufferMemory);
+  }
+
+  {
     LensPropertiesUniform lensPropertiesUniform = {
       .apertureInstanceIndex = apertureInstanceIndex,
       .aperturePrimitiveCount = aperturePrimitiveCount,
@@ -60,6 +72,12 @@ StorageBuffers::StorageBuffers(uint32_t apertureInstanceIndex,
 
   this->descriptorRayDirectionBufferInfo = {
     .buffer = this->rayDirectionBuffer,
+    .offset = 0,
+    .range = VK_WHOLE_SIZE
+  };
+
+  this->descriptorLightDepthBufferInfo = {
+    .buffer = this->lightDepthBuffer,
     .offset = 0,
     .range = VK_WHOLE_SIZE
   };
