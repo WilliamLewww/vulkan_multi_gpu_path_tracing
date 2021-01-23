@@ -71,7 +71,7 @@ Renderer::Renderer(VkInstance vulkanInstance, VkSurfaceKHR surface, ModelCollect
                                             modelCollection->getModel(3)->getTransparentPrimitiveCount(),
                                             modelCollection->getModel(3)->getTransparentPrimitiveOffset(),
                                             this->displayDevice->getModelInstanceSet(1)->getModelLastInstanceIndex(modelCollection->getModel(4)),
-                                            modelCollection->getModel(4)->getTransparentPrimitiveCount(),
+                                            modelCollection->getModel(4)->getPrimitiveCount(),
                                             this->displayDevice->getModelInstanceSet(1)->getModelInstanceIndex(modelCollection->getModel(2)));
 
   std::map<void*, uint32_t> uniformBufferMap = {
