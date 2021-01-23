@@ -15,9 +15,6 @@ private:
   VkBuffer rayDirectionBuffer;
   VkDeviceMemory rayDirectionBufferMemory;
 
-  VkBuffer lightDepthBuffer;
-  VkDeviceMemory lightDepthBufferMemory;
-
   VkBuffer lensPropertiesBuffer;
   VkDeviceMemory lensPropertiesBufferMemory;
 
