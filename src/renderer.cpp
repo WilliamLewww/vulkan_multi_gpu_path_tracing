@@ -32,7 +32,7 @@ Renderer::Renderer(VkInstance vulkanInstance, VkSurfaceKHR surface, ModelCollect
       {
         modelCollection->getModel(7), 
         {
-          createTRS({0, 0, -3}, {1, 1, 1}),
+          createTRS({0, 0, -4}, {1, 1, 1}),
         }
       },
     },
@@ -69,7 +69,9 @@ Renderer::Renderer(VkInstance vulkanInstance, VkSurfaceKHR surface, ModelCollect
 
   this->displayDevice->createStorageBuffers(this->displayDevice->getModelInstanceSet(1)->getModelInstanceIndex(modelCollection->getModel(3)),
                                             modelCollection->getModel(3)->getTransparentPrimitiveCount(),
-                                            modelCollection->getModel(3)->getTransparentPrimitiveOffset());
+                                            modelCollection->getModel(3)->getTransparentPrimitiveOffset(),
+                                            this->displayDevice->getModelInstanceSet(1)->getModelLastInstanceIndex(modelCollection->getModel(4)),
+                                            modelCollection->getModel(4)->getTransparentPrimitiveCount());
 
   std::map<void*, uint32_t> uniformBufferMap = {
     {camera->getUniformPointer(), camera->getUniformStructureSize()},

@@ -153,6 +153,7 @@ public:
   uint32_t getUniformBufferSize();
 
   uint32_t getModelInstanceIndex(Model* model);
+  uint32_t getModelLastInstanceIndex(Model* model);
 
   uint32_t getInstanceCount();
   ModelInstance* getModelInstance(int index);

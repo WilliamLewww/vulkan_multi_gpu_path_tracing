@@ -3,6 +3,8 @@
 StorageBuffers::StorageBuffers(uint32_t apertureInstanceIndex,
                                uint32_t aperturePrimitiveCount,
                                uint32_t aperturePrimitiveOffset,
+                               uint32_t lastLensElementInstanceIndex,
+                               uint32_t lastLensElementPrimitiveCount,
                                VkDevice logicalDevice, 
                                VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties, 
                                VkCommandPool commandPool,
@@ -24,7 +26,9 @@ StorageBuffers::StorageBuffers(uint32_t apertureInstanceIndex,
     LensPropertiesUniform lensPropertiesUniform = {
       .apertureInstanceIndex = apertureInstanceIndex,
       .aperturePrimitiveCount = aperturePrimitiveCount,
-      .aperturePrimitiveOffset = aperturePrimitiveOffset
+      .aperturePrimitiveOffset = aperturePrimitiveOffset,
+      .lastLensElementInstanceIndex = lastLensElementInstanceIndex,
+      .lastLensElementPrimitiveCount = lastLensElementPrimitiveCount,
     };
 
     VkDeviceSize bufferSize = sizeof(LensPropertiesUniform);

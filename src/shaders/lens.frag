@@ -52,6 +52,8 @@ layout(binding = 7, set = 0) buffer LensProperties {
   uint apertureInstanceIndex;
   uint aperturePrimitiveCount;
   uint aperturePrimitiveOffset;
+  uint lastLensElementInstanceIndex;
+  uint lastLensElementPrimitiveCount;
 } lensProperties;
 
 layout(binding = 0, set = 2) buffer IndexBuffer { uint data[]; } indexBuffer;

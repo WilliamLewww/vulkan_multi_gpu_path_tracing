@@ -52,11 +52,6 @@ layout(binding = 3, set = 0) uniform accelerationStructureEXT topLevelAS;
 layout(binding = 5, set = 0, rgba32f) uniform image2D image;
 layout(binding = 6, set = 0) buffer RayDirectionBuffer { float data[]; } rayDirectionBuffer;
 
-layout(binding = 7, set = 0) buffer LensProperties {
-  uint apertureInstanceIndex;
-  uint aperturePrimitiveCount;
-} lensProperties;
-
 layout(binding = 9, set = 0) uniform sampler samp;
 
 layout(binding = 0, set = 1) buffer IndexBuffer { uint data[]; } indexBuffer;

@@ -700,6 +700,18 @@ uint32_t ModelInstanceSet::getModelInstanceIndex(Model* model) {
   return -1;
 }
 
+uint32_t ModelInstanceSet::getModelLastInstanceIndex(Model* model) {
+  uint32_t lastInstanceIndex = -1;
+
+  for (int x = 0; x < this->modelInstanceList.size(); x++) {
+    if (this->modelInstanceList[x]->getModel() == model) {
+      lastInstanceIndex = x;
+    }
+  }
+
+  return lastInstanceIndex;
+}
+
 uint32_t ModelInstanceSet::getInstanceCount() {
   return this->modelInstanceList.size();
 }

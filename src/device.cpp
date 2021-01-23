@@ -196,10 +196,12 @@ void Device::createSampler() {
   };
 }
 
-void Device::createStorageBuffers(uint32_t apertureInstanceIndex, uint32_t aperturePrimitiveCount, uint32_t aperturePrimitiveOffset) {
+void Device::createStorageBuffers(uint32_t apertureInstanceIndex, uint32_t aperturePrimitiveCount, uint32_t aperturePrimitiveOffset, uint32_t lastLensElementInstanceIndex, uint32_t lastLensElementPrimitiveCount) {
   this->storageBuffers = new StorageBuffers(apertureInstanceIndex,
                                             aperturePrimitiveCount,
                                             aperturePrimitiveOffset,
+                                            lastLensElementInstanceIndex,
+                                            lastLensElementPrimitiveCount,
                                             this->logicalDevice, 
                                             this->physicalDeviceMemoryProperties, 
                                             this->commandPool->getCommandPool(),
