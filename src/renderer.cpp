@@ -71,7 +71,8 @@ Renderer::Renderer(VkInstance vulkanInstance, VkSurfaceKHR surface, ModelCollect
                                             modelCollection->getModel(3)->getTransparentPrimitiveCount(),
                                             modelCollection->getModel(3)->getTransparentPrimitiveOffset(),
                                             this->displayDevice->getModelInstanceSet(1)->getModelLastInstanceIndex(modelCollection->getModel(4)),
-                                            modelCollection->getModel(4)->getTransparentPrimitiveCount());
+                                            modelCollection->getModel(4)->getTransparentPrimitiveCount(),
+                                            this->displayDevice->getModelInstanceSet(1)->getModelInstanceIndex(modelCollection->getModel(2)));
 
   std::map<void*, uint32_t> uniformBufferMap = {
     {camera->getUniformPointer(), camera->getUniformStructureSize()},
@@ -95,6 +96,7 @@ Renderer::Renderer(VkInstance vulkanInstance, VkSurfaceKHR surface, ModelCollect
       new Descriptor(7, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1, (VkShaderStageFlagBits)(VK_SHADER_STAGE_FRAGMENT_BIT), NULL, this->displayDevice->getStorageBuffers()->getDescriptorLensPropertiesBufferInfoPointer(), NULL, NULL),
       new Descriptor(8, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, (VkShaderStageFlagBits)(VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT), NULL, this->displayDevice->getUniformBufferCollection()->getDescriptorBufferInfoPointer(1), NULL, NULL),
       new Descriptor(9, VK_DESCRIPTOR_TYPE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, this->displayDevice->getDescriptorTextureSamplerInfo(), NULL, NULL, NULL),
+      new Descriptor(10, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1, (VkShaderStageFlagBits)(VK_SHADER_STAGE_FRAGMENT_BIT), NULL, this->displayDevice->getStorageBuffers()->getDescriptorFlareBufferInfoPointer(), NULL, NULL),
     },
     {
       new Descriptor(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1, (VkShaderStageFlagBits)(VK_SHADER_STAGE_FRAGMENT_BIT), NULL, this->displayDevice->getModelInstanceSet(0)->getDescriptorTotalIndexBufferInfoPointer(), NULL, NULL),
@@ -139,12 +141,22 @@ Renderer::Renderer(VkInstance vulkanInstance, VkSurfaceKHR surface, ModelCollect
       "bin/flare.frag.spv"
     },
     {
+      "bin/accumulate.vert.spv",
+      "bin/accumulate.frag.spv"
+    },
+    {
       "bin/minimap.vert.spv",
       "bin/minimap.frag.spv"
     }
   };
 
   std::vector<std::vector<float>> screenPropertiesList = {
+    {
+      0.0f,
+      0.0f,
+      800.0f,
+      600.0f,
+    },
     {
       0.0f,
       0.0f,

@@ -196,12 +196,13 @@ void Device::createSampler() {
   };
 }
 
-void Device::createStorageBuffers(uint32_t apertureInstanceIndex, uint32_t aperturePrimitiveCount, uint32_t aperturePrimitiveOffset, uint32_t lastLensElementInstanceIndex, uint32_t lastLensElementPrimitiveCount) {
+void Device::createStorageBuffers(uint32_t apertureInstanceIndex, uint32_t aperturePrimitiveCount, uint32_t aperturePrimitiveOffset, uint32_t lastLensElementInstanceIndex, uint32_t lastLensElementPrimitiveCount, uint32_t filmInstanceIndex) {
   this->storageBuffers = new StorageBuffers(apertureInstanceIndex,
                                             aperturePrimitiveCount,
                                             aperturePrimitiveOffset,
                                             lastLensElementInstanceIndex,
                                             lastLensElementPrimitiveCount,
+                                            filmInstanceIndex,
                                             this->logicalDevice, 
                                             this->physicalDeviceMemoryProperties, 
                                             this->commandPool->getCommandPool(),
@@ -268,6 +269,7 @@ void Device::drawFrame(int index) {
   if (this->synchronizationObjects->getImageInFlight(imageIndex) != VK_NULL_HANDLE) {
     vkWaitForFences(this->logicalDevice, 1, &this->synchronizationObjects->getImageInFlight(imageIndex), VK_TRUE, UINT64_MAX);
   }
+
   this->synchronizationObjects->getImageInFlight(imageIndex) = this->synchronizationObjects->getInFlightFence(this->currentFrame);
 
   VkSemaphore waitSemaphores[1] = {this->synchronizationObjects->getImageAvailableSemaphore(this->currentFrame)};

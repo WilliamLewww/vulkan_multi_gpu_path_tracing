@@ -12,6 +12,7 @@ private:
     alignas(4) uint32_t aperturePrimitiveOffset;
     alignas(4) uint32_t lastLensElementInstanceIndex;
     alignas(4) uint32_t lastLensElementPrimitiveCount;
+    alignas(4) uint32_t filmInstanceIndex;
   };
 
   VkBuffer rayDirectionBuffer;
@@ -20,15 +21,19 @@ private:
   VkBuffer lensPropertiesBuffer;
   VkDeviceMemory lensPropertiesBufferMemory;
 
+  VkBuffer flareBuffer;
+  VkDeviceMemory flareBufferMemory;
+
   VkDescriptorBufferInfo descriptorRayDirectionBufferInfo;
-  VkDescriptorBufferInfo descriptorLightDepthBufferInfo;
   VkDescriptorBufferInfo descriptorLensPropertiesBufferInfo;
+  VkDescriptorBufferInfo descriptorFlareBufferInfo;
 public:
   StorageBuffers(uint32_t apertureInstanceIndex,
                  uint32_t aperturePrimitiveCount,
                  uint32_t aperturePrimitiveOffset,
                  uint32_t lastLensElementInstanceIndex,
                  uint32_t lastLensElementPrimitiveCount,
+                 uint32_t filmInstanceIndex,
                  VkDevice logicalDevice, 
                  VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties, 
                  VkCommandPool commandPool,
@@ -37,4 +42,5 @@ public:
 
   VkDescriptorBufferInfo* getDescriptorRayDirectionBufferInfoPointer();
   VkDescriptorBufferInfo* getDescriptorLensPropertiesBufferInfoPointer();
+  VkDescriptorBufferInfo* getDescriptorFlareBufferInfoPointer();
 };

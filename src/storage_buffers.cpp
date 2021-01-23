@@ -5,6 +5,7 @@ StorageBuffers::StorageBuffers(uint32_t apertureInstanceIndex,
                                uint32_t aperturePrimitiveOffset,
                                uint32_t lastLensElementInstanceIndex,
                                uint32_t lastLensElementPrimitiveCount,
+                               uint32_t filmInstanceIndex,
                                VkDevice logicalDevice, 
                                VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties, 
                                VkCommandPool commandPool,
@@ -29,6 +30,7 @@ StorageBuffers::StorageBuffers(uint32_t apertureInstanceIndex,
       .aperturePrimitiveOffset = aperturePrimitiveOffset,
       .lastLensElementInstanceIndex = lastLensElementInstanceIndex,
       .lastLensElementPrimitiveCount = lastLensElementPrimitiveCount,
+      .filmInstanceIndex = filmInstanceIndex,
     };
 
     VkDeviceSize bufferSize = sizeof(LensPropertiesUniform);
@@ -62,6 +64,18 @@ StorageBuffers::StorageBuffers(uint32_t apertureInstanceIndex,
     vkFreeMemory(logicalDevice, lensPropertiesStagingBufferMemory, NULL);
   }
 
+  {
+    VkDeviceSize bufferSize = sizeof(float) * 800 * 600;
+
+    BufferFactory::createBuffer(logicalDevice, 
+                                physicalDeviceMemoryProperties,
+                                bufferSize, 
+                                VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT, 
+                                VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 
+                                &this->flareBuffer, 
+                                &this->flareBufferMemory);
+  }
+
   this->descriptorRayDirectionBufferInfo = {
     .buffer = this->rayDirectionBuffer,
     .offset = 0,
@@ -70,6 +84,12 @@ StorageBuffers::StorageBuffers(uint32_t apertureInstanceIndex,
 
   this->descriptorLensPropertiesBufferInfo = {
     .buffer = this->lensPropertiesBuffer,
+    .offset = 0,
+    .range = VK_WHOLE_SIZE
+  };
+
+  this->descriptorFlareBufferInfo = {
+    .buffer = this->flareBuffer,
     .offset = 0,
     .range = VK_WHOLE_SIZE
   };
@@ -85,4 +105,8 @@ VkDescriptorBufferInfo* StorageBuffers::getDescriptorRayDirectionBufferInfoPoint
 
 VkDescriptorBufferInfo* StorageBuffers::getDescriptorLensPropertiesBufferInfoPointer() {
   return &this->descriptorLensPropertiesBufferInfo;
+}
+
+VkDescriptorBufferInfo* StorageBuffers::getDescriptorFlareBufferInfoPointer() {
+  return &this->descriptorFlareBufferInfo;
 }
