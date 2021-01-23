@@ -133,12 +133,22 @@ Renderer::Renderer(VkInstance vulkanInstance, VkSurfaceKHR surface, ModelCollect
       "bin/basic.frag.spv"
     },
     {
+      "bin/flare.vert.spv",
+      "bin/flare.frag.spv"
+    },
+    {
       "bin/minimap.vert.spv",
       "bin/minimap.frag.spv"
     }
   };
 
   std::vector<std::vector<float>> screenPropertiesList = {
+    {
+      0.0f,
+      0.0f,
+      800.0f,
+      600.0f,
+    },
     {
       0.0f,
       0.0f,

@@ -87,7 +87,20 @@ RenderPass::RenderPass(VkDevice logicalDevice, VkFormat swapchainImageFormat) {
     .pPreserveAttachments = NULL
   };
 
-  std::vector<VkSubpassDescription> subpassList = {firstSubpass, secondSubpass, thirdSubpass, fourthSubpass};
+  VkSubpassDescription fifthSubpass = {
+    .flags = 0,
+    .pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS,
+    .inputAttachmentCount = 0,
+    .pInputAttachments = NULL,
+    .colorAttachmentCount = 1,
+    .pColorAttachments = &colorAttachmentRef,
+    .pResolveAttachments = NULL,
+    .pDepthStencilAttachment = &depthAttachmentRef,
+    .preserveAttachmentCount = 0,
+    .pPreserveAttachments = NULL
+  };
+
+  std::vector<VkSubpassDescription> subpassList = {firstSubpass, secondSubpass, thirdSubpass, fourthSubpass, fifthSubpass};
 
   VkSubpassDependency firstDependency = {
     .srcSubpass = VK_SUBPASS_EXTERNAL,
@@ -129,7 +142,17 @@ RenderPass::RenderPass(VkDevice logicalDevice, VkFormat swapchainImageFormat) {
     .dependencyFlags = 0
   };
 
-  std::vector<VkSubpassDependency> dependencyList = {firstDependency, secondDependency, thirdDependency, fourthDependency};
+  VkSubpassDependency fifthDependency = {
+    .srcSubpass = 3,
+    .dstSubpass = 4,
+    .srcStageMask = VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
+    .dstStageMask = VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
+    .srcAccessMask = 0,
+    .dstAccessMask = 0,
+    .dependencyFlags = 0
+  };
+
+  std::vector<VkSubpassDependency> dependencyList = {firstDependency, secondDependency, thirdDependency, fourthDependency, fifthDependency};
 
   VkAttachmentDescription attachments[2] = {colorAttachment, depthAttachment};
 
