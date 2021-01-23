@@ -34,6 +34,7 @@ layout(binding = 2, set = 0) uniform InstanceDescriptionContainer {
   uint instanceCount;
   uint vertexOffsets[8];
   uint normalOffsets[8];
+  uint textureCoordinateOffsets[8];
   uint indexOffsets[8];
   uint materialIndexOffsets[8];
   uint materialOffsets[8];
@@ -49,9 +50,11 @@ layout(binding = 0, set = 2) buffer IndexBuffer { uint data[]; } indexBuffer;
 layout(binding = 1, set = 2) buffer VertexBuffer { float data[]; } vertexBuffer;
 layout(binding = 2, set = 2) buffer NormalIndexBuffer { uint data[]; } normalIndexBuffer;
 layout(binding = 3, set = 2) buffer NormalBuffer { float data[]; } normalBuffer;
-layout(binding = 4, set = 2) buffer MaterialIndexBuffer { uint data[]; } materialIndexBuffer;
-layout(binding = 5, set = 2) buffer MaterialBuffer { Material data[]; } materialBuffer;
-layout(binding = 6, set = 2) buffer MaterialLightBuffer { 
+layout(binding = 4, set = 2) buffer TextureCoordinateIndexBuffer { uint data[]; } textureCoordinateIndexBuffer;
+layout(binding = 5, set = 2) buffer TextureCoordinateBuffer { float data[]; } textureCoordinateBuffer;
+layout(binding = 6, set = 2) buffer MaterialIndexBuffer { uint data[]; } materialIndexBuffer;
+layout(binding = 7, set = 2) buffer MaterialBuffer { Material data[]; } materialBuffer;
+layout(binding = 8, set = 2) buffer MaterialLightBuffer { 
   uint count; 
   uint indicesPrimitive[64];
   uint indicesInstance[64];

@@ -28,6 +28,9 @@ public:
   uint32_t getNormalCount();
   std::vector<float> getNormals();
 
+  uint32_t getTextureCoordinateCount();
+  std::vector<float> getTextureCoordinates();
+
   uint32_t getTotalIndexCount();
   tinyobj::index_t getTotalIndex(uint32_t index);
 
@@ -38,4 +41,6 @@ public:
   tinyobj::material_t getMaterial(uint32_t index);
 
   uint32_t getPrimitiveCount();
+  uint32_t getTransparentPrimitiveCount();
+  uint32_t getTransparentPrimitiveOffset();
 };

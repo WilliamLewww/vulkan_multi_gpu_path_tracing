@@ -51,6 +51,14 @@ std::vector<float> Model::getNormals() {
   return this->attrib.normals;
 }
 
+uint32_t Model::getTextureCoordinateCount() {
+  return this->attrib.texcoords.size();
+}
+
+std::vector<float> Model::getTextureCoordinates() {
+  return this->attrib.texcoords;
+};
+
 uint32_t Model::getTotalIndexCount() {
   uint32_t indexCount = 0;
   for (int x = 0; x < this->shapes.size(); x++) {
@@ -110,4 +118,32 @@ uint32_t Model::getPrimitiveCount() {
   }
 
   return primitiveCount;
+}
+
+uint32_t Model::getTransparentPrimitiveCount() {
+  uint32_t primitiveCount = 0;
+  for (int x = 0; x < this->shapes.size(); x++) {
+    for (int y = 0; y < this->shapes[x].mesh.material_ids.size(); y++) {
+      if (this->materials[this->shapes[x].mesh.material_ids[y]].dissolve < 1.0) {
+        primitiveCount += 1;
+      }
+    }
+  }
+
+  return primitiveCount;
+}
+
+uint32_t Model::getTransparentPrimitiveOffset() {
+  uint32_t primitiveCount = 0;
+  for (int x = 0; x < this->shapes.size(); x++) {
+    for (int y = 0; y < this->shapes[x].mesh.material_ids.size(); y++) {
+      if (this->materials[this->shapes[x].mesh.material_ids[y]].dissolve < 1.0) {
+        return primitiveCount;
+      }
+
+      primitiveCount += 1;
+    }
+  }
+
+  return -1;
 }

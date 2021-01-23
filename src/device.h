@@ -46,6 +46,9 @@ private:
   GraphicsPipelineCollection* graphicsPipelineCollection;
   RenderCommandBuffers* renderCommandBuffers;
   SynchronizationObjects* synchronizationObjects;
+
+  VkSampler textureSampler;
+  VkDescriptorImageInfo descriptorTextureSamplerInfo;
 public:
   Device(VkPhysicalDevice physicalDevice);
   ~Device();
@@ -58,6 +61,8 @@ public:
   uint32_t getImageCount();
   VkRenderPass getRenderPass();
   VkCommandPool getCommandPool();
+
+  VkDescriptorImageInfo* getDescriptorTextureSamplerInfo();
 
   UniformBufferCollection* getUniformBufferCollection();
   AccelerationStructureSet* getAccelerationStructureSet(int index);
@@ -73,7 +78,8 @@ public:
   void createSwapchain(VkSurfaceKHR surface);
   void createRenderPass();
   void createTextures();
-  void createStorageBuffers(uint32_t apertureInstanceIndex, uint32_t aperturePrimitiveCount);
+  void createSampler();
+  void createStorageBuffers(uint32_t apertureInstanceIndex, uint32_t aperturePrimitiveCount, uint32_t aperturePrimitiveOffset);
   void createFramebuffers();
   void createModelInstanceCollection(std::vector<std::map<Model*, std::vector<TRS>>> modelFrequencyMapList);
   void createUniformBufferCollection(std::map<void*, uint32_t> bufferMap);

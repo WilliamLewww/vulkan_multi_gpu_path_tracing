@@ -38,6 +38,7 @@ layout(binding = 2, set = 0) uniform InstanceDescriptionContainer {
   uint instanceCount;
   uint vertexOffsets[8];
   uint normalOffsets[8];
+  uint textureCoordinateOffsets[8];
   uint indexOffsets[8];
   uint materialIndexOffsets[8];
   uint materialOffsets[8];
@@ -50,15 +51,18 @@ layout(binding = 6, set = 0) buffer RayDirectionBuffer { float data[]; } rayDire
 layout(binding = 7, set = 0) buffer LensProperties {
   uint apertureInstanceIndex;
   uint aperturePrimitiveCount;
+  uint aperturePrimitiveOffset;
 } lensProperties;
 
 layout(binding = 0, set = 2) buffer IndexBuffer { uint data[]; } indexBuffer;
 layout(binding = 1, set = 2) buffer VertexBuffer { float data[]; } vertexBuffer;
 layout(binding = 2, set = 2) buffer NormalIndexBuffer { uint data[]; } normalIndexBuffer;
 layout(binding = 3, set = 2) buffer NormalBuffer { float data[]; } normalBuffer;
-layout(binding = 4, set = 2) buffer MaterialIndexBuffer { uint data[]; } materialIndexBuffer;
-layout(binding = 5, set = 2) buffer MaterialBuffer { Material data[]; } materialBuffer;
-layout(binding = 6, set = 2) buffer MaterialLightBuffer { 
+layout(binding = 4, set = 2) buffer TextureCoordinateIndexBuffer { uint data[]; } textureCoordinateIndexBuffer;
+layout(binding = 5, set = 2) buffer TextureCoordinateBuffer { float data[]; } textureCoordinateBuffer;
+layout(binding = 6, set = 2) buffer MaterialIndexBuffer { uint data[]; } materialIndexBuffer;
+layout(binding = 7, set = 2) buffer MaterialBuffer { Material data[]; } materialBuffer;
+layout(binding = 8, set = 2) buffer MaterialLightBuffer { 
   uint count; 
   uint indicesPrimitive[64];
   uint indicesInstance[64];
@@ -181,7 +185,7 @@ float reflectance(vec3 incidentDirection, vec3 normal, float firstIOR, float sec
 }
 
 vec3 getRayDirectionFromLens(vec3 filmPosition) {
-  int randomPrimitiveIndex = int(random(gl_FragCoord.xy, camera.frameCount) * float(lensProperties.aperturePrimitiveCount));
+  int randomPrimitiveIndex = int(random(gl_FragCoord.xy, camera.frameCount) * float(lensProperties.aperturePrimitiveCount + lensProperties.aperturePrimitiveOffset));
 
   vec3 aperatureVertexA, aperatureVertexB, aperatureVertexC;
   getVertexFromIndices(lensProperties.apertureInstanceIndex, randomPrimitiveIndex, aperatureVertexA, aperatureVertexB, aperatureVertexC);
@@ -228,7 +232,9 @@ vec3 getRayDirectionFromLens(vec3 filmPosition) {
 
     rayOrigin = intersectionPosition;
 
-    if (intersectionMaterial.dissolve < 1.0) {
+    bool hitAperture = (intersectionInstanceIndex == lensProperties.apertureInstanceIndex) && (intersectionPrimitiveIndex >= lensProperties.aperturePrimitiveOffset) && (intersectionPrimitiveIndex < lensProperties.aperturePrimitiveOffset + lensProperties.aperturePrimitiveCount);
+
+    if (intersectionMaterial.dissolve < 1.0 && !hitAperture) {
       rayDirection = refract(rayDirection, intersectionNormal, 1.0, intersectionMaterial.ior);
 
       rayQueryEXT rayQuery;
@@ -247,16 +253,16 @@ vec3 getRayDirectionFromLens(vec3 filmPosition) {
       intersectionPosition = intersectionVertexA * intersectionBarycentrics.x + intersectionVertexB * intersectionBarycentrics.y + intersectionVertexC * intersectionBarycentrics.z;
       intersectionNormal = intersectionNormalA * intersectionBarycentrics.x + intersectionNormalB * intersectionBarycentrics.y + intersectionNormalC * intersectionBarycentrics.z;
 
-      isFilmIntersection = false;
-
       rayOrigin = intersectionPosition;
       rayDirection = refract(rayDirection, -intersectionNormal, intersectionMaterial.ior, 1.0);
     }
     else {
-      if (intersectionInstanceIndex != lensProperties.apertureInstanceIndex && !isFilmIntersection) {
+      if (!hitAperture && !isFilmIntersection) {
         return vec3(0, 0, 0);
       }
     }
+
+    isFilmIntersection = false;
 
     rayQueryInitializeEXT(rayQuery, topLevelAS, gl_RayFlagsNoneEXT, 0xFF, rayOrigin, 0.0001f, rayDirection, 1000.0f);
     while (rayQueryProceedEXT(rayQuery));

@@ -9,6 +9,7 @@ private:
   struct LensPropertiesUniform {
     alignas(4) uint32_t apertureInstanceIndex;
     alignas(4) uint32_t aperturePrimitiveCount;
+    alignas(4) uint32_t aperturePrimitiveOffset;
   };
 
   VkBuffer rayDirectionBuffer;
@@ -22,6 +23,7 @@ private:
 public:
   StorageBuffers(uint32_t apertureInstanceIndex,
                  uint32_t aperturePrimitiveCount,
+                 uint32_t aperturePrimitiveOffset,
                  VkDevice logicalDevice, 
                  VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties, 
                  VkCommandPool commandPool,

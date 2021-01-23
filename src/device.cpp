@@ -47,6 +47,10 @@ VkCommandPool Device::getCommandPool() {
   return this->commandPool->getCommandPool();
 }
 
+VkDescriptorImageInfo* Device::getDescriptorTextureSamplerInfo() {
+  return &this->descriptorTextureSamplerInfo;
+}
+
 UniformBufferCollection* Device::getUniformBufferCollection() {
   return this->uniformBufferCollection;
 }
@@ -167,9 +171,35 @@ void Device::createTextures() {
                                             this->deviceQueue->getGraphicsQueue());
 }
 
-void Device::createStorageBuffers(uint32_t apertureInstanceIndex, uint32_t aperturePrimitiveCount) {
+void Device::createSampler() {
+  VkSamplerCreateInfo samplerInfo{};
+  samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+  samplerInfo.magFilter = VK_FILTER_LINEAR;
+  samplerInfo.minFilter = VK_FILTER_LINEAR;
+  samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+  samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+  samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+  samplerInfo.anisotropyEnable = VK_FALSE;
+  samplerInfo.maxAnisotropy = this->physicalDeviceProperties.limits.maxSamplerAnisotropy;
+  samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
+  samplerInfo.unnormalizedCoordinates = VK_FALSE;
+  samplerInfo.compareEnable = VK_FALSE;
+  samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
+  samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+
+  if (vkCreateSampler(logicalDevice, &samplerInfo, NULL, &this->textureSampler) != VK_SUCCESS) {
+    printf("failed to create texture sampler\n");
+  }
+
+  this->descriptorTextureSamplerInfo = {
+    .sampler = this->textureSampler
+  };
+}
+
+void Device::createStorageBuffers(uint32_t apertureInstanceIndex, uint32_t aperturePrimitiveCount, uint32_t aperturePrimitiveOffset) {
   this->storageBuffers = new StorageBuffers(apertureInstanceIndex,
                                             aperturePrimitiveCount,
+                                            aperturePrimitiveOffset,
                                             this->logicalDevice, 
                                             this->physicalDeviceMemoryProperties, 
                                             this->commandPool->getCommandPool(),
