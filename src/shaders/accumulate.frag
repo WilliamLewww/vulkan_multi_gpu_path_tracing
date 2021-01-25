@@ -101,6 +101,6 @@ float random(vec2 uv, float seed) {
 }
 
 void main() {
-  outColor = vec4(flareBuffer.data[int(gl_FragCoord.y * 800 + gl_FragCoord.x)]);
-  flareBuffer.data[int(gl_FragCoord.y * 800 + gl_FragCoord.x)] = 0.0;
+  outColor = vec4(flareBuffer.data[int(int(gl_FragCoord.y) * 800 + gl_FragCoord.x)]);
+  flareBuffer.data[int(int(gl_FragCoord.y) * 800 + gl_FragCoord.x)] = 0.0;
 }
