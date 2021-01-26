@@ -238,8 +238,9 @@ void main() {
   intersectionBarycentrics = vec3(1.0 - intersectionUV.x - intersectionUV.y, intersectionUV.x, intersectionUV.y);
   intersectionPosition = intersectionVertexA * intersectionBarycentrics.x + intersectionVertexB * intersectionBarycentrics.y + intersectionVertexC * intersectionBarycentrics.z;
 
-  int coordinate = int(intersectionPosition.x * 800);
-  flareBuffer.data[coordinate] = 1.0;
+  int coordinateX = int(((intersectionPosition.x + 1.0) / 2.0) * 800);
+  int coordinateY = int(((intersectionPosition.y + 1.0) / 2.0) * 600) * 800;
+  flareBuffer.data[coordinateY + coordinateX] = 1.0;
 
   if (intersectionInstanceIndex == lensProperties.lastLensElementInstanceIndex) {
     bool isActive = true;

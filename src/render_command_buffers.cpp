@@ -97,12 +97,12 @@ void RenderCommandBuffers::recreateCommandBuffer(uint32_t imageIndex,
         .layerCount = 1
       };
 
-      vkCmdClearAttachments(this->commandBufferList[imageIndex], 1, &clearAttachment, 1, &clearRect);
+      // vkCmdClearAttachments(this->commandBufferList[imageIndex], 1, &clearAttachment, 1, &clearRect);
 
-      clearAttachment.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-      clearAttachment.clearValue = {0.0, 0.0, 0.0, 0.0};
+      // clearAttachment.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+      // clearAttachment.clearValue = {0.0, 0.0, 0.0, 0.0};
 
-      vkCmdClearAttachments(this->commandBufferList[imageIndex], 1, &clearAttachment, 1, &clearRect);
+      // vkCmdClearAttachments(this->commandBufferList[imageIndex], 1, &clearAttachment, 1, &clearRect);
     }
 
     for (int y = 0; y < modelInstanceList.size(); y++) {
