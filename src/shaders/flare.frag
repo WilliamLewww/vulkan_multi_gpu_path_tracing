@@ -238,122 +238,126 @@ void main() {
   intersectionBarycentrics = vec3(1.0 - intersectionUV.x - intersectionUV.y, intersectionUV.x, intersectionUV.y);
   intersectionPosition = intersectionVertexA * intersectionBarycentrics.x + intersectionVertexB * intersectionBarycentrics.y + intersectionVertexC * intersectionBarycentrics.z;
 
-  int coordinateX = int(((intersectionPosition.x + 1.0) / 2.0) * 800);
-  int coordinateY = int(((intersectionPosition.y + 1.0) / 2.0) * 600) * 800;
-  flareBuffer.data[coordinateY + coordinateX] = 1.0;
-
   if (intersectionInstanceIndex == lensProperties.lastLensElementInstanceIndex) {
     bool isActive = true;
     int reflectionCount = 0;
     float intensity = 1.0;
 
-    // while (isActive) {
-    //   intersectionInstanceIndex = rayQueryGetIntersectionInstanceIdEXT(rayQuery, true);
-    //   intersectionPrimitiveIndex = rayQueryGetIntersectionPrimitiveIndexEXT(rayQuery, true);
-    //   intersectionMaterial = getMaterialFromPrimitive(intersectionInstanceIndex, intersectionPrimitiveIndex);
+    int coordinateX = int(((intersectionPosition.x + 1.0) / 2.0) * 800);
+    int coordinateY = int(((intersectionPosition.y + 1.0) / 2.0) * 600) * 800;
+    flareBuffer.data[coordinateY + coordinateX] = 1.0;
 
-    //   bool isIntersection = rayQueryGetIntersectionTypeEXT(rayQuery, true) != gl_RayQueryCommittedIntersectionNoneEXT;
-    //   bool hitAperture = (intersectionInstanceIndex == lensProperties.apertureInstanceIndex) && (intersectionPrimitiveIndex >= lensProperties.aperturePrimitiveOffset) && (intersectionPrimitiveIndex < lensProperties.aperturePrimitiveOffset + lensProperties.aperturePrimitiveCount);
+    while (isActive) {
+      intersectionInstanceIndex = rayQueryGetIntersectionInstanceIdEXT(rayQuery, true);
+      intersectionPrimitiveIndex = rayQueryGetIntersectionPrimitiveIndexEXT(rayQuery, true);
+      intersectionMaterial = getMaterialFromPrimitive(intersectionInstanceIndex, intersectionPrimitiveIndex);
+
+      bool isIntersection = rayQueryGetIntersectionTypeEXT(rayQuery, true) != gl_RayQueryCommittedIntersectionNoneEXT;
+      bool hitAperture = (intersectionInstanceIndex == lensProperties.apertureInstanceIndex) && (intersectionPrimitiveIndex >= lensProperties.aperturePrimitiveOffset) && (intersectionPrimitiveIndex < lensProperties.aperturePrimitiveOffset + lensProperties.aperturePrimitiveCount);
       
-    //   if (hitAperture) {
-    //     getVertexFromIndices(intersectionInstanceIndex, intersectionPrimitiveIndex, intersectionVertexA, intersectionVertexB, intersectionVertexC);
-    //     getNormalFromIndices(intersectionInstanceIndex, intersectionPrimitiveIndex, intersectionNormalA, intersectionNormalB, intersectionNormalC);
+      if (hitAperture) {
+        getVertexFromIndices(intersectionInstanceIndex, intersectionPrimitiveIndex, intersectionVertexA, intersectionVertexB, intersectionVertexC);
+        getNormalFromIndices(intersectionInstanceIndex, intersectionPrimitiveIndex, intersectionNormalA, intersectionNormalB, intersectionNormalC);
 
-    //     intersectionUV = rayQueryGetIntersectionBarycentricsEXT(rayQuery, true);
-    //     intersectionBarycentrics = vec3(1.0 - intersectionUV.x - intersectionUV.y, intersectionUV.x, intersectionUV.y);
-    //     intersectionPosition = intersectionVertexA * intersectionBarycentrics.x + intersectionVertexB * intersectionBarycentrics.y + intersectionVertexC * intersectionBarycentrics.z;
+        intersectionUV = rayQueryGetIntersectionBarycentricsEXT(rayQuery, true);
+        intersectionBarycentrics = vec3(1.0 - intersectionUV.x - intersectionUV.y, intersectionUV.x, intersectionUV.y);
+        intersectionPosition = intersectionVertexA * intersectionBarycentrics.x + intersectionVertexB * intersectionBarycentrics.y + intersectionVertexC * intersectionBarycentrics.z;
       
-    //     rayOrigin = intersectionPosition;
+        rayOrigin = intersectionPosition;
 
-    //     // aperture -> lens L
-    //     rayQueryInitializeEXT(rayQuery, topLevelAS, gl_RayFlagsNoneEXT, 0xFF, rayOrigin, 0.0001f, rayDirection, 1000.0f);
-    //     while (rayQueryProceedEXT(rayQuery));
-    //   }
-    //   else {
-    //     if (intersectionMaterial.dissolve == 1.0 || !isIntersection) {
-    //       if (intersectionInstanceIndex == lensProperties.filmInstanceIndex) {
-    //         //DOESNT WORK BECAUSE BARYCENTRIC ISN'T POSITION
-    //         intersectionUV = rayQueryGetIntersectionBarycentricsEXT(rayQuery, true);
-    //         flareBuffer.data[int((((intersectionUV.y * 600.0) - 1.0) * 800.0) + (intersectionUV.x * 800.0))] = intensity;
-    //       }
+        // aperture -> lens L
+        rayQueryInitializeEXT(rayQuery, topLevelAS, gl_RayFlagsNoneEXT, 0xFF, rayOrigin, 0.0001f, rayDirection, 1000.0f);
+        while (rayQueryProceedEXT(rayQuery));
+      }
+      else {
+        if (intersectionMaterial.dissolve == 1.0 || !isIntersection) {
+          if (intersectionInstanceIndex == lensProperties.filmInstanceIndex) {
+            intersectionUV = rayQueryGetIntersectionBarycentricsEXT(rayQuery, true);
+            intersectionBarycentrics = vec3(1.0 - intersectionUV.x - intersectionUV.y, intersectionUV.x, intersectionUV.y);
+            intersectionPosition = intersectionVertexA * intersectionBarycentrics.x + intersectionVertexB * intersectionBarycentrics.y + intersectionVertexC * intersectionBarycentrics.z;
 
-    //       isActive = false;
-    //     }
-    //     else {
-    //       getVertexFromIndices(intersectionInstanceIndex, intersectionPrimitiveIndex, intersectionVertexA, intersectionVertexB, intersectionVertexC);
-    //       getNormalFromIndices(intersectionInstanceIndex, intersectionPrimitiveIndex, intersectionNormalA, intersectionNormalB, intersectionNormalC);
+            int coordinateX = int(((intersectionPosition.x + 1.0) / 2.0) * 800);
+            int coordinateY = int(((intersectionPosition.y + 1.0) / 2.0) * 600) * 800;
+            // flareBuffer.data[coordinateY + coordinateX] = intensity;
+          }
 
-    //       intersectionUV = rayQueryGetIntersectionBarycentricsEXT(rayQuery, true);
-    //       intersectionBarycentrics = vec3(1.0 - intersectionUV.x - intersectionUV.y, intersectionUV.x, intersectionUV.y);
-    //       intersectionPosition = intersectionVertexA * intersectionBarycentrics.x + intersectionVertexB * intersectionBarycentrics.y + intersectionVertexC * intersectionBarycentrics.z;
-    //       intersectionNormal = intersectionNormalA * intersectionBarycentrics.x + intersectionNormalB * intersectionBarycentrics.y + intersectionNormalC * intersectionBarycentrics.z;
+          isActive = false;
+        }
+        else {
+          getVertexFromIndices(intersectionInstanceIndex, intersectionPrimitiveIndex, intersectionVertexA, intersectionVertexB, intersectionVertexC);
+          getNormalFromIndices(intersectionInstanceIndex, intersectionPrimitiveIndex, intersectionNormalA, intersectionNormalB, intersectionNormalC);
+
+          intersectionUV = rayQueryGetIntersectionBarycentricsEXT(rayQuery, true);
+          intersectionBarycentrics = vec3(1.0 - intersectionUV.x - intersectionUV.y, intersectionUV.x, intersectionUV.y);
+          intersectionPosition = intersectionVertexA * intersectionBarycentrics.x + intersectionVertexB * intersectionBarycentrics.y + intersectionVertexC * intersectionBarycentrics.z;
+          intersectionNormal = intersectionNormalA * intersectionBarycentrics.x + intersectionNormalB * intersectionBarycentrics.y + intersectionNormalC * intersectionBarycentrics.z;
         
-    //       rayOrigin = intersectionPosition;
-    //       rayDirection = refract(rayDirection, intersectionNormal, 1.0, intersectionMaterial.ior);
+          rayOrigin = intersectionPosition;
+          rayDirection = refract(rayDirection, intersectionNormal, 1.0, intersectionMaterial.ior);
 
-    //       if (reflectionCount < 1) {
-    //         rayQueryInitializeEXT(rayQuery, topLevelAS, gl_RayFlagsNoneEXT, 0xFF, rayOrigin, 0.0001f, rayDirection, 1000.0f);
-    //         while (rayQueryProceedEXT(rayQuery));
+          if (reflectionCount < 1) {
+            rayQueryInitializeEXT(rayQuery, topLevelAS, gl_RayFlagsNoneEXT, 0xFF, rayOrigin, 0.0001f, rayDirection, 1000.0f);
+            while (rayQueryProceedEXT(rayQuery));
 
-    //         intersectionInstanceIndex = rayQueryGetIntersectionInstanceIdEXT(rayQuery, true);
-    //         intersectionPrimitiveIndex = rayQueryGetIntersectionPrimitiveIndexEXT(rayQuery, true);
+            intersectionInstanceIndex = rayQueryGetIntersectionInstanceIdEXT(rayQuery, true);
+            intersectionPrimitiveIndex = rayQueryGetIntersectionPrimitiveIndexEXT(rayQuery, true);
 
-    //         getVertexFromIndices(intersectionInstanceIndex, intersectionPrimitiveIndex, intersectionVertexA, intersectionVertexB, intersectionVertexC);
-    //         getNormalFromIndices(intersectionInstanceIndex, intersectionPrimitiveIndex, intersectionNormalA, intersectionNormalB, intersectionNormalC);
+            getVertexFromIndices(intersectionInstanceIndex, intersectionPrimitiveIndex, intersectionVertexA, intersectionVertexB, intersectionVertexC);
+            getNormalFromIndices(intersectionInstanceIndex, intersectionPrimitiveIndex, intersectionNormalA, intersectionNormalB, intersectionNormalC);
 
-    //         intersectionUV = rayQueryGetIntersectionBarycentricsEXT(rayQuery, true);
-    //         intersectionBarycentrics = vec3(1.0 - intersectionUV.x - intersectionUV.y, intersectionUV.x, intersectionUV.y);
-    //         intersectionPosition = intersectionVertexA * intersectionBarycentrics.x + intersectionVertexB * intersectionBarycentrics.y + intersectionVertexC * intersectionBarycentrics.z;
-    //         intersectionNormal = intersectionNormalA * intersectionBarycentrics.x + intersectionNormalB * intersectionBarycentrics.y + intersectionNormalC * intersectionBarycentrics.z;
+            intersectionUV = rayQueryGetIntersectionBarycentricsEXT(rayQuery, true);
+            intersectionBarycentrics = vec3(1.0 - intersectionUV.x - intersectionUV.y, intersectionUV.x, intersectionUV.y);
+            intersectionPosition = intersectionVertexA * intersectionBarycentrics.x + intersectionVertexB * intersectionBarycentrics.y + intersectionVertexC * intersectionBarycentrics.z;
+            intersectionNormal = intersectionNormalA * intersectionBarycentrics.x + intersectionNormalB * intersectionBarycentrics.y + intersectionNormalC * intersectionBarycentrics.z;
 
-    //         rayOrigin = intersectionPosition;
-    //         rayDirection = reflect(rayDirection, -intersectionNormal);
-    //         intensity *= reflectance(rayDirection, -intersectionNormal, intersectionMaterial.ior, intersectionMaterial.ior);
+            rayOrigin = intersectionPosition;
+            rayDirection = reflect(rayDirection, -intersectionNormal);
+            intensity *= reflectance(rayDirection, -intersectionNormal, intersectionMaterial.ior, intersectionMaterial.ior);
 
-    //         rayQueryInitializeEXT(rayQuery, topLevelAS, gl_RayFlagsNoneEXT, 0xFF, rayOrigin, 0.0001f, rayDirection, 1000.0f);
-    //         while (rayQueryProceedEXT(rayQuery));
+            rayQueryInitializeEXT(rayQuery, topLevelAS, gl_RayFlagsNoneEXT, 0xFF, rayOrigin, 0.0001f, rayDirection, 1000.0f);
+            while (rayQueryProceedEXT(rayQuery));
 
-    //         intersectionInstanceIndex = rayQueryGetIntersectionInstanceIdEXT(rayQuery, true);
-    //         intersectionPrimitiveIndex = rayQueryGetIntersectionPrimitiveIndexEXT(rayQuery, true);
+            intersectionInstanceIndex = rayQueryGetIntersectionInstanceIdEXT(rayQuery, true);
+            intersectionPrimitiveIndex = rayQueryGetIntersectionPrimitiveIndexEXT(rayQuery, true);
 
-    //         getVertexFromIndices(intersectionInstanceIndex, intersectionPrimitiveIndex, intersectionVertexA, intersectionVertexB, intersectionVertexC);
-    //         getNormalFromIndices(intersectionInstanceIndex, intersectionPrimitiveIndex, intersectionNormalA, intersectionNormalB, intersectionNormalC);
+            getVertexFromIndices(intersectionInstanceIndex, intersectionPrimitiveIndex, intersectionVertexA, intersectionVertexB, intersectionVertexC);
+            getNormalFromIndices(intersectionInstanceIndex, intersectionPrimitiveIndex, intersectionNormalA, intersectionNormalB, intersectionNormalC);
 
-    //         intersectionUV = rayQueryGetIntersectionBarycentricsEXT(rayQuery, true);
-    //         intersectionBarycentrics = vec3(1.0 - intersectionUV.x - intersectionUV.y, intersectionUV.x, intersectionUV.y);
-    //         intersectionPosition = intersectionVertexA * intersectionBarycentrics.x + intersectionVertexB * intersectionBarycentrics.y + intersectionVertexC * intersectionBarycentrics.z;
-    //         intersectionNormal = intersectionNormalA * intersectionBarycentrics.x + intersectionNormalB * intersectionBarycentrics.y + intersectionNormalC * intersectionBarycentrics.z;
+            intersectionUV = rayQueryGetIntersectionBarycentricsEXT(rayQuery, true);
+            intersectionBarycentrics = vec3(1.0 - intersectionUV.x - intersectionUV.y, intersectionUV.x, intersectionUV.y);
+            intersectionPosition = intersectionVertexA * intersectionBarycentrics.x + intersectionVertexB * intersectionBarycentrics.y + intersectionVertexC * intersectionBarycentrics.z;
+            intersectionNormal = intersectionNormalA * intersectionBarycentrics.x + intersectionNormalB * intersectionBarycentrics.y + intersectionNormalC * intersectionBarycentrics.z;
 
-    //         rayOrigin = intersectionPosition;
-    //         rayDirection = reflect(rayDirection, -intersectionNormal);
-    //         intensity *= reflectance(rayDirection, -intersectionNormal, intersectionMaterial.ior, intersectionMaterial.ior);
+            rayOrigin = intersectionPosition;
+            rayDirection = reflect(rayDirection, -intersectionNormal);
+            intensity *= reflectance(rayDirection, -intersectionNormal, intersectionMaterial.ior, intersectionMaterial.ior);
 
-    //         reflectionCount += 1;
-    //       }
+            reflectionCount += 1;
+          }
 
-    //       // lens L -> lens R
-    //       rayQueryInitializeEXT(rayQuery, topLevelAS, gl_RayFlagsNoneEXT, 0xFF, rayOrigin, 0.0001f, rayDirection, 1000.0f);
-    //       while (rayQueryProceedEXT(rayQuery));
+          // lens L -> lens R
+          rayQueryInitializeEXT(rayQuery, topLevelAS, gl_RayFlagsNoneEXT, 0xFF, rayOrigin, 0.0001f, rayDirection, 1000.0f);
+          while (rayQueryProceedEXT(rayQuery));
 
-    //       intersectionInstanceIndex = rayQueryGetIntersectionInstanceIdEXT(rayQuery, true);
-    //       intersectionPrimitiveIndex = rayQueryGetIntersectionPrimitiveIndexEXT(rayQuery, true);
+          intersectionInstanceIndex = rayQueryGetIntersectionInstanceIdEXT(rayQuery, true);
+          intersectionPrimitiveIndex = rayQueryGetIntersectionPrimitiveIndexEXT(rayQuery, true);
 
-    //       getVertexFromIndices(intersectionInstanceIndex, intersectionPrimitiveIndex, intersectionVertexA, intersectionVertexB, intersectionVertexC);
-    //       getNormalFromIndices(intersectionInstanceIndex, intersectionPrimitiveIndex, intersectionNormalA, intersectionNormalB, intersectionNormalC);
+          getVertexFromIndices(intersectionInstanceIndex, intersectionPrimitiveIndex, intersectionVertexA, intersectionVertexB, intersectionVertexC);
+          getNormalFromIndices(intersectionInstanceIndex, intersectionPrimitiveIndex, intersectionNormalA, intersectionNormalB, intersectionNormalC);
 
-    //       intersectionUV = rayQueryGetIntersectionBarycentricsEXT(rayQuery, true);
-    //       intersectionBarycentrics = vec3(1.0 - intersectionUV.x - intersectionUV.y, intersectionUV.x, intersectionUV.y);
-    //       intersectionPosition = intersectionVertexA * intersectionBarycentrics.x + intersectionVertexB * intersectionBarycentrics.y + intersectionVertexC * intersectionBarycentrics.z;
-    //       intersectionNormal = intersectionNormalA * intersectionBarycentrics.x + intersectionNormalB * intersectionBarycentrics.y + intersectionNormalC * intersectionBarycentrics.z;
+          intersectionUV = rayQueryGetIntersectionBarycentricsEXT(rayQuery, true);
+          intersectionBarycentrics = vec3(1.0 - intersectionUV.x - intersectionUV.y, intersectionUV.x, intersectionUV.y);
+          intersectionPosition = intersectionVertexA * intersectionBarycentrics.x + intersectionVertexB * intersectionBarycentrics.y + intersectionVertexC * intersectionBarycentrics.z;
+          intersectionNormal = intersectionNormalA * intersectionBarycentrics.x + intersectionNormalB * intersectionBarycentrics.y + intersectionNormalC * intersectionBarycentrics.z;
         
-    //       rayOrigin = intersectionPosition;
-    //       rayDirection = refract(rayDirection, -intersectionNormal, intersectionMaterial.ior, 1.0);
+          rayOrigin = intersectionPosition;
+          rayDirection = refract(rayDirection, -intersectionNormal, intersectionMaterial.ior, 1.0);
 
-    //       // lens R -> lens L | aperture
-    //       rayQueryInitializeEXT(rayQuery, topLevelAS, gl_RayFlagsNoneEXT, 0xFF, rayOrigin, 0.0001f, rayDirection, 1000.0f);
-    //       while (rayQueryProceedEXT(rayQuery));
-    //     }
-    //   }
-    // }
+          // lens R -> lens L | aperture
+          rayQueryInitializeEXT(rayQuery, topLevelAS, gl_RayFlagsNoneEXT, 0xFF, rayOrigin, 0.0001f, rayDirection, 1000.0f);
+          while (rayQueryProceedEXT(rayQuery));
+        }
+      }
+    }
   }
 }
