@@ -231,22 +231,11 @@ void main() {
 
   vec2 intersectionUV;
   vec3 intersectionBarycentrics, intersectionPosition, intersectionNormal;
-
-  getVertexFromIndices(intersectionInstanceIndex, intersectionPrimitiveIndex, intersectionVertexA, intersectionVertexB, intersectionVertexC);
-  getNormalFromIndices(intersectionInstanceIndex, intersectionPrimitiveIndex, intersectionNormalA, intersectionNormalB, intersectionNormalC);
-
-  intersectionUV = rayQueryGetIntersectionBarycentricsEXT(rayQuery, true);
-  intersectionBarycentrics = vec3(1.0 - intersectionUV.x - intersectionUV.y, intersectionUV.x, intersectionUV.y);
-  intersectionPosition = intersectionVertexA * intersectionBarycentrics.x + intersectionVertexB * intersectionBarycentrics.y + intersectionVertexC * intersectionBarycentrics.z;
-
+  
   if (intersectionInstanceIndex == lensProperties.lastLensElementInstanceIndex) {
     bool isActive = true;
     int reflectionCount = 0;
     float intensity = 1.0;
-
-    // int coordinateX = int(((intersectionPosition.x + 1.0) / 2.0) * 800);
-    // int coordinateY = int(((intersectionPosition.y + 1.0) / 2.0) * 600) * 800;
-    // flareBuffer.data[coordinateY + coordinateX] = 1.0;
 
     while (isActive) {
       intersectionInstanceIndex = rayQueryGetIntersectionInstanceIdEXT(rayQuery, true);
@@ -258,7 +247,6 @@ void main() {
       
       if (hitAperture) {
         getVertexFromIndices(intersectionInstanceIndex, intersectionPrimitiveIndex, intersectionVertexA, intersectionVertexB, intersectionVertexC);
-        getNormalFromIndices(intersectionInstanceIndex, intersectionPrimitiveIndex, intersectionNormalA, intersectionNormalB, intersectionNormalC);
 
         intersectionUV = rayQueryGetIntersectionBarycentricsEXT(rayQuery, true);
         intersectionBarycentrics = vec3(1.0 - intersectionUV.x - intersectionUV.y, intersectionUV.x, intersectionUV.y);
