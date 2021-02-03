@@ -69,6 +69,7 @@ layout(binding = 7, set = 0) buffer LensProperties {
 } lensProperties;
 
 layout(binding = 10, set = 0) buffer FlareBuffer { float data[]; } flareBuffer;
+layout(binding = 11, set = 0) buffer RandomBuffer { float data[]; } randomBuffer;
 
 layout(binding = 0, set = 1) buffer SceneIndexBuffer { uint data[]; } sceneIndexBuffer;
 layout(binding = 1, set = 1) buffer SceneVertexBuffer { float data[]; } sceneVertexBuffer;
@@ -96,8 +97,8 @@ layout(binding = 8, set = 2) buffer MaterialLightBuffer {
   uint indicesInstance[64];
 } materialLightBuffer;
 
-float random(vec2 uv, float seed) {
-  return fract(sin(mod(dot(uv, vec2(12.9898, 78.233)) + 1113.1 * seed, M_PI)) * 43758.5453);;
+float random(vec2 uv) {
+  return fract(sin(mod(dot(uv, vec2(12.9898, 78.233)) + 1113.1, M_PI)) * 43758.5453);;
 }
 
 ivec3 getIndicesFromPrimitive(uint instanceIndex, uint primitiveIndex) {
@@ -200,12 +201,12 @@ float reflectance(vec3 incidentDirection, vec3 normal, float firstIOR, float sec
 void main() {
   vec3 lightPosition = camera.position.xyz + vec3(0, 0, -10);
   
-  int randomPrimitiveIndex = int(random(gl_FragCoord.xy, camera.frameCount) * float(lensProperties.lastLensElementPrimitiveCount));
+  int randomPrimitiveIndex = int(random(gl_FragCoord.xy + vec2(0, camera.frameCount)) * float(lensProperties.lastLensElementPrimitiveCount));
 
   vec3 vertexA, vertexB, vertexC;
   getVertexFromIndices(lensProperties.lastLensElementInstanceIndex, randomPrimitiveIndex, vertexA, vertexB, vertexC);
 
-  vec2 uv = vec2(random(gl_FragCoord.xy, camera.frameCount), random(gl_FragCoord.xy, camera.frameCount + 1));
+  vec2 uv = vec2(random(gl_FragCoord.xy + vec2(0, camera.frameCount + 1)), random(gl_FragCoord.xy + vec2(0, camera.frameCount + 2)));
   if (uv.x + uv.y > 1.0f) {
     uv.x = 1.0f - uv.x;
     uv.y = 1.0f - uv.y;
@@ -243,9 +244,9 @@ void main() {
     int reflectionCount = 0;
     float intensity = 1.0;
 
-    int coordinateX = int(((intersectionPosition.x + 1.0) / 2.0) * 800);
-    int coordinateY = int(((intersectionPosition.y + 1.0) / 2.0) * 600) * 800;
-    flareBuffer.data[coordinateY + coordinateX] = 1.0;
+    // int coordinateX = int(((intersectionPosition.x + 1.0) / 2.0) * 800);
+    // int coordinateY = int(((intersectionPosition.y + 1.0) / 2.0) * 600) * 800;
+    // flareBuffer.data[coordinateY + coordinateX] = 1.0;
 
     while (isActive) {
       intersectionInstanceIndex = rayQueryGetIntersectionInstanceIdEXT(rayQuery, true);
@@ -278,7 +279,7 @@ void main() {
 
             int coordinateX = int(((intersectionPosition.x + 1.0) / 2.0) * 800);
             int coordinateY = int(((intersectionPosition.y + 1.0) / 2.0) * 600) * 800;
-            // flareBuffer.data[coordinateY + coordinateX] = intensity;
+            flareBuffer.data[coordinateY + coordinateX] = intensity;
           }
 
           isActive = false;

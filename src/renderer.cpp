@@ -97,6 +97,7 @@ Renderer::Renderer(VkInstance vulkanInstance, VkSurfaceKHR surface, ModelCollect
       new Descriptor(8, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, (VkShaderStageFlagBits)(VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT), NULL, this->displayDevice->getUniformBufferCollection()->getDescriptorBufferInfoPointer(1), NULL, NULL),
       new Descriptor(9, VK_DESCRIPTOR_TYPE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT, this->displayDevice->getDescriptorTextureSamplerInfo(), NULL, NULL, NULL),
       new Descriptor(10, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1, (VkShaderStageFlagBits)(VK_SHADER_STAGE_FRAGMENT_BIT), NULL, this->displayDevice->getStorageBuffers()->getDescriptorFlareBufferInfoPointer(), NULL, NULL),
+      new Descriptor(11, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1, (VkShaderStageFlagBits)(VK_SHADER_STAGE_FRAGMENT_BIT), NULL, this->displayDevice->getStorageBuffers()->getDescriptorRandomBufferInfoPointer(), NULL, NULL),
     },
     {
       new Descriptor(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1, (VkShaderStageFlagBits)(VK_SHADER_STAGE_FRAGMENT_BIT), NULL, this->displayDevice->getModelInstanceSet(0)->getDescriptorTotalIndexBufferInfoPointer(), NULL, NULL),

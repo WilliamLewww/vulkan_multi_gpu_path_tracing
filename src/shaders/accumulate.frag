@@ -58,6 +58,7 @@ layout(binding = 2, set = 0) uniform InstanceDescriptionContainer {
 } instanceDescriptionContainer;
 
 layout(binding = 4, set = 0) uniform accelerationStructureEXT topLevelAS;
+layout(binding = 5, set = 0, rgba32f) uniform image2D image;
 
 layout(binding = 7, set = 0) buffer LensProperties {
   uint apertureInstanceIndex;
@@ -69,6 +70,7 @@ layout(binding = 7, set = 0) buffer LensProperties {
 } lensProperties;
 
 layout(binding = 10, set = 0) buffer FlareBuffer { float data[]; } flareBuffer;
+layout(binding = 11, set = 0) buffer RandomBuffer { float data[]; } randomBuffer;
 
 layout(binding = 0, set = 1) buffer SceneIndexBuffer { uint data[]; } sceneIndexBuffer;
 layout(binding = 1, set = 1) buffer SceneVertexBuffer { float data[]; } sceneVertexBuffer;
@@ -101,6 +103,18 @@ float random(vec2 uv, float seed) {
 }
 
 void main() {
-  outColor = vec4(flareBuffer.data[int(int(gl_FragCoord.y) * 800 + gl_FragCoord.x)]);
-  flareBuffer.data[int(int(gl_FragCoord.y) * 800 + gl_FragCoord.x)] = 0.0;
+  int filmCoordinate = int(int(gl_FragCoord.y) * 800 + gl_FragCoord.x);
+
+  vec4 color = vec4(flareBuffer.data[filmCoordinate], flareBuffer.data[filmCoordinate], flareBuffer.data[filmCoordinate], 1.0);
+  if (camera.frameCount > 0) {
+    vec4 previousColor = imageLoad(image, ivec2(gl_FragCoord.xy));
+    previousColor *= camera.frameCount;
+
+    color += previousColor;
+    color /= (camera.frameCount + 1);
+  }
+  imageStore(image, ivec2(gl_FragCoord.xy), color);
+  outColor = color;
+
+  flareBuffer.data[filmCoordinate] = 0.0;
 }
