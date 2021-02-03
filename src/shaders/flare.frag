@@ -273,6 +273,8 @@ void main() {
       else {
         if (intersectionMaterial.dissolve == 1.0 || !isIntersection) {
           if (intersectionInstanceIndex == lensProperties.filmInstanceIndex) {
+            getVertexFromIndices(intersectionInstanceIndex, intersectionPrimitiveIndex, intersectionVertexA, intersectionVertexB, intersectionVertexC);
+
             intersectionUV = rayQueryGetIntersectionBarycentricsEXT(rayQuery, true);
             intersectionBarycentrics = vec3(1.0 - intersectionUV.x - intersectionUV.y, intersectionUV.x, intersectionUV.y);
             intersectionPosition = intersectionVertexA * intersectionBarycentrics.x + intersectionVertexB * intersectionBarycentrics.y + intersectionVertexC * intersectionBarycentrics.z;
@@ -296,7 +298,7 @@ void main() {
           rayOrigin = intersectionPosition;
           rayDirection = refract(rayDirection, intersectionNormal, 1.0, intersectionMaterial.ior);
 
-          if (reflectionCount < 1) {
+          if (reflectionCount < 2) {
             rayQueryInitializeEXT(rayQuery, topLevelAS, gl_RayFlagsNoneEXT, 0xFF, rayOrigin, 0.0001f, rayDirection, 1000.0f);
             while (rayQueryProceedEXT(rayQuery));
 

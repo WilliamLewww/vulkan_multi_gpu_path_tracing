@@ -111,7 +111,6 @@ void main() {
     previousColor *= camera.frameCount;
 
     color += previousColor;
-    color /= (camera.frameCount + 1);
   }
   imageStore(image, ivec2(gl_FragCoord.xy), color);
   outColor = color;
