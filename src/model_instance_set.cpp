@@ -384,6 +384,13 @@ void ModelInstanceSet::createMaterialBuffers(Model* model,
       }
     }
 
+    if (model->getMaterial(x).unknown_parameter.size() > 0) {
+      material.type = std::stoi(model->getMaterial(x).unknown_parameter["type"]);
+    }
+    else {
+      material.type = 0;
+    }
+
     totalMaterialList->push_back(material);
   }
 }

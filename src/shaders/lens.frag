@@ -14,6 +14,9 @@ struct Material {
   float shininess;
   float dissolve;
   float ior;
+
+  int diffuseTextureIndex;
+  int type;
 };
 
 layout(early_fragment_tests) in;
