@@ -482,6 +482,7 @@ vec3 shadeParticipatingMedia(vec3 origin, vec3 direction) {
   float tau = 0.05;
   float phi = 45.0;
   float albedo = 0.5;
+  float g = 0.25;
   float ld = 0.01;
 
   if (intersectionMaterial.type == 0) {
@@ -490,10 +491,11 @@ vec3 shadeParticipatingMedia(vec3 origin, vec3 direction) {
 
   for (float l = s - ld; l >= 0; l -= ld) {
     vec3 x = origin + direction * l;
+    vec3 xToLight = normalize(lightVertexA - x);
     float d = distance(lightVertexA, x);
     float v = 1.0;
-    float cosAngle = dot(normalize(lightVertexA - x), direction) / (length(normalize(lightVertexA - x)) * length(direction));
-    color += tau * albedo * (phi / (4.0 * M_PI * d * d)) * v * exp(-tau * d) * phaseHenyeyGreenstein(cosAngle, 0.5);
+    float cosAngle = dot(xToLight, direction) / (length(xToLight) * length(direction));
+    color += tau * albedo * (phi / (4.0 * M_PI * d * d)) * v * exp(-tau * d) * phaseHenyeyGreenstein(cosAngle, g);
   }
 
   return color;
