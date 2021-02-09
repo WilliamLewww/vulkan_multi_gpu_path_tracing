@@ -483,13 +483,20 @@ vec3 shadeParticipatingMedia(vec3 origin, vec3 direction) {
   float phi = 45.0;
   float albedo = 0.5;
   float g = 0.25;
-  float ld = 0.01;
+
+  float sampleCount = 2000;
+  float ld = s / sampleCount;
+  float l = s;
+
+  ld += (ld * random(gl_FragCoord.xy, camera.frameCount));
 
   if (intersectionMaterial.type == 0) {
     color = intersectionMaterial.diffuse * exp(-s * tau);
   }
 
-  for (float l = s - ld; l >= 0; l -= ld) {
+  for (int i = 0; i < sampleCount; i++) {
+    l -= ld;
+
     vec3 x = origin + direction * l;
     vec3 xToLight = normalize(lightVertexA - x);
     float d = distance(lightVertexA, x);
