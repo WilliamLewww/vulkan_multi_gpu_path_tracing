@@ -490,9 +490,9 @@ vec3 shadeParticipatingMedia(vec3 origin, vec3 direction) {
   vec3 color = vec3(0.0);
   float s = distance(origin, intersectionPosition);
   float tau = 0.05;
-  float phi = 750.0;
+  float phi = 500.0;
   float albedo = 0.90;
-  float g = 0.25;
+  float g = 0.0;
 
   float sampleCount = 100;
   float ld = s / sampleCount;
