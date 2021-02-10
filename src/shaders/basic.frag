@@ -477,16 +477,23 @@ vec3 shadeParticipatingMedia(vec3 origin, vec3 direction) {
   vec3 lightVertexA, lightVertexB, lightVertexC;
   getVertexFromIndices(lightInstanceIndex, lightPrimitiveIndex, lightVertexA, lightVertexB, lightVertexC);
 
-  vec3 lightPosition = lightVertexA;
+  vec2 uv = vec2(random(gl_FragCoord.xy, camera.frameCount), random(gl_FragCoord.xy, camera.frameCount + 1));
+  if (uv.x + uv.y > 1.0f) {
+    uv.x = 1.0f - uv.x;
+    uv.y = 1.0f - uv.y;
+  }
+
+  vec3 lightBarycentric = vec3(1.0 - uv.x - uv.y, uv.x, uv.y);
+  vec3 lightPosition = lightVertexA * lightBarycentric.x + lightVertexB * lightBarycentric.y + lightVertexC * lightBarycentric.z;
 
   vec3 color = vec3(0.0);
   float s = distance(origin, intersectionPosition);
   float tau = 0.05;
-  float phi = 2000.0;
+  float phi = 1000.0;
   float albedo = 0.75;
   float g = 0.25;
 
-  float sampleCount = 50;
+  float sampleCount = 100;
   float ld = s / sampleCount;
   float l = s;
 
