@@ -477,14 +477,16 @@ vec3 shadeParticipatingMedia(vec3 origin, vec3 direction) {
   vec3 lightVertexA, lightVertexB, lightVertexC;
   getVertexFromIndices(lightInstanceIndex, lightPrimitiveIndex, lightVertexA, lightVertexB, lightVertexC);
 
+  vec3 lightPosition = lightVertexA;
+
   vec3 color = vec3(0.0);
   float s = distance(origin, intersectionPosition);
   float tau = 0.05;
-  float phi = 45.0;
-  float albedo = 0.5;
+  float phi = 2000.0;
+  float albedo = 0.75;
   float g = 0.25;
 
-  float sampleCount = 2000;
+  float sampleCount = 50;
   float ld = s / sampleCount;
   float l = s;
 
@@ -498,9 +500,25 @@ vec3 shadeParticipatingMedia(vec3 origin, vec3 direction) {
     l -= ld;
 
     vec3 x = origin + direction * l;
-    vec3 xToLight = normalize(lightVertexA - x);
-    float d = distance(lightVertexA, x);
-    float v = 1.0;
+    vec3 xToLight = normalize(lightPosition - x);
+    float d = distance(lightPosition, x);
+
+    rayQueryInitializeEXT(rayQuery, topLevelAS, gl_RayFlagsNoneEXT, 0xFF, x, 0.0001f, xToLight, d - 0.0001f);
+    while (rayQueryProceedEXT(rayQuery));
+
+    int v = 1;
+
+    if (rayQueryGetIntersectionTypeEXT(rayQuery, true) != gl_RayQueryCommittedIntersectionNoneEXT) {
+      intersectionInstanceIndex = rayQueryGetIntersectionInstanceIdEXT(rayQuery, true);
+      intersectionPrimitiveIndex = rayQueryGetIntersectionPrimitiveIndexEXT(rayQuery, true);
+
+      intersectionMaterial = getMaterialFromPrimitive(intersectionInstanceIndex, intersectionPrimitiveIndex);
+
+      if (intersectionMaterial.type == 0) {
+        v = 0;
+      }
+    }
+
     float cosAngle = dot(xToLight, direction) / (length(xToLight) * length(direction));
     color += tau * albedo * (phi / (4.0 * M_PI * d * d)) * v * exp(-tau * d) * phaseHenyeyGreenstein(cosAngle, g);
   }
