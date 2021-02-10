@@ -497,7 +497,7 @@ vec3 shadeParticipatingMedia(vec3 origin, vec3 direction) {
   float ld = s / sampleCount;
   float l = s;
 
-  ld += (ld * random(gl_FragCoord.xy, camera.frameCount));
+  ld += (ld * random(gl_FragCoord.xy, camera.frameCount + 2));
 
   if (intersectionMaterial.type == 0) {
     color = intersectionMaterial.diffuse * exp(-s * tau);
