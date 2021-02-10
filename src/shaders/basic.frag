@@ -226,7 +226,7 @@ vec3 shade(uint instanceIndex, uint primitiveIndex, vec3 position, vec3 normal, 
 
       Material intersectionMaterial = getMaterialFromPrimitive(intersectionInstanceIndex, intersectionPrimitiveIndex);
 
-      if (rayQueryGetIntersectionTypeEXT(rayQuery, true) == gl_RayQueryCommittedIntersectionNoneEXT || intersectionMaterial.dissolve < 1.0) {
+      if (rayQueryGetIntersectionTypeEXT(rayQuery, true) == gl_RayQueryCommittedIntersectionNoneEXT || intersectionMaterial.dissolve < 1.0 || intersectionMaterial.type == 1) {
         Material lightMaterial = getMaterialFromPrimitive(lightInstanceIndex, lightPrimitiveIndex);
         float lightArea = length(cross(lightVertexB - lightVertexA, lightVertexC - lightVertexA)) * 0.5;
         float lightIntensity = sqrt(lightArea);
@@ -468,6 +468,7 @@ vec3 shadeParticipatingMedia(vec3 origin, vec3 direction) {
       intersectionUV = rayQueryGetIntersectionBarycentricsEXT(rayQuery, true);
       intersectionBarycentrics = vec3(1.0 - intersectionUV.x - intersectionUV.y, intersectionUV.x, intersectionUV.y);
       intersectionPosition = intersectionVertexA * intersectionBarycentrics.x + intersectionVertexB * intersectionBarycentrics.y + intersectionVertexC * intersectionBarycentrics.z;
+      intersectionNormal = intersectionNormalA * intersectionBarycentrics.x + intersectionNormalB * intersectionBarycentrics.y + intersectionNormalC * intersectionBarycentrics.z;
     }
   }
 
@@ -489,8 +490,8 @@ vec3 shadeParticipatingMedia(vec3 origin, vec3 direction) {
   vec3 color = vec3(0.0);
   float s = distance(origin, intersectionPosition);
   float tau = 0.05;
-  float phi = 1000.0;
-  float albedo = 0.75;
+  float phi = 750.0;
+  float albedo = 0.90;
   float g = 0.25;
 
   float sampleCount = 100;
@@ -500,7 +501,8 @@ vec3 shadeParticipatingMedia(vec3 origin, vec3 direction) {
   ld += (ld * random(gl_FragCoord.xy, camera.frameCount + 2));
 
   if (intersectionMaterial.type == 0) {
-    color = intersectionMaterial.diffuse * exp(-s * tau);
+    color = shade(intersectionInstanceIndex, intersectionPrimitiveIndex, intersectionPosition, intersectionNormal, intersectionMaterial);
+    color *= exp(-s * tau);
   }
 
   for (int i = 0; i < sampleCount; i++) {
