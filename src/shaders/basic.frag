@@ -486,15 +486,16 @@ vec3 shadeParticipatingMedia(vec3 origin, vec3 direction) {
 
   vec3 lightBarycentric = vec3(1.0 - uv.x - uv.y, uv.x, uv.y);
   vec3 lightPosition = lightVertexA * lightBarycentric.x + lightVertexB * lightBarycentric.y + lightVertexC * lightBarycentric.z;
+  Material lightMaterial = getMaterialFromPrimitive(lightInstanceIndex, lightPrimitiveIndex);
 
   vec3 color = vec3(0.0);
   float s = distance(origin, intersectionPosition);
   float tau = 0.05;
-  float phi = 500.0;
+  float phi = 2000.0;
   float albedo = 0.90;
-  float g = 0.0;
+  float g = -0.85;
 
-  float sampleCount = 100;
+  float sampleCount = 200;
   float ld = s / sampleCount;
   float l = s;
 
@@ -529,7 +530,7 @@ vec3 shadeParticipatingMedia(vec3 origin, vec3 direction) {
     }
 
     float cosAngle = dot(xToLight, direction) / (length(xToLight) * length(direction));
-    color += tau * albedo * (phi / (4.0 * M_PI * d * d)) * v * exp(-tau * d) * phaseHenyeyGreenstein(cosAngle, g);
+    color += tau * albedo * (lightMaterial.emission * phi / (4.0 * M_PI * d * d)) * v * exp(-tau * d) * phaseHenyeyGreenstein(cosAngle, g);
   }
 
   return color;
