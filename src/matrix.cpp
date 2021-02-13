@@ -6,6 +6,7 @@ float& Matrix4x4::operator[](int x) {
 
 TRS createTRS(std::vector<float> position, std::vector<float> scale) {
   TRS trs;
+  
   if (position.size() == 3) {
     trs.position[0] = position[0];
     trs.position[1] = position[1];

@@ -491,10 +491,10 @@ vec3 shadeParticipatingMedia(vec3 origin, vec3 direction) {
 
   vec3 color = vec3(0.0);
   float s = distance(origin, intersectionPosition);
-  float tau = 0.05;
-  float phi = 2500.0;
-  float albedo = 0.90;
-  float g = -0.85;
+  float tau = 0.03;
+  float phi = 145.0;
+  float albedo = 0.75;
+  float g = 0.0;
 
   float sampleCount = 100;
   float ld = s / sampleCount;
@@ -574,21 +574,19 @@ void main() {
       intersectionPosition = intersectionVertexA * intersectionBarycentrics.x + intersectionVertexB * intersectionBarycentrics.y + intersectionVertexC * intersectionBarycentrics.z;
       intersectionNormal = intersectionNormalA * intersectionBarycentrics.x + intersectionNormalB * intersectionBarycentrics.y + intersectionNormalC * intersectionBarycentrics.z;
 
-      // if (intersectionMaterial.type == 0) {
-      //   directColor = shade(intersectionInstanceIndex, intersectionPrimitiveIndex, intersectionPosition, intersectionNormal, intersectionMaterial);
+      if (intersectionMaterial.type == 0) {
+        directColor = shade(intersectionInstanceIndex, intersectionPrimitiveIndex, intersectionPosition, intersectionNormal, intersectionMaterial);
 
-      //   if (intersectionMaterial.dissolve < 1.0) {
-      //     vec3 refractedColor = shadeRefraction(intersectionPosition, intersectionNormal, intersectionMaterial);
-      //     vec3 reflectedColor = shadeReflection(intersectionPosition, intersectionNormal, intersectionMaterial);
+        if (intersectionMaterial.dissolve < 1.0) {
+          vec3 refractedColor = shadeRefraction(intersectionPosition, intersectionNormal, intersectionMaterial);
+          vec3 reflectedColor = shadeReflection(intersectionPosition, intersectionNormal, intersectionMaterial);
 
-      //     directColor = directColor + refractedColor + reflectedColor;
-      //   }
-      // }
-      // else {
-      //   directColor = shadeParticipatingMedia(rayOrigin, rayDirection);
-      // }
-
-      directColor = shadeParticipatingMedia(rayOrigin, rayDirection);
+          directColor = directColor + refractedColor + reflectedColor;
+        }
+      }
+      else {
+        directColor = shadeParticipatingMedia(rayOrigin, rayDirection);
+      }
       
     }
   }

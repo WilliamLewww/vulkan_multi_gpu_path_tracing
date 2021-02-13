@@ -35,6 +35,18 @@ Renderer::Renderer(VkInstance vulkanInstance, VkSurfaceKHR surface, ModelCollect
           createTRS({0, 0, -3}, {1, 1, 1}),
         }
       },
+      {
+        modelCollection->getModel(8),
+        {
+          createTRS({0, 3, -3}, {1, 1, 1}),
+        }
+      },
+      {
+        modelCollection->getModel(9),
+        {
+          createTRS({0, 1, -3}, {1, 1, 1}),
+        }
+      }
     },
     {
       {
