@@ -102,10 +102,10 @@ RenderPass::RenderPass(VkDevice logicalDevice, VkFormat swapchainImageFormat) {
   VkSubpassDependency secondDependency = {
     .srcSubpass = 0,
     .dstSubpass = 1,
-    .srcStageMask = VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
-    .dstStageMask = VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT,
-    .srcAccessMask = 0,
-    .dstAccessMask = 0,
+    .srcStageMask = VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT,
+    .dstStageMask = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,
+    .srcAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
+    .dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT,
     .dependencyFlags = 0
   };
 
