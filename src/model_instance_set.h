@@ -23,6 +23,7 @@ private:
     alignas(4) float ior;
 
     alignas(4) int diffuseTextureIndex;
+    alignas(4) int type;
   };
 
   struct LightContainer {

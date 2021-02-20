@@ -35,6 +35,18 @@ Renderer::Renderer(VkInstance vulkanInstance, VkSurfaceKHR surface, ModelCollect
           createTRS({0, 0, -3}, {1, 1, 1}),
         }
       },
+      {
+        modelCollection->getModel(8),
+        {
+          createTRS({0, 3, -3}, {1, 1, 1}),
+        }
+      },
+      {
+        modelCollection->getModel(9),
+        {
+          createTRS({0, 1, -3}, {1, 1, 1}),
+        }
+      }
     },
     {
       {
@@ -104,7 +116,7 @@ Renderer::Renderer(VkInstance vulkanInstance, VkSurfaceKHR surface, ModelCollect
       new Descriptor(6, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1, (VkShaderStageFlagBits)(VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT), NULL, this->displayDevice->getModelInstanceSet(0)->getDescriptorTotalMaterialIndexBufferInfoPointer(), NULL, NULL),
       new Descriptor(7, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1, (VkShaderStageFlagBits)(VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT), NULL, this->displayDevice->getModelInstanceSet(0)->getDescriptorTotalMaterialBufferInfoPointer(), NULL, NULL),
       new Descriptor(8, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1, (VkShaderStageFlagBits)(VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT), NULL, this->displayDevice->getModelInstanceSet(0)->getDescriptorTotalMaterialLightBufferInfoPointer(), NULL, NULL),
-      new Descriptor(9, VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 3, VK_SHADER_STAGE_FRAGMENT_BIT, this->displayDevice->getModelInstanceSet(0)->getDescriptorMaterialImageInfoListPointer(), NULL, NULL, NULL)
+      // new Descriptor(9, VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 3, VK_SHADER_STAGE_FRAGMENT_BIT, this->displayDevice->getModelInstanceSet(0)->getDescriptorMaterialImageInfoListPointer(), NULL, NULL, NULL)
     },
     {
       new Descriptor(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1, (VkShaderStageFlagBits)(VK_SHADER_STAGE_FRAGMENT_BIT), NULL, this->displayDevice->getModelInstanceSet(1)->getDescriptorTotalIndexBufferInfoPointer(), NULL, NULL),
