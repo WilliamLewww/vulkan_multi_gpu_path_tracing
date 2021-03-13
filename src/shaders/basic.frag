@@ -456,9 +456,9 @@ vec3 waveLengthToRGB(float waveLength) {
     factor = 0.0;
   }
 
-  color.x = color.x == 0.0 ? 0 : round(255 * pow(color.x * factor, gamma));
-  color.y = color.y == 0.0 ? 0 : round(255 * pow(color.y * factor, gamma));
-  color.z = color.z == 0.0 ? 0 : round(255 * pow(color.z * factor, gamma));
+  color.x = color.x == 0.0 ? 0 : pow(color.x * factor, gamma);
+  color.y = color.y == 0.0 ? 0 : pow(color.y * factor, gamma);
+  color.z = color.z == 0.0 ? 0 : pow(color.z * factor, gamma);
 
   return color;
 }
@@ -513,7 +513,8 @@ void main() {
     }
   }
 
-  directColor = waveLengthToRGB(camera.waveLength);
+  vec3 waveLengthColor = waveLengthToRGB(camera.waveLength);
+  directColor = waveLengthColor;
   
   vec4 color = vec4(directColor, 1.0);
   if (camera.frameCount > 0) {
