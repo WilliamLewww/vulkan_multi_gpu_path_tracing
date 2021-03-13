@@ -36,6 +36,8 @@ layout(binding = 0, set = 0) uniform Camera {
   float pitch;
   float yaw;
   uint frameCount;
+
+  float waveLength;
 } camera;
 
 layout(binding = 1, set = 0) uniform InstanceDescriptionContainer {
@@ -408,134 +410,58 @@ vec3 shadeReflection(vec3 position, vec3 normal, Material material) {
   return color;
 }
 
-float phaseHenyeyGreenstein(float cosTheta, float g) {
-  float a = 1.0 / 4.0 * M_PI;
-  float b = 1.0 - (g * g);
-  float c = 1.0 + (g * g) - (2.0 * g * cosTheta);
+vec3 waveLengthToRGB(float waveLength) {
+  float gamma = 0.8;
 
-  return a * (b / pow(c, 1.5));
-}
+  float factor = 0;
+  vec3 color = vec3(0, 0, 0);
 
-vec3 shadeParticipatingMedia(vec3 origin, vec3 direction) {
-  rayQueryEXT rayQuery;
-
-  vec3 rayOrigin;
-  vec3 rayDirection;
-
-  int intersectionInstanceIndex, intersectionPrimitiveIndex;
-  Material intersectionMaterial;
-  vec3 intersectionVertexA, intersectionVertexB, intersectionVertexC;
-  vec3 intersectionNormalA, intersectionNormalB, intersectionNormalC;
-
-  vec2 intersectionUV;
-  vec3 intersectionBarycentrics, intersectionPosition, intersectionNormal;
-
-  {
-    rayOrigin = origin;
-    rayDirection = direction;
-
-    rayQueryInitializeEXT(rayQuery, topLevelAS, gl_RayFlagsNoneEXT, 0xFF, rayOrigin, 0.0001f, rayDirection, 1000.0f);
-    while (rayQueryProceedEXT(rayQuery));
-
-    intersectionInstanceIndex = rayQueryGetIntersectionInstanceIdEXT(rayQuery, true);
-    intersectionPrimitiveIndex = rayQueryGetIntersectionPrimitiveIndexEXT(rayQuery, true);
-
-    intersectionMaterial = getMaterialFromPrimitive(intersectionInstanceIndex, intersectionPrimitiveIndex);
-    
-    getVertexFromIndices(intersectionInstanceIndex, intersectionPrimitiveIndex, intersectionVertexA, intersectionVertexB, intersectionVertexC);
-    getNormalFromIndices(intersectionInstanceIndex, intersectionPrimitiveIndex, intersectionNormalA, intersectionNormalB, intersectionNormalC);
-
-    intersectionUV = rayQueryGetIntersectionBarycentricsEXT(rayQuery, true);
-    intersectionBarycentrics = vec3(1.0 - intersectionUV.x - intersectionUV.y, intersectionUV.x, intersectionUV.y);
-    intersectionPosition = intersectionVertexA * intersectionBarycentrics.x + intersectionVertexB * intersectionBarycentrics.y + intersectionVertexC * intersectionBarycentrics.z;
-    intersectionNormal = intersectionNormalA * intersectionBarycentrics.x + intersectionNormalB * intersectionBarycentrics.y + intersectionNormalC * intersectionBarycentrics.z;
+  if ((waveLength >= 380) && (waveLength < 440)) {
+    color.x = -(waveLength - 440.0) / (440.0 - 380.0);
+    color.y = 0.0;
+    color.z = 1.0;
+  } else if((waveLength >= 440) && (waveLength < 490)) {
+    color.x = 0.0;
+    color.y = (waveLength - 440.0) / (490.0 - 440.0);
+    color.z = 1.0;
+  } else if((waveLength >= 490) && (waveLength < 510)) {
+    color.x = 0.0;
+    color.y = 1.0;
+    color.z = -(waveLength - 510.0) / (510.0 - 490.0);
+  } else if((waveLength >= 510) && (waveLength < 580)) {
+    color.x = (waveLength - 510.0) / (580.0 - 510.0);
+    color.y = 1.0;
+    color.z = 0.0;
+  } else if((waveLength >= 580) && (waveLength < 645)) {
+    color.x = 1.0;
+    color.y = -(waveLength - 645.0) / (645.0 - 580.0);
+    color.z = 0.0;
+  } else if((waveLength >= 645) && (waveLength < 781)) {
+    color.x = 1.0;
+    color.y = 0.0;
+    color.z = 0.0;
+  } else {
+    color.x = 0.0;
+    color.y = 0.0;
+    color.z = 0.0;
   }
 
-  while (intersectionMaterial.type == 1 && rayQueryGetIntersectionTypeEXT(rayQuery, true) != gl_RayQueryCommittedIntersectionNoneEXT) {
-    rayOrigin = intersectionPosition;
-
-    rayQueryInitializeEXT(rayQuery, topLevelAS, gl_RayFlagsNoneEXT, 0xFF, rayOrigin, 0.0001f, rayDirection, 1000.0f);
-    while (rayQueryProceedEXT(rayQuery));
-
-    if (rayQueryGetIntersectionTypeEXT(rayQuery, true) != gl_RayQueryCommittedIntersectionNoneEXT) {
-      intersectionInstanceIndex = rayQueryGetIntersectionInstanceIdEXT(rayQuery, true);
-      intersectionPrimitiveIndex = rayQueryGetIntersectionPrimitiveIndexEXT(rayQuery, true);
-
-      intersectionMaterial = getMaterialFromPrimitive(intersectionInstanceIndex, intersectionPrimitiveIndex);
-      
-      getVertexFromIndices(intersectionInstanceIndex, intersectionPrimitiveIndex, intersectionVertexA, intersectionVertexB, intersectionVertexC);
-      getNormalFromIndices(intersectionInstanceIndex, intersectionPrimitiveIndex, intersectionNormalA, intersectionNormalB, intersectionNormalC);
-
-      intersectionUV = rayQueryGetIntersectionBarycentricsEXT(rayQuery, true);
-      intersectionBarycentrics = vec3(1.0 - intersectionUV.x - intersectionUV.y, intersectionUV.x, intersectionUV.y);
-      intersectionPosition = intersectionVertexA * intersectionBarycentrics.x + intersectionVertexB * intersectionBarycentrics.y + intersectionVertexC * intersectionBarycentrics.z;
-      intersectionNormal = intersectionNormalA * intersectionBarycentrics.x + intersectionNormalB * intersectionBarycentrics.y + intersectionNormalC * intersectionBarycentrics.z;
-    }
+  if((waveLength >= 380) && (waveLength < 420)) {
+    factor = 0.3 + 0.7 * (waveLength - 380.0) / (420.0 - 380.0);
+  } else if((waveLength >= 420) && (waveLength < 701)) {
+    factor = 1.0;
+  } else if((waveLength >= 701) && (waveLength < 781)) {
+    factor = 0.3 + 0.7 * (780.0 - waveLength) / (780.0 - 700.0);
+  } else {
+    factor = 0.0;
   }
 
-  uint lightInstanceIndex = materialLightBuffer.indicesInstance[0];
-  uint lightPrimitiveIndex = materialLightBuffer.indicesPrimitive[0];
-
-  vec3 lightVertexA, lightVertexB, lightVertexC;
-  getVertexFromIndices(lightInstanceIndex, lightPrimitiveIndex, lightVertexA, lightVertexB, lightVertexC);
-
-  vec2 uv = vec2(random(gl_FragCoord.xy, camera.frameCount), random(gl_FragCoord.xy, camera.frameCount + 1));
-  if (uv.x + uv.y > 1.0f) {
-    uv.x = 1.0f - uv.x;
-    uv.y = 1.0f - uv.y;
-  }
-
-  vec3 lightBarycentric = vec3(1.0 - uv.x - uv.y, uv.x, uv.y);
-  vec3 lightPosition = lightVertexA * lightBarycentric.x + lightVertexB * lightBarycentric.y + lightVertexC * lightBarycentric.z;
-  Material lightMaterial = getMaterialFromPrimitive(lightInstanceIndex, lightPrimitiveIndex);
-
-  vec3 color = vec3(0.0);
-  float s = distance(origin, intersectionPosition);
-  float tau = 0.03;
-  float phi = 145.0;
-  float albedo = 0.75;
-  float g = 0.0;
-
-  float sampleCount = 100;
-  float ld = s / sampleCount;
-  float l = s;
-
-  ld += (ld * random(gl_FragCoord.xy, camera.frameCount + 2));
-
-  if (intersectionMaterial.type == 0) {
-    color = shade(intersectionInstanceIndex, intersectionPrimitiveIndex, intersectionPosition, intersectionNormal, intersectionMaterial);
-    color *= exp(-s * tau);
-  }
-
-  for (int i = 0; i < sampleCount; i++) {
-    l -= ld;
-
-    vec3 x = origin + direction * l;
-    vec3 xToLight = normalize(lightPosition - x);
-    float d = distance(lightPosition, x);
-
-    rayQueryInitializeEXT(rayQuery, topLevelAS, gl_RayFlagsNoneEXT, 0xFF, x, 0.0001f, xToLight, d - 0.0001f);
-    while (rayQueryProceedEXT(rayQuery));
-
-    int v = 1;
-
-    if (rayQueryGetIntersectionTypeEXT(rayQuery, true) != gl_RayQueryCommittedIntersectionNoneEXT) {
-      intersectionInstanceIndex = rayQueryGetIntersectionInstanceIdEXT(rayQuery, true);
-      intersectionPrimitiveIndex = rayQueryGetIntersectionPrimitiveIndexEXT(rayQuery, true);
-
-      intersectionMaterial = getMaterialFromPrimitive(intersectionInstanceIndex, intersectionPrimitiveIndex);
-
-      if (intersectionMaterial.type == 0) {
-        v = 0;
-      }
-    }
-
-    float cosAngle = dot(xToLight, direction) / (length(xToLight) * length(direction));
-    color += tau * albedo * (lightMaterial.emission * phi / (4.0 * M_PI * d * d)) * v * exp(-tau * d) * phaseHenyeyGreenstein(cosAngle, g);
-  }
+  color.x = color.x == 0.0 ? 0 : round(255 * pow(color.x * factor, gamma));
+  color.y = color.y == 0.0 ? 0 : round(255 * pow(color.y * factor, gamma));
+  color.z = color.z == 0.0 ? 0 : round(255 * pow(color.z * factor, gamma));
 
   return color;
-};
+}
 
 void main() {
   vec3 directColor = vec3(0.0, 0.0, 0.0);
@@ -584,12 +510,10 @@ void main() {
           directColor = directColor + refractedColor + reflectedColor;
         }
       }
-      else {
-        directColor = shadeParticipatingMedia(rayOrigin, rayDirection);
-      }
-      
     }
   }
+
+  directColor = waveLengthToRGB(camera.waveLength);
   
   vec4 color = vec4(directColor, 1.0);
   if (camera.frameCount > 0) {

@@ -45,6 +45,8 @@ Camera::Camera(float positionX, float positionY, float positionZ, float pitch, f
   this->uniform.yaw = this->yaw;
   this->uniform.frameCount = 0;
 
+  this->uniform.waveLength = 380;
+
   this->isCameraMoved = true;
   this->previousPosition[0] = this->position[0]; 
   this->previousPosition[1] = this->position[1]; 

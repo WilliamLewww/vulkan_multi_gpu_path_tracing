@@ -16,6 +16,8 @@ private:
     alignas(4)  float pitch;
     alignas(4)  float yaw;
     alignas(4)  uint32_t frameCount;
+
+    alignas(4)  float waveLength;
   };
 
   CameraUniform uniform;

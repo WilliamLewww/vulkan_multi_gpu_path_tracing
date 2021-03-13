@@ -4,6 +4,8 @@
 #extension GL_EXT_ray_query : enable
 
 #define M_PI 3.1415926535897932384626433832795
+#define MIN_WAVELENGTH 380
+#define MAX_WAVELENGTH 780
 
 struct Material {
   vec3 ambient;
@@ -35,6 +37,8 @@ layout(binding = 0, set = 0) uniform Camera {
   float pitch;
   float yaw;
   uint frameCount;
+
+  float waveLength;
 } camera;
 
 layout(binding = 2, set = 0) uniform InstanceDescriptionContainer {
