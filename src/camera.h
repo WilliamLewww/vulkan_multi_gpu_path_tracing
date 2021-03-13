@@ -40,6 +40,8 @@ public:
   float* getPosition();
   float* getYaw();
   float* getPitch();
+  float* getWaveLength();
+  uint32_t* getFrameCount();
 
   void* getUniformPointer();
   uint32_t getUniformStructureSize();

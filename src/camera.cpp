@@ -18,6 +18,8 @@ Camera::Camera(float positionX, float positionY, float positionZ, float pitch, f
     .pitch = 0,
     .yaw = 0,
     .frameCount = 0,
+
+    .waveLength = 380
   };
 
   this->position[0] = positionX;
@@ -71,6 +73,14 @@ float* Camera::getYaw() {
 
 float* Camera::getPitch() {
   return &this->pitch;
+}
+
+float* Camera::getWaveLength() {
+  return &this->uniform.waveLength;
+}
+
+uint32_t* Camera::getFrameCount() {
+  return &this->uniform.frameCount;
 }
 
 void* Camera::getUniformPointer() {
