@@ -384,11 +384,25 @@ void ModelInstanceSet::createMaterialBuffers(Model* model,
       }
     }
 
-    if (model->getMaterial(x).unknown_parameter.size() > 0) {
+    if (model->getMaterial(x).unknown_parameter["type"].size() > 0) {
       material.type = std::stoi(model->getMaterial(x).unknown_parameter["type"]);
     }
     else {
       material.type = 0;
+    }
+
+    if (model->getMaterial(x).unknown_parameter["CauchyA"].size() > 0) {
+      material.cauchyA = std::stof(model->getMaterial(x).unknown_parameter["CauchyA"]);
+    }
+    else {
+      material.cauchyA = 0.0;
+    }
+
+    if (model->getMaterial(x).unknown_parameter["CauchyB"].size() > 0) {
+      material.cauchyB = std::stof(model->getMaterial(x).unknown_parameter["CauchyB"]);
+    }
+    else {
+      material.cauchyB = 0.0;
     }
 
     totalMaterialList->push_back(material);

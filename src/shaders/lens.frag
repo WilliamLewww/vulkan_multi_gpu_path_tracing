@@ -19,6 +19,9 @@ struct Material {
 
   int diffuseTextureIndex;
   int type;
+
+  float cauchyA;
+  float cauchyB;
 };
 
 layout(early_fragment_tests) in;
@@ -243,7 +246,7 @@ vec3 getRayDirectionFromLens(vec3 filmPosition) {
 
     if (intersectionMaterial.dissolve < 1.0 && !hitAperture) {
       float correctedWaveLength = camera.waveLength / 1000.0;
-      float ior = 1.5220 + (0.00459 / (correctedWaveLength * correctedWaveLength));
+      float ior = intersectionMaterial.cauchyA + (intersectionMaterial.cauchyB / (correctedWaveLength * correctedWaveLength));
 
       rayDirection = refract(rayDirection, intersectionNormal, 1.0, ior);
 

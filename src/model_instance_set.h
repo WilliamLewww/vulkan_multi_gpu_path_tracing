@@ -24,6 +24,9 @@ private:
 
     alignas(4) int diffuseTextureIndex;
     alignas(4) int type;
+
+    alignas(4) float cauchyA;
+    alignas(4) float cauchyB;
   };
 
   struct LightContainer {

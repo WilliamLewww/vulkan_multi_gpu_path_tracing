@@ -17,6 +17,9 @@ struct Material {
 
   int diffuseTextureIndex;
   int type;
+
+  float cauchyA;
+  float cauchyB;
 };
 
 layout(early_fragment_tests) in;
