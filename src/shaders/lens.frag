@@ -242,7 +242,10 @@ vec3 getRayDirectionFromLens(vec3 filmPosition) {
     bool hitAperture = (intersectionInstanceIndex == lensProperties.apertureInstanceIndex) && (intersectionPrimitiveIndex >= lensProperties.aperturePrimitiveOffset) && (intersectionPrimitiveIndex < lensProperties.aperturePrimitiveOffset + lensProperties.aperturePrimitiveCount);
 
     if (intersectionMaterial.dissolve < 1.0 && !hitAperture) {
-      rayDirection = refract(rayDirection, intersectionNormal, 1.0, intersectionMaterial.ior);
+      float correctedWaveLength = camera.waveLength / 1000.0;
+      float ior = 1.5220 + (0.00459 / (correctedWaveLength * correctedWaveLength));
+
+      rayDirection = refract(rayDirection, intersectionNormal, 1.0, ior);
 
       rayQueryEXT rayQuery;
       rayQueryInitializeEXT(rayQuery, topLevelAS, gl_RayFlagsNoneEXT, 0xFF, rayOrigin, 0.0001f, rayDirection, 1000.0f);
@@ -261,7 +264,7 @@ vec3 getRayDirectionFromLens(vec3 filmPosition) {
       intersectionNormal = intersectionNormalA * intersectionBarycentrics.x + intersectionNormalB * intersectionBarycentrics.y + intersectionNormalC * intersectionBarycentrics.z;
 
       rayOrigin = intersectionPosition;
-      rayDirection = refract(rayDirection, -intersectionNormal, intersectionMaterial.ior, 1.0);
+      rayDirection = refract(rayDirection, -intersectionNormal, ior, 1.0);
     }
     else {
       if (!hitAperture && !isFilmIntersection) {

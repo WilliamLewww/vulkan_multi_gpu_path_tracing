@@ -514,7 +514,7 @@ void main() {
   }
 
   vec3 waveLengthColor = waveLengthToRGB(camera.waveLength);
-  directColor = waveLengthColor;
+  directColor *= waveLengthColor;
   
   vec4 color = vec4(directColor, 1.0);
   if (camera.frameCount > 0) {
