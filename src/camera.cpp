@@ -187,5 +187,6 @@ void Camera::update(bool isKeyboardActive, bool isCursorActive, bool isInverseYa
   }
   else {
     this->uniform.frameCount += 1;
+    this->uniform.waveLength = (rand() % (780 - 380 + 1) + 380) + ((rand() % 1000) / 1000.0);
   }
 }
