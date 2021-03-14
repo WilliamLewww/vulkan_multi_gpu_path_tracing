@@ -56,6 +56,8 @@ Camera::Camera(float positionX, float positionY, float positionZ, float pitch, f
   this->previousPitch = this->pitch;
   this->previousYaw = this->yaw;
 
+  this->isWaveLengthPaused = false;
+
   resetCursorPosition();
 }
 
@@ -81,6 +83,10 @@ float* Camera::getWaveLength() {
 
 uint32_t* Camera::getFrameCount() {
   return &this->uniform.frameCount;
+}
+
+bool* Camera::getIsWaveLengthPaused() {
+  return &this->isWaveLengthPaused;
 }
 
 void* Camera::getUniformPointer() {
@@ -186,7 +192,9 @@ void Camera::update(bool isKeyboardActive, bool isCursorActive, bool isInverseYa
     this->isCameraMoved = false;
   }
   else {
-    this->uniform.frameCount += 1;
-    this->uniform.waveLength = (rand() % (780 - 380 + 1) + 380) + ((rand() % 1000) / 1000.0);
+    if (!this->isWaveLengthPaused) {
+      this->uniform.frameCount += 1;
+      this->uniform.waveLength = (rand() % (780 - 380 + 1) + 380) + ((rand() % 1000) / 1000.0);
+    }
   }
 }

@@ -113,6 +113,7 @@ void GUI::render(Camera* camera, Camera* minimapCamera, Renderer* renderer, Mode
   ImGui::PushID("#WORLDCAMERA");
   if (ImGui::CollapsingHeader("World Camera Properties", ImGuiTreeNodeFlags_DefaultOpen)) {
     ImGui::DragFloat3("Position", camera->getPosition(), 0.01, 0.0, 0.0, "%.2f");
+    ImGui::Checkbox("Pause Random Wave Lengths", camera->getIsWaveLengthPaused());
     ImGui::SliderFloat("Wave Length", camera->getWaveLength(), 380, 780, "%.2f");
     ImGui::Text("Frame: %ld", *camera->getFrameCount());
   }

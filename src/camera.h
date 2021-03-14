@@ -29,6 +29,8 @@ private:
   double previousCursorPositionX;
   double previousCursorPositionY;
 
+  bool isWaveLengthPaused;
+
   bool isCameraMoved;
   float previousPosition[3];
   float previousYaw;
@@ -42,6 +44,8 @@ public:
   float* getPitch();
   float* getWaveLength();
   uint32_t* getFrameCount();
+
+  bool* getIsWaveLengthPaused();
 
   void* getUniformPointer();
   uint32_t getUniformStructureSize();
