@@ -8,6 +8,8 @@
 #define MAX_WAVELENGTH 780
 
 #define LIGHT_REDUCTION 0.15
+#define HEMISPHERE_SAMPLE_COUNT 25
+#define WAVE_LENGTH_SAMPLE_COUNT 5
 
 struct Material {
   vec3 ambient;
@@ -486,8 +488,7 @@ vec3 shadeReflection(vec3 position, vec3 normal, Material material) {
 vec3 shadeDiffraction(uint instanceIndex, uint primitiveIndex, vec3 position, vec3 normal, Material material) {
   vec3 color = vec3(0.0, 0.0, 0.0);
 
-  int hemisphereSampleCount = 100;
-  for (int x = 0; x < hemisphereSampleCount; x++) {
+  for (int x = 0; x < HEMISPHERE_SAMPLE_COUNT; x++) {
     vec3 hemisphere = uniformSampleHemisphere(vec2(random(gl_FragCoord.xy + vec2(x, 0), camera.frameCount), random(gl_FragCoord.xy + vec2(0, x), camera.frameCount + 1)));
     vec3 alignedHemisphere = alignHemisphereWithCoordinateSystem(hemisphere, normal);
 
@@ -524,8 +525,7 @@ vec3 shadeDiffraction(uint instanceIndex, uint primitiveIndex, vec3 position, ve
 
       if (intersectionMaterial.dissolve < 1.0) {
 
-        int waveLengthSampleCount = 3;
-        for (int y = 0; y < waveLengthSampleCount; y++) {
+        for (int y = 0; y < WAVE_LENGTH_SAMPLE_COUNT; y++) {
           float randomWaveLength = (random(gl_FragCoord.xy, camera.frameCount + 2) * 401.0) + 380.0;
           float correctedWaveLength = randomWaveLength / 1000.0;
           float ior = initialIntersectionMaterial.cauchyA + (initialIntersectionMaterial.cauchyB / (correctedWaveLength * correctedWaveLength));
@@ -563,13 +563,9 @@ vec3 shadeDiffraction(uint instanceIndex, uint primitiveIndex, vec3 position, ve
             color += waveLengthColor;
           }
         }
-
-        // color /= waveLengthSampleCount;
       }
     }
   }
-
-  // color /= hemisphereSampleCount;
 
   return color;
 }
