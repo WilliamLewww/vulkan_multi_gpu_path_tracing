@@ -14,3 +14,6 @@
 
 ### Chromatic Aberration
 [<img src="https://img.youtube.com/vi/ZgbEOGvS_Yc/maxresdefault.jpg" width="25%">](https://youtu.be/ZgbEOGvS_Yc)
+
+### Scene Dispersion
+[<img src="https://img.youtube.com/vi/f6iTJQFYuMU/maxresdefault.jpg" width="25%">](https://youtu.be/f6iTJQFYuMU)
