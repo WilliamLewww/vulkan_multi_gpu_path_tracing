@@ -251,48 +251,24 @@ vec3 alignHemisphereWithCoordinateSystem(vec3 hemisphere, vec3 up) {
 vec3 shade(uint instanceIndex, uint primitiveIndex, vec3 position, vec3 normal, Material material) {
   vec3 color = vec3(0.0, 0.0, 0.0);
 
-  if (material.dissolve < 1.0) {
-    return color;
-  }
+  int hemisphereSampleCount = 100;
+  for (int x = 0; x < hemisphereSampleCount; x++) {
+    vec3 hemisphere = uniformSampleHemisphere(vec2(random(gl_FragCoord.xy + vec2(x, 0), camera.frameCount), random(gl_FragCoord.xy + vec2(0, x), camera.frameCount + 1)));
+    vec3 alignedHemisphere = alignHemisphereWithCoordinateSystem(hemisphere, normal);
 
-  vec3 hemisphere = uniformSampleHemisphere(vec2(random(gl_FragCoord.xy, camera.frameCount), random(gl_FragCoord.xy, camera.frameCount + 1)));
-  vec3 alignedHemisphere = alignHemisphereWithCoordinateSystem(hemisphere, normal);
+    rayQueryEXT rayQuery;
+    rayQueryInitializeEXT(rayQuery, topLevelAS, gl_RayFlagsNoneEXT, 0xFF, position, 0.0001f, alignedHemisphere, 1000.0f);
+    while (rayQueryProceedEXT(rayQuery));
 
-  rayQueryEXT rayQuery;
-  rayQueryInitializeEXT(rayQuery, topLevelAS, gl_RayFlagsNoneEXT, 0xFF, position, 0.0001f, alignedHemisphere, 1000.0f);
-  while (rayQueryProceedEXT(rayQuery));
+    int intersectionInstanceIndex, intersectionPrimitiveIndex;
+    Material intersectionMaterial;
+    vec3 intersectionVertexA, intersectionVertexB, intersectionVertexC;
+    vec3 intersectionNormalA, intersectionNormalB, intersectionNormalC;
 
-  int intersectionInstanceIndex, intersectionPrimitiveIndex;
-  Material intersectionMaterial;
-  vec3 intersectionVertexA, intersectionVertexB, intersectionVertexC;
-  vec3 intersectionNormalA, intersectionNormalB, intersectionNormalC;
+    vec2 intersectionUV;
+    vec3 intersectionBarycentrics, intersectionPosition, intersectionNormal;
 
-  vec2 intersectionUV;
-  vec3 intersectionBarycentrics, intersectionPosition, intersectionNormal;
-
-  if (rayQueryGetIntersectionTypeEXT(rayQuery, true) != gl_RayQueryCommittedIntersectionNoneEXT) {
-    intersectionInstanceIndex = rayQueryGetIntersectionInstanceIdEXT(rayQuery, true);
-    intersectionPrimitiveIndex = rayQueryGetIntersectionPrimitiveIndexEXT(rayQuery, true);
-
-    intersectionMaterial = getMaterialFromPrimitive(intersectionInstanceIndex, intersectionPrimitiveIndex);
-
-    getVertexFromIndices(intersectionInstanceIndex, intersectionPrimitiveIndex, intersectionVertexA, intersectionVertexB, intersectionVertexC);
-    getNormalFromIndices(intersectionInstanceIndex, intersectionPrimitiveIndex, intersectionNormalA, intersectionNormalB, intersectionNormalC);
-
-    intersectionUV = rayQueryGetIntersectionBarycentricsEXT(rayQuery, true);
-    intersectionBarycentrics = vec3(1.0 - intersectionUV.x - intersectionUV.y, intersectionUV.x, intersectionUV.y);
-    intersectionPosition = intersectionVertexA * intersectionBarycentrics.x + intersectionVertexB * intersectionBarycentrics.y + intersectionVertexC * intersectionBarycentrics.z;
-    intersectionNormal = intersectionNormalA * intersectionBarycentrics.x + intersectionNormalB * intersectionBarycentrics.y + intersectionNormalC * intersectionBarycentrics.z;
-
-    if (intersectionMaterial.dissolve < 1.0) {
-      float correctedWaveLength = camera.waveLength / 1000.0;
-      float ior = intersectionMaterial.cauchyA + (intersectionMaterial.cauchyB / (correctedWaveLength * correctedWaveLength));
-
-      vec3 rayDirection = refract(alignedHemisphere, intersectionNormal, 1.0, ior);
-
-      rayQueryInitializeEXT(rayQuery, topLevelAS, gl_RayFlagsNoneEXT, 0xFF, intersectionPosition, 0.0001f, rayDirection, 1000.0f);
-      while (rayQueryProceedEXT(rayQuery));
-
+    if (rayQueryGetIntersectionTypeEXT(rayQuery, true) != gl_RayQueryCommittedIntersectionNoneEXT) {
       intersectionInstanceIndex = rayQueryGetIntersectionInstanceIdEXT(rayQuery, true);
       intersectionPrimitiveIndex = rayQueryGetIntersectionPrimitiveIndexEXT(rayQuery, true);
 
@@ -305,23 +281,60 @@ vec3 shade(uint instanceIndex, uint primitiveIndex, vec3 position, vec3 normal, 
       intersectionBarycentrics = vec3(1.0 - intersectionUV.x - intersectionUV.y, intersectionUV.x, intersectionUV.y);
       intersectionPosition = intersectionVertexA * intersectionBarycentrics.x + intersectionVertexB * intersectionBarycentrics.y + intersectionVertexC * intersectionBarycentrics.z;
       intersectionNormal = intersectionNormalA * intersectionBarycentrics.x + intersectionNormalB * intersectionBarycentrics.y + intersectionNormalC * intersectionBarycentrics.z;
-    
-      rayDirection = refract(rayDirection, -intersectionNormal, ior, 1.0);
 
-      rayQueryInitializeEXT(rayQuery, topLevelAS, gl_RayFlagsNoneEXT, 0xFF, intersectionPosition, 0.0001f, rayDirection, 1000.0f);
-      while (rayQueryProceedEXT(rayQuery));
+      Material initialIntersectionMaterial = intersectionMaterial;
 
-      intersectionInstanceIndex = rayQueryGetIntersectionInstanceIdEXT(rayQuery, true);
-      intersectionPrimitiveIndex = rayQueryGetIntersectionPrimitiveIndexEXT(rayQuery, true);
+      vec3 initialIntersectionPosition = intersectionPosition;
+      vec3 initialIntersectionNormal = intersectionNormal;
 
-      intersectionMaterial = getMaterialFromPrimitive(intersectionInstanceIndex, intersectionPrimitiveIndex);
+      if (intersectionMaterial.dissolve < 1.0) {
 
-      if (length(intersectionMaterial.emission) > 0.0) {
-        vec3 waveLengthColor = waveLengthToRGB(camera.waveLength);
-        color = waveLengthColor;
+        int waveLengthSampleCount = 3;
+        for (int y = 0; y < waveLengthSampleCount; y++) {
+          float randomWaveLength = (random(gl_FragCoord.xy, camera.frameCount + 2) * 401.0) + 380.0;
+          float correctedWaveLength = randomWaveLength / 1000.0;
+          float ior = initialIntersectionMaterial.cauchyA + (initialIntersectionMaterial.cauchyB / (correctedWaveLength * correctedWaveLength));
+
+          vec3 rayDirection = refract(alignedHemisphere, initialIntersectionNormal, 1.0, ior);
+
+          rayQueryInitializeEXT(rayQuery, topLevelAS, gl_RayFlagsNoneEXT, 0xFF, initialIntersectionPosition, 0.0001f, rayDirection, 1000.0f);
+          while (rayQueryProceedEXT(rayQuery));
+
+          intersectionInstanceIndex = rayQueryGetIntersectionInstanceIdEXT(rayQuery, true);
+          intersectionPrimitiveIndex = rayQueryGetIntersectionPrimitiveIndexEXT(rayQuery, true);
+
+          intersectionMaterial = getMaterialFromPrimitive(intersectionInstanceIndex, intersectionPrimitiveIndex);
+
+          getVertexFromIndices(intersectionInstanceIndex, intersectionPrimitiveIndex, intersectionVertexA, intersectionVertexB, intersectionVertexC);
+          getNormalFromIndices(intersectionInstanceIndex, intersectionPrimitiveIndex, intersectionNormalA, intersectionNormalB, intersectionNormalC);
+
+          intersectionUV = rayQueryGetIntersectionBarycentricsEXT(rayQuery, true);
+          intersectionBarycentrics = vec3(1.0 - intersectionUV.x - intersectionUV.y, intersectionUV.x, intersectionUV.y);
+          intersectionPosition = intersectionVertexA * intersectionBarycentrics.x + intersectionVertexB * intersectionBarycentrics.y + intersectionVertexC * intersectionBarycentrics.z;
+          intersectionNormal = intersectionNormalA * intersectionBarycentrics.x + intersectionNormalB * intersectionBarycentrics.y + intersectionNormalC * intersectionBarycentrics.z;
+        
+          rayDirection = refract(rayDirection, -intersectionNormal, ior, 1.0);
+
+          rayQueryInitializeEXT(rayQuery, topLevelAS, gl_RayFlagsNoneEXT, 0xFF, intersectionPosition, 0.0001f, rayDirection, 1000.0f);
+          while (rayQueryProceedEXT(rayQuery));
+
+          intersectionInstanceIndex = rayQueryGetIntersectionInstanceIdEXT(rayQuery, true);
+          intersectionPrimitiveIndex = rayQueryGetIntersectionPrimitiveIndexEXT(rayQuery, true);
+
+          intersectionMaterial = getMaterialFromPrimitive(intersectionInstanceIndex, intersectionPrimitiveIndex);
+
+          if (length(intersectionMaterial.emission) > 0.0) {
+            vec3 waveLengthColor = waveLengthToRGB(randomWaveLength);
+            color += waveLengthColor;
+          }
+        }
+
+        color /= waveLengthSampleCount;
       }
     }
   }
+
+  color /= hemisphereSampleCount;
 
   return color;
 }
@@ -364,7 +377,9 @@ void main() {
       intersectionNormal = intersectionNormalA * intersectionBarycentrics.x + intersectionNormalB * intersectionBarycentrics.y + intersectionNormalC * intersectionBarycentrics.z;
 
       if (intersectionMaterial.type == 0) {
-        directColor = shade(intersectionInstanceIndex, intersectionPrimitiveIndex, intersectionPosition, intersectionNormal, intersectionMaterial);
+        if (intersectionMaterial.dissolve == 1.0) {
+          directColor = shade(intersectionInstanceIndex, intersectionPrimitiveIndex, intersectionPosition, intersectionNormal, intersectionMaterial);
+        }
       }
     }
   }
