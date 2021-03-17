@@ -4,7 +4,7 @@ Engine::Engine() {
   this->camera = new Camera();
   this->minimapCamera = new Camera(2.39, 0, 0.0, 0.44, 1.97);
 
-  std::vector<std::string> modelFileNameList {"prism.obj", "lens_2.obj", "film.obj", "aperture.obj", "lens_1.obj", "case.obj"};
+  std::vector<std::string> modelFileNameList {"lens_2.obj", "film.obj", "aperture.obj", "lens_1.obj", "case.obj", "prism_scene.obj", "prism.obj"};
   this->modelCollection = new ModelCollection(modelFileNameList);
 
   this->window = new Window(800, 600);
