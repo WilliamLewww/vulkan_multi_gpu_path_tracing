@@ -30,34 +30,40 @@ Renderer::Renderer(VkInstance vulkanInstance, VkSurfaceKHR surface, ModelCollect
   std::vector<std::map<Model*, std::vector<TRS>>> modelFrequencyMapList = {
     {
       {
-        modelCollection->getModel(0), 
+        modelCollection->getModel(5), 
         {
           createTRS({0, 0, -3}, {1, 1, 1}),
+        }
+      },
+      {
+        modelCollection->getModel(6), 
+        {
+          createTRS({1, 3.50, -3}, {1, 1, 1}),
         }
       }
     },
     {
       {
-        modelCollection->getModel(2), 
+        modelCollection->getModel(1), 
         {
           createTRS({0, 0, -0.01}, {1, 1, 1}),
         }
       },
       {
-        modelCollection->getModel(3), 
+        modelCollection->getModel(2), 
         {
           createTRS({0, 0, -1.50}, {1, 1, 1})
         }
       },
       {
-        modelCollection->getModel(4), 
+        modelCollection->getModel(3), 
         {
           createTRS({0, 0, -1.25}, {0.45, 0.45, 0.25}),
           createTRS({0, 0, -2.00}, {1.0, 1.0, 1.25})
         }
       },
       {
-        modelCollection->getModel(5), 
+        modelCollection->getModel(4), 
         {
           createTRS({0, 0, -2.0}, {1, 1, 1})
         }
@@ -67,9 +73,9 @@ Renderer::Renderer(VkInstance vulkanInstance, VkSurfaceKHR surface, ModelCollect
   this->displayDevice->createModelInstanceCollection(modelFrequencyMapList);
   this->displayDevice->createAccelerationStructureCollection();
 
-  this->displayDevice->createStorageBuffers(this->displayDevice->getModelInstanceSet(1)->getModelInstanceIndex(modelCollection->getModel(3)),
-                                            modelCollection->getModel(3)->getTransparentPrimitiveCount(),
-                                            modelCollection->getModel(3)->getTransparentPrimitiveOffset());
+  this->displayDevice->createStorageBuffers(this->displayDevice->getModelInstanceSet(1)->getModelInstanceIndex(modelCollection->getModel(2)),
+                                            modelCollection->getModel(2)->getTransparentPrimitiveCount(),
+                                            modelCollection->getModel(2)->getTransparentPrimitiveOffset());
 
   std::map<void*, uint32_t> uniformBufferMap = {
     {camera->getUniformPointer(), camera->getUniformStructureSize()},
