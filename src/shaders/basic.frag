@@ -271,7 +271,7 @@ vec3 shade(uint instanceIndex, uint primitiveIndex, vec3 position, vec3 normal, 
   vec3 color = vec3(0.0, 0.0, 0.0);
 
   if (dot(material.emission, material.emission) > 0) {
-    color = material.emission;
+    color = material.emission / LIGHT_REDUCTION;
   }
   else {
     for (int x = 0; x < materialLightBuffer.count; x++) {
@@ -526,7 +526,7 @@ vec3 shadeDiffraction(uint instanceIndex, uint primitiveIndex, vec3 position, ve
 
       if (intersectionMaterial.dissolve < 1.0) {
 
-        int waveLengthSampleCount = 2;
+        int waveLengthSampleCount = 3;
         for (int y = 0; y < waveLengthSampleCount; y++) {
           float randomWaveLength = (random(gl_FragCoord.xy, camera.frameCount + 2) * 401.0) + 380.0;
           float correctedWaveLength = randomWaveLength / 1000.0;
