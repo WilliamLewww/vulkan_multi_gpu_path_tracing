@@ -5,7 +5,7 @@
 #include "model.h"
 
 Model::Model(std::string fileName) {
-  chdir("res");
+  chdir("resources");
 
   this->fileName = fileName;
   this->success = tinyobj::LoadObj(&this->attrib, &this->shapes, &this->materials, &this->warning, &this->error, fileName.c_str());

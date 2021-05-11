@@ -134,19 +134,19 @@ Renderer::Renderer(VkInstance vulkanInstance, VkSurfaceKHR surface, ModelCollect
 
   std::vector<std::vector<std::string>> shaderList = {
     {
-      "bin/depth.vert.spv"
+      "shaders/depth.vert.spv"
     },
     {
-      "bin/lens.vert.spv",
-      "bin/lens.frag.spv",
+      "shaders/lens.vert.spv",
+      "shaders/lens.frag.spv",
     },
     {
-      "bin/basic.vert.spv",
-      "bin/basic.frag.spv"
+      "shaders/basic.vert.spv",
+      "shaders/basic.frag.spv"
     },
     {
-      "bin/minimap.vert.spv",
-      "bin/minimap.frag.spv"
+      "shaders/minimap.vert.spv",
+      "shaders/minimap.frag.spv"
     }
   };
 
