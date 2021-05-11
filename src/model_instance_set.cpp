@@ -165,7 +165,7 @@ ModelInstanceSet::ModelInstanceSet(std::map<Model*, std::vector<TRS>> modelFrequ
 
   for (int x = 0; x < totalTextureNameList.size(); x++) {
     int texWidth, texHeight, texChannels;
-    stbi_uc* pixels = stbi_load(std::string("res/" + totalTextureNameList[x]).c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+    stbi_uc* pixels = stbi_load(std::string("resources/" + totalTextureNameList[x]).c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
     VkDeviceSize imageSize = texWidth * texHeight * 4;
 
     if (!pixels) {

@@ -120,7 +120,7 @@ BottomLevelAccelerationStructure::BottomLevelAccelerationStructure(Model* model,
     .offset = 0,
     .size = accelerationStructureBuildSizesInfo.accelerationStructureSize,
     .type = VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_KHR,
-    .deviceAddress = VK_NULL_HANDLE
+    .deviceAddress = 0
   };
 
   pvkCreateAccelerationStructureKHR(logicalDevice, &accelerationStructureCreateInfo, NULL, &this->accelerationStructure);
